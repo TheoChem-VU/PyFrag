@@ -54,28 +54,24 @@ input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
 grep  -A 200 'JOBSUB' $input | grep -B 200 'JOBSUB END' | grep -v 'JOBSUB' | grep -v 'JOBSUB END' > jobsub.txt
-
 grep  -A 200 'ADF' $input | grep -B 200 'ADF END' | grep -v 'ADF' | grep -v 'ADF END' > adf.txt
-
 grep  -A 200 'PyFrag' $input | grep -B 200 'PyFrag END' | grep -v 'PyFrag' | grep -v 'PyFrag END' > pyfrag.txt
-
 grep  -A 200 'Geometrycoor' $input | grep -B 200 'Geometrycoor END' | grep -v 'Geometrycoor' | grep -v 'Geometrycoor END' > coor.xyz
 
 #jobname=`grep '#SBATCH -J' $input |awk '{print $1}'`
-submit="~/miniconda3/envs/qmworks/bin/python3 /home/x2sun/bin/job.py \\"
+submit="$QMWORKS/bin/python3 $HOSTPYFRAG/job.py \\"
 subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile"
 
 
 jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub
-python3 /home/x2sun/bin/argueparce/coorargue.py coor.xyz    >> ./sub
+python3 $HOSTPYFRAG/argueparce/coorargue.py coor.xyz        >> ./sub
 pyfragargue pyfrag.txt                                      >> ./sub
 echo $subadfinputfile                                       >> ./sub
-
 adfargue  adf.txt                                           >> ./adfinputfile
 
 rm jobsub.txt adf.txt pyfrag.txt coor.xyz
 rm -r result
 mkdir result
 touch ./result/rcgeometry.xyz
-cp /home/x2sun/bin/argueparce/jobstate.txt  ./result
+cp $HOSTPYFRAG/argueparce/jobstate.txt  ./result

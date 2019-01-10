@@ -1,16 +1,18 @@
 #!/bin/bash
 
 function jobstate {
-process="/home/x2sun/pytest_1/jobinfo.txt"
+SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
+process="$SCRIPTPATH/jobinfo.txt"
 proID=`grep 'Submitted batch job' $process |awk '{print $4}'`
-squeue -u x2sun > /home/x2sun/pytest_1/result/runstate.txt
+squeue -u $USERNAME > $SCRIPTPATH/result/runstate.txt
 sleep 1
-runstate="/home/x2sun/pytest_1/result/runstate.txt"
+runstate="$SCRIPTPATH//result/runstate.txt"
 jobstate=`grep  $proID  $runstate   |awk 'NF{ print $NF }'`
 if   [ -z "$jobstate" ] ; then
-printf 'False' > /home/x2sun/pytest_1/result/jobstate.txt
+printf 'False' > $SCRIPTPATH/result/jobstate.txt
 fi
 }
+
 
 function result_pro {
 cycle=$*
@@ -25,6 +27,8 @@ printf "%15.4f %15.4f %15.6f %15.6f %15.6f %15.6f\n" $ener $enech $gmaxs $grmss 
 grep -A 200 ' Coordinates' $cycle | grep -B 200 ' Number of elements' | grep -v ' ====' | grep -v '     Atom'| grep -v '                   X' | grep -v ' ------'| grep -v ' Number of elements' | grep -v ' Coordinates' > geometry.xyz
 }
 
+
+
 function result_final {
 output=$*
 step=`grep -En 'Geometry Convergence after Step  ' $output | cut -d":" -f 1`
@@ -36,10 +40,11 @@ sleep 1
 result_pro.sh slot.txt
 }
 
+
+
 function compareconverge {
 output=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
-
 
 if [ ! -f $SCRIPTPATH/$2 ]; then
     cp  $1    $2
@@ -54,10 +59,10 @@ else
 fi
 }
 
+
 function compare {
 output=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
-
 
 if [ ! -f $SCRIPTPATH/$2 ]; then
     cp  $1    $2
@@ -72,6 +77,7 @@ else
 fi
 }
 
+
 function irclog {
 output=$*
 
@@ -79,18 +85,12 @@ tac $output | grep ' Coordinates in Geometry Cycle' -m 1 -B 9999 | tac | grep -B
 }
 
 
-
-SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
-
-result=/home/x2sun/pytest_1/result/result.txt
-
-touch $result
-
-echo 0 > $result
-
-
+REMOTEDIR="$( cd "$(dirname "$1")" ; pwd -P )"
+RESULTDIR=$REMOTEDIR/result
+touch $RESULTDIR/result.txt
+echo 0 > $RESULTDIR/result.txt
 unset -v latest
-for file in "$SCRIPTPATH"/plams*; do
+for file in "$REMOTEDIR"/plams*; do
   [[ $file -nt $latest ]] && latest=$file
 done
 
@@ -100,7 +100,7 @@ jobstate
 if  [ -e $latest ]; then
   if  [ -e $latest/*log ]; then
     cd $latest
-    cp *log /home/x2sun/pytest_1/result
+    cp *log $RESULTDIR
   fi
   for dname in r1 r2 rc ts p irc
   do
@@ -110,14 +110,14 @@ if  [ -e $latest ]; then
             result_final *out
             compareconverge  converge.txt _converge.txt $dname
             irclog logfile
-            sh /home/x2sun/bin/result/compare.sh  geometry.xyz _geometry.xyz $dname
+            compare  geometry.xyz _geometry.xyz $dname
           fi
         cd $latest
     fi
   done
 fi
 
-if [ -e "$SCRIPTPATH"/pyfrag* ]; then
-  cp "$SCRIPTPATH"/pyfrag* /home/x2sun/pytest_1/result
-  printf " 1 "   >>   $result
+if [ -e "$REMOTEDIR"/pyfrag* ]; then
+  cp "$REMOTEDIR"/pyfrag* $RESULTDIR
+  printf " 1 "   >>   $RESULTDIR/result.txt
 fi
