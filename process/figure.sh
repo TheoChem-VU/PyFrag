@@ -34,8 +34,12 @@ if  [ -e $RESULTDIR ]; then
 fi
 }
 
+path="/Users/xiaobo/Desktop/pyfrag/result/changefile.txt"
 
 geometry
+
+
+SCM_OFFSCREEN=1 SCM_GUITEST=$PYFRAGHOME/process/adfpicture.tcl adfinput $path
 
 SCM_OFFSCREEN=1 SCM_GUITEST=$PYFRAGHOME/process/adfpicture.tcl adfinput
 
