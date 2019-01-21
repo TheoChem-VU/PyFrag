@@ -49,13 +49,11 @@ SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 if [ ! -f $SCRIPTPATH/$2 ]; then
     cp  $1    $2
     cp  $1 ../../result/$3$1
-#    printf ' 1 '  >>   ../../result/result.txt
 elif cmp -s "$1" "$2"; then
     printf " 0 "  >>   ../../result/result.txt
 else
     cp  $1    $2
     cp  $1 ../../result/$3$1
-#    printf " 1 "   >>   ../../result/result.txt
 fi
 }
 

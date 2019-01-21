@@ -12,19 +12,13 @@ The PyFrag program is specially designed to facilitates the study of reaction me
 
 Pyfrag can be splited into two part. One part should be installed in local machine, and the other should be put into the remote host machine (for example suppercommuter or cluster that do the heavy compuational jobs). This program relies on some of the following programs.
 
-1. ADF
+1. ADF  ()
 2. qmflow
 3. bokeh
 4.
 
 
-\begin{equation}
-H_{elec}\Psi_{elec} = (\textit{T}_e  + \textit{V}_{Ne} + \textit{V}_{ee})\Psi_{elec}
-\label{eqn:Einstein}
-\end{equation}
 
 
-\Delta E(\zeta) = \Delta E_{strain}(\zeta) + \Delta E_{int}(\zeta)
-\label{eqn:Einstein}
-\end{equation}
+
 

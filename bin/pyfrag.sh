@@ -36,7 +36,6 @@ fab -f $PYFRAGHOME/utils/chresult/fabfile.py deploy:$REMOTEDIR/result,$JOBDIR/re
 Mark="True"
 while [ $Mark = "True" ]; do
   m1=$(md5sum "$JOBPATH")
-  # md5sum is computationally expensive, so check only once every 10 seconds
   sleep $JOBCHECK
   m2=$(md5sum "$JOBPATH")
   if [ "$m1" != "$m2" ] ; then
