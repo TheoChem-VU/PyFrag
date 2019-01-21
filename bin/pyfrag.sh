@@ -28,7 +28,6 @@ cp $PYFRAGHOME/data/video/index.html  $VIDEODIR
 #save all information about job for future check
 
 
-
 fab -f $PYFRAGHOME/utils/jobsub/fabfile.py deploy:$JOBDIR,$JOBNAME,$REMOTEDIR &
 fab -f $PYFRAGHOME/utils/chresult/fabfile.py deploy:$REMOTEDIR/result,$JOBDIR/result,$REMOTEDIR,$JOBSTATE &
 
