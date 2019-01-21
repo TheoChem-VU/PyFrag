@@ -3,11 +3,15 @@
 __author__ = 'xiaobo'
 
 
-import os, re, sys
 import time
+import os
+from os import sys, path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from configure import *
 from fabric.api import *
-from ..configure import *
 
+env.user = USERNAME
+env.hosts = [HOSTNAME]
 
 
 

@@ -5,13 +5,15 @@ __author__ = 'xiaobo'
 '''
 Deployment toolkit.
 '''
-
-import os, re
 import time
-from datetime import datetime
+import os
+from os import sys, path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from configure import *
 from fabric.api import *
-from ..configure import *
 
+env.user = USERNAME
+env.hosts = [HOSTNAME]
 
 
 

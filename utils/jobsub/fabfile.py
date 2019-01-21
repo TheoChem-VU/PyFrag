@@ -2,18 +2,21 @@
 
 __author__ = 'xiaobo'
 
-
-import os, re
-import time
-from datetime import datetime
+import os
+from os import sys, path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from configure import *
 from fabric.api import *
-from ..configure import *
 
+env.user = USERNAME
+env.hosts = [HOSTNAME]
 
 def deploy(CURRENT_DIR, FILE, REMOTE_DIR):
+
+    run('mkdir %s' % REMOTE_DIR)
     put('%s/%s' % (CURRENT_DIR, FILE), REMOTE_DIR)
 
     with cd(REMOTE_DIR):
-       run('bash $HOSTPYFRAG/argueparce/argueparce.sh $FILE')
+       run('bash $HOSTPYFRAG/argueparce/argueparce.sh %s' % FILE)
        run('source activate qmworks')
        run('sbatch sub > jobinfo.txt')
