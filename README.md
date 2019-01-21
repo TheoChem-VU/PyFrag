@@ -17,14 +17,19 @@ Download the resource of pyfrag which comprise two part, the local files and the
 
 SETUP:
 The path of bin of pyfrag should be put in the .bashrc or .profile in order to run pyfrag anywhere you want, something like:
+
 Setting PATH for PyFrag
+
 export PYFRAGHOME="/Users/xiaobo/gitpyfrag"
+
 export PATH=$PYFRAGHOME/bin:$PATH
+
 Setting PATH for PyFrag
 
 Similarly, these related infomation should also be put in the .bashrc or .profile in your remote machine.
 
 export HOSTPYFRAG='/home/x2sun/bin/host'
+
 export QMWORKS='~/miniconda3/envs/qmworks'
 
 
@@ -32,19 +37,25 @@ export QMWORKS='~/miniconda3/envs/qmworks'
 The basic setup is located in .pyfragrc, including the directory of videos of geometried generated in the optimization process, the local server, which means you need to set up your local websever service, and so on.
 
 export PYFRAGVIDEO="/Users/xiaobo/Sites/video"
+
 export PYFRAGHOST="http://localhost/~xiaobo/video"
+
 export JOBCHECK="20"
-export REMOTEBASE="/home/x2sun/pyfragtest"
+
+export REMOTEBASE="/home/x2sun/pyfragtest_1"
+
 export RESULTCHECK="20"
+
 export HOSTPYFRAG='/home/x2sun/bin/host'
-export QMWORKS='~/miniconda3/envs/qmworks/bin/python3'
-export USERNAME='x2sun'
+
 
 The configure for fabfile is located at utils directory, such as:
+
 USERNAME = 'x2sun'
+
 HOSTNAME = 'cartesius.surfsara.nl'
-HOSTPYFRAG='/home/x2sun/bin/host'
-RESULTCHECK="20"    #time interval set to check if result is changed
+
+RESULTCHECK="20"
 
 
 
