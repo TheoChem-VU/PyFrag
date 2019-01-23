@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 source $PYFRAGHOME/.pyfragrc
 
 JOBDIR="$( cd "$(dirname "$1")" ; pwd -P )"
@@ -10,8 +11,25 @@ JOBSTATE=$JOBDIR/result/jobstate.txt
 REMOTEDIR=$REMOTEBASE/"${JOBNAME%.*}"
 
 
+#set up result dir
+#Each job should be given a unique name, because the result will be stored in the new directory named by the job name.
+if  [ -e $JOBDIR/result ]; then
+  rm -rf $JOBDIR/result
+fi
 
-cp $JOBSTATE $JOBDIR/result
+# Including the file of jobstate.txt, the content of which is "True", means jobs is running
+cp -r $PYFRAGHOME/data/result  $JOBDIR
+
+
+#set for video directory for local server, named by the job name(without appenddix)
+if  [ -e $VIDEODIR ]; then
+  rm -r $VIDEODIR
+fi
+mkdir $VIDEODIR
+
+
+
+#save all information about job for future check
 
 # connect to remote machine and send job input and start to parce and submit job.
 fab -f $PYFRAGHOME/utils/jobsub/fabfile.py deploy:$JOBDIR,$JOBNAME,$REMOTEDIR &

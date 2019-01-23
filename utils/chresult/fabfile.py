@@ -24,7 +24,7 @@ def deploy(REMOTERESULT,CURRENTRESULT,REMOTEDIR,JOBSTATE,JOBNAME):
       with cd(REMOTEDIR):
         run('bash $HOSTPYFRAG/result/result.sh')
         get('%s/%s' % (REMOTERESULT, "jobstate.txt"), CURRENTRESULT)
-        r=int(run('bash $HOSTPYFRAG/result/change.sh result.txt'))
+        r=int(run('bash $HOSTPYFRAG/result/change.sh ./result/result.txt'))
         if r >=1:
 #          print ('retrun argue', r)
           get('%s/%s' % (REMOTERESULT, "*"), CURRENTRESULT)

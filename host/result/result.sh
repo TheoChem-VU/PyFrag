@@ -6,7 +6,7 @@ process="$SCRIPTPATH/jobinfo.txt"
 proID=`grep 'Submitted batch job' $process |awk '{print $4}'`
 squeue -u $USERNAME > $SCRIPTPATH/result/runstate.txt
 sleep 1
-runstate="$SCRIPTPATH//result/runstate.txt"
+runstate="$SCRIPTPATH/result/runstate.txt"
 jobstate=`grep  $proID  $runstate   |awk 'NF{ print $NF }'`
 if   [ -z "$jobstate" ] ; then
 printf 'False' > $SCRIPTPATH/result/jobstate.txt
@@ -81,16 +81,21 @@ tac $output | grep ' Coordinates in Geometry Cycle' -m 1 -B 9999 | tac | grep -B
 }
 
 
+
+
 REMOTEDIR="$( cd "$(dirname "$1")" ; pwd -P )"
 RESULTDIR=$REMOTEDIR/result
+
+jobstate
+
 touch $RESULTDIR/result.txt
 echo 0 > $RESULTDIR/result.txt
+
 unset -v latest
 for file in "$REMOTEDIR"/plams*; do
   [[ $file -nt $latest ]] && latest=$file
 done
 
-jobstate
 
 
 if  [ -e $latest ]; then

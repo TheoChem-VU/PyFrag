@@ -1,3 +1,5 @@
+#Parce all coordinates and create a new directory for each coordinate
+
 import os, string, re, sys
 from shutil import copyfile
 
@@ -8,7 +10,6 @@ def defragment(file_path):
    fragment = ' '.join(str(atomNum) for atomNum in atomNums)
    return fragment
 
-# path = "/Users/xiaobo/Desktop/1.xyz"
 
 ircFile = open(sys.argv[1], 'r')
 ircRaw  = [[]]

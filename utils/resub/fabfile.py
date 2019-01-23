@@ -15,10 +15,10 @@ env.hosts = [HOSTNAME]
 
 
 
-def deploy(JOBDIR, REMOTEDIR):
+def deploy(JOBDIR, REMOTEDIR, JOBNAME):
     with cd(REMOTEDIR):
        run('bash $HOSTPYFRAG/result/killjob.sh')
-       time.sleep(RESULTCHECK)
+       time.sleep(1)
        run('rm -rf 1 2 3 4 5 *out adfinputfile jobinfo.txt job.py result sub')
        with lcd(JOBDIR):
-          local('bash $PYFRAGHOME/bin/resubpy')
+          local('bash $PYFRAGHOME/bin/resubpy %s' % JOBNAME)

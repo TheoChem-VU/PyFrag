@@ -9,5 +9,4 @@ VIDEODIR=$PYFRAGVIDEO/"${JOBNAME%.*}"
 JOBSTATE=$JOBDIR/result/jobstate.txt
 REMOTEDIR=$REMOTEBASE/"${JOBNAME%.*}"
 
-fab -f $PYFRAGHOME/utils/termjob/fabfile.py deploy:$REMOTEDIR &
 

@@ -44,7 +44,7 @@ export PYFRAGHOST="http://localhost/~xiaobo/video"
 
 export JOBCHECK="20"
 
-export REMOTEBASE="/home/x2sun/pyfragtest_1"
+export REMOTEBASE="/home/x2sun/pyfragtest_2"
 
 export RESULTCHECK="20"
 

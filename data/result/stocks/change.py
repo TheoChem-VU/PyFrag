@@ -11,7 +11,6 @@ ircFile.close()
 
 currentPath = os.getcwd()
 fileName  = os.path.join(currentPath, str('PYFRAG.csv'))
-# fileName  = '/Users/xiaobo/Sites/node/bokeh/examples/app/stocks/PYFRAG.csv'
 coordFile = open(str(fileName), "w")
 for Index, Molecule in enumerate(ircRawList):
    for atom in Molecule[0:-1]:

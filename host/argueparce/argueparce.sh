@@ -71,7 +71,7 @@ echo $subadfinputfile                                       >> ./sub
 adfargue  adf.txt                                           >> ./adfinputfile
 
 rm jobsub.txt adf.txt pyfrag.txt coor.xyz
-rm -r result
+# rm -r result
 mkdir result
 touch ./result/rcgeometry.xyz
 cp $HOSTPYFRAG/argueparce/jobstate.txt  ./result
