@@ -1,10 +1,8 @@
-RESULTDIR="/Users/xiaobo/Desktop/pyfrag/result"
-
 function geometry {
 
 if  [ -e $RESULTDIR ]; then
-  rm $RESULTDIR/changefile.txt
-  touch $RESULTDIR/changefile.txt
+  rm $FIGUREFILE
+  touch $FIGUREFILE
   for dname in r1geometry.xyz r2geometry.xyz rcgeometry.xyz tsgeometry.xyz pgeometry.xyz ircgeometry.xyz
   do
     if  [ -f $RESULTDIR/$dname ]; then
@@ -34,19 +32,17 @@ if  [ -e $RESULTDIR ]; then
 fi
 }
 
-path="/Users/xiaobo/Desktop/pyfrag/result/changefile.txt"
+RESULTDIR="$( pwd -P )"
+FIGUREFILE="$RESULTDIR/changefile.txt"
 
 geometry
 
 
-SCM_OFFSCREEN=1 SCM_GUITEST=$PYFRAGHOME/process/adfpicture.tcl adfinput $path
-
-SCM_OFFSCREEN=1 SCM_GUITEST=$PYFRAGHOME/process/adfpicture.tcl adfinput
+SCM_OFFSCREEN=1 SCM_GUITEST=$PYFRAGHOME/process/adfpicture.tcl adfinput $FIGUREFILE
 
 
-input=$RESULTDIR/changefile.txt
 while IFS= read -r var
 do
   python3 $PYFRAGHOME/process/img2video.py -d "$(dirname $var)"  -o video.mp4 -e png
   mv video.mp4 "$(dirname $var)"
-done < "$input"
+done < "$FIGUREFILE"

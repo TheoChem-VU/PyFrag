@@ -1,4 +1,3 @@
-# set  argv_1 "/Users/xiaobo/Desktop/pyfrag/result/changefile.txt"
 proc listFromFile {file} {
   return [lreplace [split [read [open $file r]] "\n"] end end]
 }

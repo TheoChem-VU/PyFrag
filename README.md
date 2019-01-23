@@ -32,6 +32,8 @@ export HOSTPYFRAG='/home/x2sun/bin/host'
 
 export QMWORKS='~/miniconda3/envs/qmworks'
 
+export USERNAME='x2sun'
+
 
 
 The basic setup is located in .pyfragrc, including the directory of videos of geometried generated in the optimization process, the local server, which means you need to set up your local websever service, and so on.
@@ -69,9 +71,9 @@ Pyfrag can be splited into two part. One part should be installed in local machi
 3. bokeh       # to show the website
 4. fabric      # to connect remote machine
 
-### 5. Notice
+## 5. Notice
 
-# 1 Each job should be given a unique name, because the result will be stored in the new directory named by the job name.
+### 1 Each job should be given a unique name and unique directory, because the result will be stored in the new directory named by the job name.
 
 
 

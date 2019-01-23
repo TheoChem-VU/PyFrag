@@ -36,8 +36,6 @@ steps=`echo $step |wc -w`
 echo $steps
 lstep='Geometry Convergence after Step   '$steps
 grep -A 200 "$lstep" $output | grep -B 200 ' Number of elements of the density matrix on this node '    >   slot.txt
-sleep 1
-result_pro.sh slot.txt
 }
 
 
@@ -106,6 +104,7 @@ if  [ -e $latest ]; then
         cd $latest/$dname
           if [ -e *out ]; then
             result_final *out
+            result_pro slot.txt
             compareconverge  converge.txt _converge.txt $dname
             irclog logfile
             compare  geometry.xyz _geometry.xyz $dname

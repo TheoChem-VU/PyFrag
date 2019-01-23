@@ -1,6 +1,8 @@
 #kill $(ps aux | grep '[b]okeh' | awk '{print $2}') 2>/dev/null
 
-bokeh serve  --show $JOBDIR/result/stocks &
+RESULTDIR="$( pwd -P )"
+
+bokeh serve  --show $RESULTDIR/stocks &
 
 PID=$!
 sleep    $RESULTCHECK/2

@@ -17,7 +17,7 @@ env.hosts = [HOSTNAME]
 
 
 
-def deploy(REMOTERESULT,CURRENTRESULT,REMOTEDIR,JOBSTATE):
+def deploy(REMOTERESULT,CURRENTRESULT,REMOTEDIR,JOBSTATE,JOBNAME):
     Mark="True"
     while Mark=="True":
       time.sleep(RESULTCHECK)
@@ -30,7 +30,7 @@ def deploy(REMOTERESULT,CURRENTRESULT,REMOTEDIR,JOBSTATE):
           get('%s/%s' % (REMOTERESULT, "*"), CURRENTRESULT)
           with lcd(CURRENTRESULT):
             local('bash $PYFRAGHOME/process/figure.sh')
-            local('bash $PYFRAGHOME/server/web.sh')
+            local('bash $PYFRAGHOME/server/web.sh %s' % JOBNAME)
             local('bash $PYFRAGHOME/server/bokeh.sh')
       with open(str(JOBSTATE), "r") as fd:
         all_words = fd.read().splitlines()

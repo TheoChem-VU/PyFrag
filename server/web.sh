@@ -1,10 +1,5 @@
 #!/bin/sh
-JOBDIR="$( cd "$(dirname "$1")" ; pwd -P )"
-JOBNAME=`basename "$1"`
-JOB=$JOBDIR/$JOBNAME
-VIDEODIR=$PYFRAGVIDEO/"${JOBNAME%.*}"
-JOBSTATE=$JOBDIR/result/jobstate.txt
-RESULTDIR=$JOBDIR/result
+
 
 function webedit {
 loginput=$RESULTDIR/*log
@@ -29,14 +24,14 @@ done < $loginfo
 
 echo '    </p>'                                >> $htmlfile
 echo '    {{ super() }}'                       >> $htmlfile
-for dir in $RESULTDIR/*
+for dir in r1geometry r2geometry rcgeometry tsgeometry pgeometry ircgeometry
 do
-    if [ -d $dir ]; then
-      dirName="$(basename "$dir")"
-      cp -r $dir $PYFRAGVIDEO
-      cp $PYFRAGHOME/data/video/video_index.html  $PYFRAGVIDEO/$dirName/index.html
+    if [ -d $RESULTDIR/$dir ]; then
+      # dirName="$(basename "$dir")"
+      cp -r    $RESULTDIR/$dir       $PYFRAGVIDEO/$JOBNAME
+      cp $PYFRAGHOME/data/video/video_index.html  $PYFRAGVIDEO/$JOBNAME/$dir/index.html
       echo '    <div class="videoWrapper">'    >> $htmlfile
-      echo '    <iframe width="820" height="615" src="$PYFRAGHOST/'$dirName'/" frameborder="0" allowfullscreen></iframe>'             >> $htmlfile
+      echo '    <iframe width="820" height="615" src="'$PYFRAGHOST'/'$JOBNAME'/'$dir'/" frameborder="0" allowfullscreen></iframe>'             >> $htmlfile
       echo '    </div>'                        >> $htmlfile
     fi
 done
@@ -63,9 +58,12 @@ if  [ -e $RESULTDIR ]; then
 fi
 }
 
-
+RESULTDIR="$( pwd -P )"
+JOBNAME=$*
+# JOBDIR="$( cd "$(dirname "$RESULTDIR")" ; pwd -P )"
+# JOBNAME="$(basename "$JOBDIR")"
 # initiate index.html for results
-cp $PYFRAGHOME/data/video/pre_index.html   $RESULTDIR/stocks/templates
+cp $PYFRAGHOME/data/video/pre_index.html   $RESULTDIR/stocks/templates/index.html
 # edit index.html to update result, including title and figures
 webedit
 #figure for process monitor

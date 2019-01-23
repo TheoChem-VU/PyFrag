@@ -26,7 +26,7 @@ if  [ -e $VIDEODIR ]; then
 fi
 mkdir $VIDEODIR
 # index.html is the easy model html file which can be shown before any result obtained from compulation.
-cp -r $PYFRAGHOME/data/video/index.html  $VIDEODIR
+# cp -r $PYFRAGHOME/data/video/index.html  $VIDEODIR
 
 
 #save all information about job for future check
@@ -34,8 +34,8 @@ cp -r $PYFRAGHOME/data/video/index.html  $VIDEODIR
 # connect to remote machine and send job input and start to parce and submit job.
 fab -f $PYFRAGHOME/utils/jobsub/fabfile.py deploy:$JOBDIR,$JOBNAME,$REMOTEDIR &
 
-# # Every a time interval, connect and check if new result is generated. If so, cp it to local machine.
-# fab -f $PYFRAGHOME/utils/chresult/fabfile.py deploy:$REMOTEDIR/result,$JOBDIR/result,$REMOTEDIR,$JOBSTATE &
+# Every a time interval, connect and check if new result is generated. If so, cp it to local machine.
+fab -f $PYFRAGHOME/utils/chresult/fabfile.py deploy:$REMOTEDIR/result,$JOBDIR/result,$REMOTEDIR,$JOBSTATE,"${JOBNAME%.*}" &
 
 
 # #Check if input file is changed, if changed, there are three options: resubmit, end computation or do nothing.
