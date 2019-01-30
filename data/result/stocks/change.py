@@ -18,3 +18,12 @@ for Index, Molecule in enumerate(ircRawList):
    coordFile.write(Molecule[-1])
    coordFile.write('\n')
 coordFile.close()
+
+csvName=sys.argv[2]
+
+tableFile = open(csvName, "a")
+for Index, Molecule in enumerate(ircRawList):
+    tableFile.write('"","' + "  ".join(str(bit) for bit in Molecule) + '"')
+    tableFile.write('\n')
+tableFile.close()
+

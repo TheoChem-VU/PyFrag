@@ -64,7 +64,7 @@ function pyfragfig {
 if  [ -e $RESULTDIR/pyfrag* ]; then
   cp $RESULTDIR/pyfrag*   $RESULTDIR/stocks/daily/pyfrag.txt
   cd $RESULTDIR/stocks
-  python3 change.py $RESULTDIR/stocks/daily/pyfrag.txt
+  python3 change.py $RESULTDIR/stocks/daily/pyfrag.txt $PYFRAGVIDEO/$JOBNAME/csv2html/data/coor.csv
 fi
 }
 

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#jobinfo:Submitted batch job 5354270
+#runstate: JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON) or
+#          5354270     ...........................
+#jobstate: True or False
+
 function jobstate {
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 process="$SCRIPTPATH/jobinfo.txt"

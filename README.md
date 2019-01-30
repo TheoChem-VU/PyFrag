@@ -18,13 +18,12 @@ Download the resource of pyfrag which comprise two part, the local files and the
 SETUP:
 The path of bin of pyfrag should be put in the .bashrc or .profile in order to run pyfrag anywhere you want, something like:
 
-Setting PATH for PyFrag
 
 export PYFRAGHOME="/Users/xiaobo/gitpyfrag"
 
 export PATH=$PYFRAGHOME/bin:$PATH
 
-Setting PATH for PyFrag
+
 
 Similarly, these related infomation should also be put in the .bashrc or .profile in your remote machine.
 

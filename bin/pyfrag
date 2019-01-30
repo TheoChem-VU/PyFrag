@@ -17,6 +17,10 @@ do
         shift;
         shift;
         ;;
+    -s)
+        SILENCE="True"
+        shift;
+        ;;
     *)
         break;
         ;;
@@ -46,11 +50,18 @@ then
 fi
 
 
-#start the program
-
-if test -x "$PYFRAGHOME/bin/$EXECUTABLE.sh";
-then
-    exec "$PYFRAGHOME/bin/$EXECUTABLE.sh"  "$@"
+if test -z "$SILENCE"; then
+    if test -x "$PYFRAGHOME/bin/$EXECUTABLE.sh";
+    then
+        exec "$PYFRAGHOME/bin/$EXECUTABLE.sh"  "$@"
+    else
+        exec "$0.sh"  "$@"
+    fi
 else
-    exec "$0.sh"  "$@"
+    if test -x "$PYFRAGHOME/bin/$EXECUTABLE.sh";
+    then
+        exec "$PYFRAGHOME/bin/$EXECUTABLE.sh"  "$@" &>/dev/null
+    else
+        exec "$0.sh"  "$@" &>/dev/null
+    fi
 fi
