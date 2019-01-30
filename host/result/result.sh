@@ -14,18 +14,51 @@ fi
 }
 
 
+# function result_pro {
+# cycle=$*
+# eners=`grep -En 'GEOMETRY CONV|current energy' $cycle |awk '{print $3}'`
+# enech=`grep 'energy change'            $cycle |awk '{print $3}'`
+# gmaxs=`grep 'constrained gradient max' $cycle |awk '{print $4}'`
+# grmss=`grep 'constrained gradient rms' $cycle |awk '{print $4}'`
+# smaxs=`grep 'cart. step max'           $cycle |awk '{print $4}'`
+# srmss=`grep 'cart. step rms'           $cycle |awk '{print $4}'`
+# ener=`echo $eners |awk '{printf"%14.6f",627.509541*$1}'`
+# printf "%15.4f %15.4f %15.6f %15.6f %15.6f %15.6f\n" $ener $enech $gmaxs $grmss $smaxs $srmss >  converge.txt
+# grep -A 200 ' Coordinates' $cycle | grep -B 200 ' Number of elements' | grep -v ' ====' | grep -v '     Atom'| grep -v '                   X' | grep -v ' ------'| grep -v ' Number of elements' | grep -v ' Coordinates' > geometry.xyz
+# }
+
 function result_pro {
 cycle=$*
 eners=`grep -En 'GEOMETRY CONV|current energy' $cycle |awk '{print $3}'`
-enech=`grep 'energy change'            $cycle |awk '{print $3}'`
-gmaxs=`grep 'constrained gradient max' $cycle |awk '{print $4}'`
-grmss=`grep 'constrained gradient rms' $cycle |awk '{print $4}'`
-smaxs=`grep 'cart. step max'           $cycle |awk '{print $4}'`
-srmss=`grep 'cart. step rms'           $cycle |awk '{print $4}'`
-ener=`echo $eners |awk '{printf"%14.6f",627.509541*$1}'`
-printf "%15.4f %15.4f %15.6f %15.6f %15.6f %15.6f\n" $ener $enech $gmaxs $grmss $smaxs $srmss >  converge.txt
+ener=`echo $eners |awk '{printf"%14.6f",-627.509541*$1}'`
+
+enech_1=`grep 'energy change'            $cycle |awk '{print $3}'`
+enech_2=`grep 'energy change'            $cycle |awk '{print $4}'`
+enech_3=`grep 'energy change'            $cycle |awk '{print $5}'`
+
+gmax_1=`grep 'constrained gradient max' $cycle |awk '{print $4}'`
+gmax_2=`grep 'constrained gradient max' $cycle |awk '{print $5}'`
+gmax_3=`grep 'constrained gradient max' $cycle |awk '{print $6}'`
+
+grms_1=`grep 'constrained gradient rms' $cycle |awk '{print $4}'`
+grms_2=`grep 'constrained gradient rms' $cycle |awk '{print $5}'`
+grms_3=`grep 'constrained gradient rms' $cycle |awk '{print $6}'`
+
+smax_1=`grep 'cart. step max'           $cycle |awk '{print $4}'`
+smax_2=`grep 'cart. step max'           $cycle |awk '{print $5}'`
+smax_3=`grep 'cart. step max'           $cycle |awk '{print $6}'`
+
+srms_1=`grep 'cart. step rms'           $cycle |awk '{print $4}'`
+srms_2=`grep 'cart. step rms'           $cycle |awk '{print $5}'`
+srms_3=`grep 'cart. step rms'           $cycle |awk '{print $6}'`
+
+# printf "%4.4f,%6.6f,%6.6f,%s,%6.6f,%6.6f,%s,%6.6f,%6.6f,%s,%6.6f,%6.6f,%s,%6.6f,%6.6f,%s\n" $ener $enech_1 $enech_2 $enech_3 $gmax_1 $gmax_2 $gmax_3 $grms_1 $grms_2 $grms_3 $smax_1 $smax_2 $smax_3 $srms_1 $srms_2 $srms_3>  converge.txt
+
+printf "%4.4f %6.6f %6.6f %s %6.6f %6.6f %s %6.6f %6.6f %s %6.6f %6.6f %s %6.6f %6.6f %s\n" $ener $enech_1 $enech_2 $enech_3 $gmax_1 $gmax_2 $gmax_3 $grms_1 $grms_2 $grms_3 $smax_1 $smax_2 $smax_3 $srms_1 $srms_2 $srms_3>  converge.txt
+
 grep -A 200 ' Coordinates' $cycle | grep -B 200 ' Number of elements' | grep -v ' ====' | grep -v '     Atom'| grep -v '                   X' | grep -v ' ------'| grep -v ' Number of elements' | grep -v ' Coordinates' > geometry.xyz
 }
+
 
 
 
@@ -48,7 +81,9 @@ if [ ! -f $SCRIPTPATH/$2 ]; then
     cp  $1    $2
     cp  $1 ../../result/$3$1
 elif cmp -s "$1" "$2"; then
-    printf " 0 "  >>   ../../result/result.txt
+    # printf " 0 "  >>   ../../result/result.txt
+    # echo "0"
+    true
 else
     cp  $1    $2
     cp  $1 ../../result/$3$1
@@ -63,13 +98,15 @@ SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 if [ ! -f $SCRIPTPATH/$2 ]; then
     cp  $1    $2
     cp  $1 ../../result/$3$1
-    printf ' 1 '  >>   ../../result/result.txt
+    # printf ' 1 '  >>   ../../result/result.txt
 elif cmp -s "$1" "$2"; then
-    printf " 0 "  >>   ../../result/result.txt
+    # echo "0"
+    true
+    # printf " 0 "  >>   ../../result/result.txt
 else
     cp  $1    $2
     cp  $1 ../../result/$3$1
-    printf " 1 "   >>   ../../result/result.txt
+    # printf " 1 "   >>   ../../result/result.txt
 fi
 }
 
@@ -88,8 +125,8 @@ RESULTDIR=$REMOTEDIR/result
 
 jobstate
 
-touch $RESULTDIR/result.txt
-echo 0 > $RESULTDIR/result.txt
+# touch $RESULTDIR/result.txt
+# echo 0 > $RESULTDIR/result.txt
 
 unset -v latest
 for file in "$REMOTEDIR"/plams*; do
@@ -99,10 +136,10 @@ done
 
 
 if  [ -e $latest ]; then
-  if  [ -e $latest/*log ]; then
-    cd $latest
-    cp *log $RESULTDIR
-  fi
+  # if  [ -e $latest/*log ]; then
+  #   cd $latest
+  #   cp *log $RESULTDIR
+  # fi
   for dname in r1 r2 rc ts p irc
   do
     if  [ -e $latest/$dname ]; then
@@ -121,5 +158,5 @@ fi
 
 if [ -e "$REMOTEDIR"/pyfrag* ]; then
   cp "$REMOTEDIR"/pyfrag* $RESULTDIR
-  printf " 1 "   >>   $RESULTDIR/result.txt
+  # printf " 1 "   >>   $RESULTDIR/result.txt
 fi

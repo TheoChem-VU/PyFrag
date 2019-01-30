@@ -4,6 +4,7 @@
 import cv2
 import argparse
 import os
+import re
 import functools
 from functools import cmp_to_key
 
@@ -14,6 +15,13 @@ def isnum (num):
         return True
     except:
         return False
+
+
+def sort_nicely( l ):
+    convert = lambda text: int(text) if text.isdigit() else text
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
+    l.sort( key=alphanum_key, reverse=True )
+
 
 #Numerically sorts filenames
 def image_sort (x,y):
@@ -63,7 +71,8 @@ if sort_type == "numeric":
         images = sorted(images, key=cmp_to_key(image_sort))
     else:
         print("Failed to sort numerically, switching to alphabetic sort")
-        images.sort()
+        sort_nicely(images)
+        print (images)
 elif sort_type == "alphabetic":
     images.sort()
 

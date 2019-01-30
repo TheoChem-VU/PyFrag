@@ -13,7 +13,8 @@ env.hosts = [HOSTNAME]
 
 def deploy(CURRENT_DIR, FILE, REMOTE_DIR):
 
-    run('mkdir %s' % REMOTE_DIR)
+    # run('mkdir %s' % REMOTE_DIR)
+    run('if [ ! -d %s ]; then mkdir %s; fi' % (REMOTE_DIR, REMOTE_DIR))
     put('%s/%s' % (CURRENT_DIR, FILE), REMOTE_DIR)
 
     with cd(REMOTE_DIR):

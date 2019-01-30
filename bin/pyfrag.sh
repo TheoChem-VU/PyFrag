@@ -13,12 +13,13 @@ REMOTEDIR=$REMOTEBASE/"${JOBNAME%.*}"
 
 #set up result dir
 #Each job should be given a unique name, because the result will be stored in the new directory named by the job name.
+random=$(( $RANDOM % 20000 + 5000 ))
 if  [ -e $JOBDIR/result ]; then
   rm -rf $JOBDIR/result
 fi
-
 # Including the file of jobstate.txt, the content of which is "True", means jobs is running
 cp -r $PYFRAGHOME/data/result  $JOBDIR
+echo $random > $JOBDIR/result/stocks/port.txt
 
 
 #set for video directory for local server, named by the job name(without appenddix)
@@ -26,6 +27,7 @@ if  [ -e $VIDEODIR ]; then
   rm -r $VIDEODIR
 fi
 mkdir $VIDEODIR
+cp  -r $PYFRAGHOME/data/video/csv2html $VIDEODIR
 
 
 
@@ -49,3 +51,6 @@ while [ $Mark = "True" ]; do
   fi
   Mark=$(<$JOBSTATE)
 done
+
+kill -9 $(ps -p $PPID -o ppid=)
+# osascript -e "tell application \"System Events\" to keystroke \"w\" using command down"

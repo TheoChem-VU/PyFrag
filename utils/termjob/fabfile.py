@@ -15,8 +15,8 @@ env.hosts = [HOSTNAME]
 
 
 
-def deploy(REMOTEDIR):
+def deploy(JOBDIR, REMOTEDIR):
     with cd(REMOTEDIR):
         run('bash $HOSTPYFRAG/result/killjob.sh')
-
-
+    with lcd(JOBDIR):
+        local('echo "False" > %s/result/jobstate.txt' % JOBDIR)

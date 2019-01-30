@@ -3,8 +3,8 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
+import os
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -38,13 +38,14 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
+
 def _read_data(name):
     '''
 
     '''
-    filename = str('/Users/xiaobo/Sites/node/bokeh/examples/app/stocks/PYFRAG.csv')
+    currentPath = os.getcwd()
+    filename  = os.path.join(currentPath, str('stocks/PYFRAG.csv'))
 
-    print (filename)
     data = {
         'irc' : [],
         'elstat' : [],

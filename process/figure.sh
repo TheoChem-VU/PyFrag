@@ -17,9 +17,8 @@ if  [ -e $RESULTDIR ]; then
               fileNum=`echo $fileNum |awk '{printf"%4.0f", ($1-1)/2}'`
               fileNum=`expr $fileNum`
               if cmp -s "$RESULTDIR/$dname" $RESULTDIR/"${dname%.xyz}"/"${dname%.xyz}"$fileNum.xyz; then
-                printf "nothing changed"
+                true
               else
-                printf "changed"
                 fileNum=`expr $fileNum + 1`
                 cp $RESULTDIR/$dname $RESULTDIR/"${dname%.xyz}"$fileNum.xyz
                 mv $RESULTDIR/"${dname%.xyz}"$fileNum.xyz  $RESULTDIR/"${dname%.xyz}"
