@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Further Optional Arguments &mdash; qmflows 0.3.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Input cores &amp; ligands" href="qd_core_ligand.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> qmflows
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="interactive_tutorial.html">Basic usage tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Further_reading.html">Further Reading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Library Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="qd_manual.html">Quantum Dot Builder Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="qd_get_started.html">General Overview &amp; Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qd_core_ligand.html">Input cores &amp; ligands</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Further Optional Arguments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#optional-arguments">Optional Arguments</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dir-name-list-core-ligand-qd">dir_name_list = [‘core’, ‘ligand’, ‘QD’]</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dummy-cl">dummy = ‘Cl’</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#use-database-true">use_database = True</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ligand-opt-true">ligand_opt = True</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#split-true">split = True</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ligand-crs-false">ligand_crs = False</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#qd-opt-false">qd_opt = False</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#maxiter-500">maxiter = 500</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#qd-int-false">qd_int = False</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qmflows</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="qd_manual.html">Quantum Dot Builder Documentation</a> &raquo;</li>
+        
+      <li>Further Optional Arguments</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/qd_args.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="further-optional-arguments">
+<h1>Further Optional Arguments<a class="headerlink" href="#further-optional-arguments" title="Permalink to this headline">¶</a></h1>
+<p>There are a number of arguments which can be used to modify the functionality and behaviour of the quantum dot builder. Herein an overview is provided.</p>
+<div class="section" id="optional-arguments">
+<h2>Optional Arguments<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="dir-name-list-core-ligand-qd">
+<h3>dir_name_list = [‘core’, ‘ligand’, ‘QD’]<a class="headerlink" href="#dir-name-list-core-ligand-qd" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">list</span></code> consisting of <code class="docutils literal notranslate"><span class="pre">str</span></code> :
+The names of the (to be created) folders.
+By default, ligand structures will be stored and read from dir_name_list[0], cores will be stored and read dir_name_list[1] and the combined core+ligands will be stored and read from dir_name_list[2].
+Structures can be read from different folders if their filename is prepended with its absolute path, thus effectively ignoring this argument.</p>
+</div>
+<div class="section" id="dummy-cl">
+<h3>dummy = ‘Cl’<a class="headerlink" href="#dummy-cl" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code> :
+The atomic number or atomic symbol of the atoms in the core that is to be replaced with ligands.
+Alternatively, dummy atoms can be manually specified with the core_indices variable.</p>
+</div>
+<div class="section" id="use-database-true">
+<h3>use_database = True<a class="headerlink" href="#use-database-true" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bool</span></code> :
+Enables or disables the storing and pulling of structures and properties from a user-created database (stored in .json and .xlsx formats). The script will attempt to pull a structure from the database if a match is found between a current input ligand and/or core+ligands and a previously optimized structure.</p>
+</div>
+<div class="section" id="ligand-opt-true">
+<h3>ligand_opt = True<a class="headerlink" href="#ligand-opt-true" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bool</span></code> :
+Optimize the geometry of the to be attached ligands.
+The ligand is split into one or multiple (more or less) linear fragments, which are subsequently optimized (RDKit UFF
+[<a class="reference external" href="http://www.rdkit.org">1</a>,
+<a class="reference external" href="https://github.com/rdkit/rdkit">2</a>,
+<a class="reference external" href="https://doi.org/10.1021/ja00051a040">3</a>]
+) and reassembled while checking for the optimal dihedral angle. The ligand fragments are biased towards more linear conformations to minimize inter-ligand repulsion once the ligands are attached to the core.</p>
+</div>
+<div class="section" id="split-true">
+<h3>split = True<a class="headerlink" href="#split-true" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bool</span></code> :
+If False: The ligand in its entirety is to be attached to the core.</p>
+<blockquote>
+<div><p>NR<sub>4</sub><sup>+</sup>                    -&gt;     NR<sub>4</sub><sup>+</sup> </p>
+<p>O<sub>2</sub>CR                              -&gt;     O<sub>2</sub>CR</p>
+<p>HO<sub>2</sub>CR                             -&gt;     HO<sub>2</sub>CR</p>
+<p>H<sub>3</sub>CO<sub>2</sub>CR                 -&gt;     H<sub>3</sub>CO<sub>2</sub>CR</p>
+</div></blockquote>
+<p>If True: A proton, counterion or functional group is to be removed from the ligand before attachment to the core.</p>
+<blockquote>
+<div><p>X<sup>-</sup>.NR<sub>4</sub>                 -&gt;     NR<sub>4</sub><sup>+</sup> </p>
+<p>HO<sub>2</sub>CR                             -&gt;     O<sup>-</sup><sub>2</sub>CR</p>
+<p>Na<sup>+</sup>.O<sup>-</sup><sub>2</sub>CR          -&gt;     O<sup>-</sup><sub>2</sub>CR</p>
+<p>H<sub>3</sub>CO<sub>2</sub>CR                 -&gt;     O<sup>-</sup><sub>2</sub>CR</p>
+</div></blockquote>
+</div>
+<div class="section" id="ligand-crs-false">
+<h3>ligand_crs = False<a class="headerlink" href="#ligand-crs-false" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bool</span></code> :
+Perform a property calculation with COSMO-RS
+[<a class="reference external" href="https://www.scm.com/doc/COSMO-RS/index.html">4</a>,
+<a class="reference external" href="https://doi.org/10.1021/j100007a062">5</a>,
+<a class="reference external" href="https://doi.org/10.1021/jp980017s">6</a>,
+<a class="reference external" href="https://doi.org/10.1139/V09-008">7</a>]
+; the COSMO surfaces are constructed using ADF MOPAC
+[<a class="reference external" href="https://www.scm.com/doc/MOPAC/Introduction.html">8</a>,
+<a class="reference external" href="http://openmopac.net/">9</a>,
+<a class="reference external" href="https://doi.org/10.1007/s00894-012-1667-x">10</a>]
+.
+The following properties are calculated:</p>
+<ol class="arabic simple">
+<li>The surface area of the ligand (A<sup>2</sup>) as defined by its COSMO surface.</li>
+<li>The volume of the ligand (A<sup>3</sup>) as defined by the volume encompassed by its COSMO surface.</li>
+<li>The solvation energy of the ligand (kcal mol<sup>-1</sup>), at infinite dilution, in the following solvents: acetone, acetonitrile, dimethyl formamide (DMF), dimethyl sulfoxide (DMSO), ethyl acetate, ethanol, <em>n</em>-hexane, toluene and water.</li>
+</ol>
+</div>
+<div class="section" id="qd-opt-false">
+<h3>qd_opt = False<a class="headerlink" href="#qd-opt-false" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bool</span></code> :
+Optimize the quantum dot (i.e. core + all ligands) with ADF UFF
+[<a class="reference external" href="https://doi.org/10.1021/ja00051a040">3</a>,
+<a class="reference external" href="https://www.scm.com/doc/UFF/index.html">11</a>]
+.
+The geometry of the core and ligand atoms directly attached to the core are frozen during this optimization.</p>
+</div>
+<div class="section" id="maxiter-500">
+<h3>maxiter = 500<a class="headerlink" href="#maxiter-500" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">int</span></code> :
+The maximum number of iterations during the geometry optimization of the quantum dot.
+Only applicable if qd_opt = True.</p>
+</div>
+<div class="section" id="qd-int-false">
+<h3>qd_int = False<a class="headerlink" href="#qd-int-false" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bool</span></code> :
+Perform an activation strain analyses
+[<a class="reference external" href="https://doi.org/10.1002/9780470125922.ch1">12</a>,
+<a class="reference external" href="https://doi.org/10.1002/wcms.1221">13</a>,
+<a class="reference external" href="https://doi.org/10.1021/acs.jpcc.5b02987">14</a>] (kcal mol<sup>-1</sup>)
+on the ligands attached to the quantum dot surface with RDKit UFF
+[<a class="reference external" href="http://www.rdkit.org">1</a>,
+<a class="reference external" href="https://github.com/rdkit/rdkit">2</a>,
+<a class="reference external" href="https://doi.org/10.1021/ja00051a040">3</a>]
+.
+The core is removed during this process; the analyses is thus exclusively focused on ligand deformation and inter-ligand interaction.
+Yields three terms:</p>
+<ol class="arabic simple">
+<li>d<em>E</em><sub>strain</sub> :   The energy required to deform the ligands from their equilibrium geometry to the geometry they adopt on the quantum dot surface. This term is, by definition, destabilizing. Also known as the preperation energy (d<em>E</em><sub>prep</sub>).</li>
+<li>d<em>E</em><sub>int</sub> :      The mutual interaction between all deformed ligands. This term is characterized by the non-covalent interaction between ligands (UFF Lennard-Jones potential) and, depending on the inter-ligand distances, can be either stabilizing or destabilizing.</li>
+<li>d<em>E</em> :    The sum of d<em>E</em><sub>strain</sub> and d<em>E</em><sub>int</sub>. Accounts for both the destabilizing ligand deformation and (de-)stabilizing interaction between all ligands in the absence of the core.</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="qd_core_ligand.html" class="btn btn-neutral" title="Input cores &amp; ligands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, F. Zapata, L. Ridder, B. F. van Beek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

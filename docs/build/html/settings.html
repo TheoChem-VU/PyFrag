@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Settings &mdash; qmflows 0.3.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Templates" href="templates.html" />
+    <link rel="prev" title="Library Documentation" href="documentation.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> qmflows
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="interactive_tutorial.html">Basic usage tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Further_reading.html">Further Reading</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html">Library Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#api">API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Templates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dictionaries.html">Dictionaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html">Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="promise.html">Running a workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parsers.html">Extracting numerical properties from output files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parsers.html#parsers">Parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qd_manual.html">Quantum Dot Builder Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qmflows</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="documentation.html">Library Documentation</a> &raquo;</li>
+        
+      <li>Settings</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/settings.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="settings">
+<h1>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h1>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">Settings</span></code> is a <code class="xref py py-mod docutils literal notranslate"><span class="pre">dict</span></code> subclass implemented in <a class="reference external" href="https://www.scm.com/doc/plams/settings.html">PLAMS</a> and modified in <em>Qmflows</em>. This class represents the data in a hierarchical tree-like structure. for example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qmflows</span> <span class="k">import</span> <span class="n">Settings</span><span class="p">,</span> <span class="n">templates</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">()</span>  <span class="c1"># (1)</span>
+<span class="c1"># generic keyword</span>
+<span class="n">s</span><span class="o">.</span><span class="n">basis</span> <span class="o">=</span> <span class="s2">&quot;DZP&quot;</span>  <span class="c1">#  (2)</span>
+<span class="c1"># &quot;specific&quot; allows the user to apply specific keywords for a package</span>
+<span class="n">s</span><span class="o">.</span><span class="n">specific</span><span class="o">.</span><span class="n">adf</span><span class="o">.</span><span class="n">basis</span><span class="o">.</span><span class="n">core</span> <span class="o">=</span> <span class="s2">&quot;large&quot;</span>  <span class="c1"># (3)</span>
+
+<span class="nb">input</span> <span class="o">=</span> <span class="n">templates</span><span class="o">.</span><span class="n">singlepoint</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>  <span class="c1"># (4)</span>
+</pre></div>
+</div>
+<p>The above code snippet shows how to create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Settings</span></code> instance object in <strong>(1)</strong>, then in <strong>(2)</strong> the generic keyword <em>basis</em>  declares that the “DZP” should be used together with the <em>large</em> keyword
+of <em>ADF</em> as shown at <strong>(3)</strong>. Finally in line <strong>(4)</strong> the user’s keywords are merged with the defaults resultin in a input like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Basis</span>
+  <span class="n">Core</span> <span class="n">large</span>
+  <span class="n">Type</span> <span class="n">DZP</span>
+<span class="n">End</span>
+
+<span class="n">Integration</span>
+  <span class="n">Accint</span> <span class="mf">4.0</span>
+<span class="n">End</span>
+
+<span class="n">Scf</span>
+  <span class="n">Converge</span> <span class="mf">1e-06</span>
+  <span class="n">Iterations</span> <span class="mi">100</span>
+<span class="n">End</span>
+
+<span class="n">Xc</span>
+ <span class="n">Lda</span>
+<span class="n">End</span>
+</pre></div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="templates.html" class="btn btn-neutral float-right" title="Templates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="documentation.html" class="btn btn-neutral" title="Library Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, F. Zapata, L. Ridder, B. F. van Beek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
