@@ -90,5 +90,5 @@ or
 
 ### 1 Each job should be given a unique name and unique directory, because the result will be stored in the new directory named by the job name.
 
-
+python3 -m pip install --user  --no-cache-dir  git+https://github.com/sunxb05/PyFrag@master#egg=qmworks-0.0.1
 
