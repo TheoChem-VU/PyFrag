@@ -46,7 +46,6 @@ setup(
     author_email='sunxb05@gmail.com',
     keywords='chemistry workflows simulation materials',
     long_description=readme(),
-    package_dir={'': 'qmworks'},
     packages=["qmworks",
               "qmworks.components",
               "qmworks.data",
