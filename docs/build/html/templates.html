@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Templates &mdash; qmflows 0.3.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Dictionaries" href="dictionaries.html" />
+    <link rel="prev" title="Settings" href="settings.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> qmflows
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="interactive_tutorial.html">Basic usage tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Further_reading.html">Further Reading</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html">Library Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Templates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#json-format">JSON format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dictionaries.html">Dictionaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html">Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="promise.html">Running a workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parsers.html">Extracting numerical properties from output files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parsers.html#parsers">Parsers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qd_manual.html">Quantum Dot Builder Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qmflows</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="documentation.html">Library Documentation</a> &raquo;</li>
+        
+      <li>Templates</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/templates.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="templates">
+<h1>Templates<a class="headerlink" href="#templates" title="Permalink to this headline">¶</a></h1>
+<p>The input generations consist of two parts: chosing a template (see <a class="reference internal" href="#id1">templates</a>)
+for the kind of calculation to perform and adding some settings to that template. Notice
+that the user can either pick a specific package template or provides only generic
+keywords.</p>
+<div class="section" id="json-format">
+<span id="id1"></span><h2>JSON format<a class="headerlink" href="#json-format" title="Permalink to this headline">¶</a></h2>
+<p>The Java script object notation <strong>JSON</strong> is a widely used data format. This format is used together with the <a class="reference external" href="https://docs.python.org/3/library/json.html#module-json" title="(in Python v3.7)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">json</span></code></a> module to implement the mechanism to load/unload the templates using the function <code class="xref py py-func docutils literal notranslate"><span class="pre">get_template()</span></code>.</p>
+<p>For Example, the default parameter for a geometry optimization using ADF are given by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;specific&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;adf&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;basis&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;SZ&quot;</span><span class="p">},</span>
+          <span class="s2">&quot;xc&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lda&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">},</span>
+          <span class="s2">&quot;integration&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;accint&quot;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">},</span>
+          <span class="s2">&quot;scf&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;converge&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+              <span class="s2">&quot;iterations&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">}</span> <span class="p">},</span>
+      <span class="s2">&quot;dftb&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;runtype&quot;</span><span class="p">:</span> <span class="s2">&quot;SP&quot;</span><span class="p">},</span>
+          <span class="s2">&quot;dftb&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;resourcesdir&quot;</span><span class="p">:</span> <span class="s2">&quot;DFTB.org/3ob-3-1&quot;</span><span class="p">}</span> <span class="p">},</span>
+      <span class="s2">&quot;cp2k&quot;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;FORCE_EVAL&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;DFT&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;BASIS_SET_FILE_NAME&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MGRID&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;CUTOFF&quot;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
+                    <span class="s2">&quot;NGRIDS&quot;</span><span class="p">:</span> <span class="mi">4</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;POTENTIAL_FILE_NAME&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PRINT&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;MO&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;ADD_LAST&quot;</span>  <span class="p">:</span> <span class="s2">&quot;NUMERIC&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;EACH&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;QS_SCF&quot;</span><span class="p">:</span> <span class="mi">0</span>
+                        <span class="p">},</span>
+                        <span class="s2">&quot;EIGENVALUES&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;EIGENVECTORS&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;FILENAME&quot;</span><span class="p">:</span> <span class="s2">&quot;./mo.data&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;NDIGITS&quot;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span>
+                        <span class="s2">&quot;OCCUPATION_NUMBERS&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+     <span class="o">................</span>
+</pre></div>
+</div>
+<p>The templates in <cite>JSON</cite> format are translated to python dictionaries using the <code class="xref py py-func docutils literal notranslate"><span class="pre">get_template()</span></code>. This templates can be used by themselves in the calculations
+or more keywords can be attached to them modifying the default values. For example the default values to carry a single point calculation using the <strong>ORCA</strong> quantum
+package are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qmflows.templates</span> <span class="k">import</span> <span class="n">singlepoint</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">singlepoint</span><span class="o">.</span><span class="n">specific</span><span class="o">.</span><span class="n">orca</span><span class="p">)</span>
+
+<span class="n">basis</span><span class="p">:</span>
+      <span class="n">basis</span><span class="p">:</span>         <span class="n">sto_sz</span>
+<span class="n">method</span><span class="p">:</span>
+      <span class="n">functional</span><span class="p">:</span>    <span class="n">lda</span>
+       <span class="n">method</span><span class="p">:</span>       <span class="n">dft</span>
+</pre></div>
+</div>
+<p>We can easily replace the basis set just by updating the value in the <code class="xref py py-class docutils literal notranslate"><span class="pre">Settings</span></code> object that represent the single point calculation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qmflows.templates</span> <span class="k">import</span> <span class="n">singlepoint</span>
+<span class="n">singlepoint</span><span class="o">.</span><span class="n">specific</span><span class="o">.</span><span class="n">orca</span><span class="o">.</span><span class="n">basis</span><span class="o">.</span><span class="n">basis</span> <span class="o">=</span> <span class="s1">&#39;DZP&#39;</span>
+
+ <span class="nb">print</span><span class="p">(</span><span class="n">singlepoint</span><span class="o">.</span><span class="n">specific</span><span class="o">.</span><span class="n">orca</span><span class="p">)</span>
+
+ <span class="n">basis</span><span class="p">:</span>
+   <span class="n">basis</span><span class="p">:</span>    <span class="n">DZP</span>
+ <span class="n">method</span><span class="p">:</span>
+   <span class="n">functional</span><span class="p">:</span>       <span class="n">lda</span>
+   <span class="n">method</span><span class="p">:</span>   <span class="n">dft</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dictionaries.html" class="btn btn-neutral float-right" title="Dictionaries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="settings.html" class="btn btn-neutral" title="Settings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, F. Zapata, L. Ridder, B. F. van Beek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
