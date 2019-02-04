@@ -62,7 +62,15 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Chemistry'
-    ]
+    ],
+    install_requires=['h5py', 'numpy', 'noodles==0.3.1', 'plams>=1.2', 'pymonad',
+                      'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy'],
+    dependency_links=[
+        "git+https://github.com/SCM-NV/PLAMS@master#egg=plams-1.2"],
+
+    extras_require={
+        'doc': ['sphinx', 'sphinx_rtd_theme', 'nbsphinx']
+    }
 )
 
 # from setuptools import setup
