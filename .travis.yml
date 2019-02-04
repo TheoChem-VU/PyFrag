@@ -23,7 +23,8 @@ install:
   - pip install .
 script:
   # Run the unitary tests excluding the expensive computations
-  - pytest -m "not (slow or long)" --cov=qmworks test
+  # - pytest -m "not (slow or long)" --cov=qmworks test
+  - pytest
   - coverage xml && coverage report -m
 
 branches:
