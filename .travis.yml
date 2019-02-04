@@ -20,7 +20,7 @@ install:
   # Install qmflows package
   # - python3 -m pip install --user  --no-cache-dir  git+https://github.com/sunxb05/PyFrag@master#egg=qmworks-0.0.1
   - pip install git+https://github.com/SCM-NV/PLAMS.git@master#egg=plams-1.2 --upgrade
-  - pip python setup.py install
+  - python setup.py install
 # script:
 #   # Run the unitary tests excluding the expensive computations
 #   - pytest -m "not (slow or long)" --cov=qmflows test
