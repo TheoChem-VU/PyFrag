@@ -100,10 +100,10 @@ setup(
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Chemistry'
     ],
-    # install_requires=['h5py', 'numpy', 'noodles==0.3.1', 'plams>=1.2', 'pymonad',
-    #                   'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy'],
     install_requires=['h5py', 'numpy', 'noodles==0.3.1', 'plams>=1.2', 'pymonad',
-                      'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy', 'pytest', 'pytest-cov', 'pytest-mock', 'nbsphinx', 'pygraphviz'],
+                      'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy'],
+    # install_requires=['h5py', 'numpy', 'noodles==0.3.1', 'plams>=1.2', 'pymonad',
+    #                   'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy', 'pytest', 'pytest-cov', 'pytest-mock', 'nbsphinx', 'pygraphviz'],
     dependency_links=[
         "git+https://github.com/SCM-NV/PLAMS@master#egg=plams-1.2"],
 
