@@ -43,7 +43,7 @@ setup(
     url='https://github.com/sunxb05/PyFrag',
     author=["Xiaobo Sun"],
     keywords='chemistry workflows simulation materials',
-    long_description=readme(),
+    # long_description=readme(),
     package_dir={'': 'qmworks'},
     packages=["qmworks",
               "qmworks.components",
