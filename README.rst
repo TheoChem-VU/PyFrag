@@ -1,8 +1,4 @@
-.. image:: https://travis-ci.org/SCM-NV/qmflows.svg?branch=master
-   :target: https://travis-ci.org/SCM-NV/qmflows
-.. image:: https://img.shields.io/badge/python-3.6-blue.svg
-
-pyfrag
+PyFrag
 #######
 See documentation_ for tutorials and documentation.
 
