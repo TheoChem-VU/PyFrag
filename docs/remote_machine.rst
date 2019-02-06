@@ -1,9 +1,9 @@
 Remote machine
---------
+==============
 
-#  Basic usage tutorial
 
-## Installation in Unix
+Installation qmworks
+--------------------
 
   - conda installation. Type in your console the following command:
     ```bash
@@ -36,3 +36,11 @@ Remote machine
      pip install https://github.com/SCM-NV/qmflows/tarball/master#egg=qmflows https://github.com/SCM-NV/plams/tarball/master#egg=plams --upgrade
     ```
 ### You are ready to start!
+
+
+
+Similarly, these related infomation should also be put in the .bashrc or .profile in your remote machine.
+
+    export HOSTPYFRAG='/home/x2sun/bin/host'
+    export QMWORKS='~/miniconda3/envs/qmworks'
+    export USERNAME='x2sun'
