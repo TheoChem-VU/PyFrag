@@ -11,12 +11,6 @@ Description
 This library consists of a set of modules written in Python3 to
 automate the following tasks:
 
- 1. Input generation.
- 2. Handle tasks dependencies (Noodles_).
- 3. Advanced molecular manipulation capabilities with (rdkit_).
- 4. Numerical data storage and manipulation (HDF5_).
- 5. Jobs failure detection and recovery.
- 6. Distribution in heterogeneous hardware platforms.
 
 Tutorial and Examples
 ---------------------
