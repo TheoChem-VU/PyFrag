@@ -8,7 +8,32 @@ The PyFrag program is specially designed to facilitates the study of reaction me
 
 Description
 ===========
-Input:
+
+Usage:
+------------
+
+User can type pyfrag -h to see all the commands that can be used in this program, which will show something like: ::
+Usage: /Users/xiaobo/gitpyfrag/bin/pyfrag [-h] [-s] [-x command]  [...]
+
+          -h          : print this information
+          -s          : run job quietly
+          -x command  : start the executable named command
+                      : command include restart, which restart job
+                      : end, which terminate job
+                      : check, which check the latest jobs information
+                      : restart, which restart a job after it is stoped
+                      : summary, which summarize all job result after jobs finished
+                      : default command is pyfrag itself
+   The example command is like as follow, in which job.in is job input
+   /Users/xiaobo/gitpyfrag/bin/pyfrag job.in
+   or
+   /Users/xiaobo/gitpyfrag/bin/pyfrag -x restart job.in
+   or
+   /Users/xiaobo/gitpyfrag/bin/pyfrag -s -x summary job.in
+
+
+Input example:
+--------------
 
 For Example, the default parameter for a geometry optimization using ADF are given by: ::
 
@@ -119,19 +144,20 @@ For Example, the default parameter for a geometry optimization using ADF are giv
 
 
 
-Result:
+Result example:
+---------------
 
 .. image:: jobresult.png
    :alt: result
 
-Tutorial and Examples
+Tutorial and more Examples
 ---------------------
 A tutorial written as a jupyter-notebook is available from notebook_. You can
 also access direclty more examples.
 
 
 Installation
-============
+------------
 For installation, please read installation_.
 
 
