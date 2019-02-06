@@ -11,7 +11,8 @@ Description
 Input:
 
 Result:
-.. image:: xsimd.svg
+
+.. image:: _images/merged_tree.jpg
    :alt: result
 
 Tutorial and Examples
