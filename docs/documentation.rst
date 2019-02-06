@@ -1,4 +1,4 @@
-Surpporting Information
+Further Information
 =======================
 
 For a more detailed description of **PyFrag** read the documentation
