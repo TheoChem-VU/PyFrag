@@ -1,6 +1,6 @@
 # Doxyfile 1.8.14
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = "My Project"
+PROJECT_NAME           = "PyFrag"
 OUTPUT_LANGUAGE        = English
 ABBREVIATE_BRIEF       = "The $name class" \
                          "The $name widget" \
@@ -86,27 +86,27 @@ CLASS_DIAGRAMS         = NO
 
 HIDE_UNDOC_RELATIONS   = YES
 
-# HAVE_DOT               = YES
+HAVE_DOT               = YES
 
-# DOT_NUM_THREADS        = 0
+DOT_NUM_THREADS        = 0
 
-# DOT_FONTNAME           = Helvetica
+DOT_FONTNAME           = Helvetica
 
-# DOT_FONTSIZE           = 10
+DOT_FONTSIZE           = 10
 
-# CLASS_GRAPH            = YES
+CLASS_GRAPH            = YES
 
-# COLLABORATION_GRAPH    = YES
-# GROUP_GRAPHS           = YES
-# UML_LIMIT_NUM_FIELDS   = 10
-# INCLUDE_GRAPH          = YES
-# INCLUDED_BY_GRAPH      = YES
-# CALL_GRAPH             = YES
-# CALLER_GRAPH           = YES
-# GRAPHICAL_HIERARCHY    = YES
-# DIRECTORY_GRAPH        = YES
-# DOT_IMAGE_FORMAT       = png
-# DOT_GRAPH_MAX_NODES    = 50
-# MAX_DOT_GRAPH_DEPTH    = 0
-# GENERATE_LEGEND        = YES
-# DOT_CLEANUP            = YES
+COLLABORATION_GRAPH    = YES
+GROUP_GRAPHS           = YES
+UML_LIMIT_NUM_FIELDS   = 10
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+GRAPHICAL_HIERARCHY    = YES
+DIRECTORY_GRAPH        = YES
+DOT_IMAGE_FORMAT       = png
+DOT_GRAPH_MAX_NODES    = 50
+MAX_DOT_GRAPH_DEPTH    = 0
+GENERATE_LEGEND        = YES
+DOT_CLEANUP            = YES
