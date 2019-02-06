@@ -8,9 +8,12 @@ The PyFrag program is specially designed to facilitates the study of reaction me
 
 Description
 ===========
-This library consists of a set of modules written in Python3 to
-automate the following tasks:
+Input:
 
+Result:
+.. |Substitution Name| image:: result.png
+  :width: 400
+  :alt: Alternative text
 
 Tutorial and Examples
 ---------------------
@@ -30,3 +33,4 @@ For installation, please read installation_.
 .. _group: http://www.few.vu.nl/~bickel/
 .. _examples: https://github.com/sunxb05/PyFrag/tree/master/example
 .. _notebook: https://github.com/sunxb05/PyFrag/tree/master/jupyterNotebooks/
+.. _installation: https://pyfragdocument.readthedocs.io/en/latest/install.html
