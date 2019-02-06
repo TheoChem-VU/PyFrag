@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    includeme
+   install
    interactive_tutorial
    Further_reading
    documentation
