@@ -25,7 +25,7 @@ if on_rtd:
 
 
 extensions = [
-    'graphviz',
+    'pydot',
     'doxygen',
     'nbsphinx',
     'sphinx.ext.autodoc',
