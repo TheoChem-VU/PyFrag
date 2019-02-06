@@ -6,7 +6,7 @@ Download the resource of pyfrag which comprises two part, the local files and th
 
 
 SETUP:
-------
+
 
 The path of bin of pyfrag should be put in the .bashrc or .profile in order to run pyfrag anywhere you want, something like: ::
 
