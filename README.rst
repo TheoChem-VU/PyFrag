@@ -1,3 +1,10 @@
+
+.. image:: https://travis-ci.org/sunxb05/PyFrag.svg?branch=master
+   :target: https://travis-ci.org/sunxb05/PyFrag
+.. image:: pyfrag_logo.png
+   :align: center
+
+
 PyFrag
 #######
 See documentation_ for tutorials and documentation.
