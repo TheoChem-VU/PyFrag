@@ -1,4 +1,4 @@
-Library Documentation
+Installation Documentation
 =====================
 
 For a more detailed description of **QMFlows** read the documentation

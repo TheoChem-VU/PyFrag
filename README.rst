@@ -4,20 +4,7 @@ See documentation_ for tutorials and documentation.
 
 Motivation
 ==========
-Research on modern computational quantum chemistry relies on a set of computational
-tools to carry out calculations. The complexity of the calculations usually requires
-intercommunication between the aforementioned tools, such communication is usually done
-through shell scripts that try to automate input/output actions like: launching
-the computations in a cluster, reading the resulting output and feeding the relevant
-numerical result to another program. Such scripts are difficult to maintain and extend,
-requiring a significant programming expertise to work with them. Being then desirable a
-set of automatic and extensible tools that allows to perform complex simulations in
-heterogeneous hardware platforms.
-
-This library tackles the construction and efficient execution of computational chemistry workflows.
-This allows computational chemists to use the emerging massively parallel compute environments in
-an easy manner and focus on interpretation of scientific data rather than on tedious job submission
-procedures and manual data processing.
+The PyFrag program is specially designed to facilitates the study of reaction mechanism in a more efficient and user-friendly way. It is an expansion of a popular program also named by PyFrag in our group. More information can be found in "https://sunxb05.github.io/pyfrag/". It automates the process of finding transition states, potential energy surface by using one simple input file. It follows by an activation strain analysis on the energy profile to characterize the feature of the reaction mechanism and gain insights into the overall reaction energies. Moreover, users can have an real-time monitoring of the running process via a webpage which vividly displays the updated data in the form of videos and figures and, if necessary, user can rerun the job immediately from where it stops. In this way, the three respects of computational chemistry–job management, data management and analysis management can all be contained in a framework and thus allow chemists to focus on the interpretation and creation work rather than waste time and energy on the finding and processing of massive data.
 
 Description
 ===========
@@ -97,14 +84,7 @@ Now you are ready to use *qmflows*.
     ``conda activate qmflows`` each time that you want to use the software.
 
 
-.. _Quantum Dots builder:
-
-Quantum Dots builder
---------------------
-An example input file (including documentation) is located in qd-example_.
-Once the path, input ligands and input cores have been specified the job can be run with ``python qd_input.py``
-
-.. _documentation: https://qmflows.readthedocs.io/en/latest/
+.. _documentation: https://pyfragdocument.readthedocs.io/en/latest/
 .. _miniconda: http://conda.pydata.org/miniconda.html
 .. _anaconda: https://www.continuum.io/downloads
 .. _installConda: http://conda.pydata.org/docs/install/quick.html
@@ -112,6 +92,7 @@ Once the path, input ligands and input cores have been specified the job can be 
 .. _HDF5: http://www.h5py.org/
 .. _here: https://www.python.org/downloads/
 .. _rdkit: http://www.rdkit.org
+.. _ADF: https://www.scm.com
 .. _jupyter-notebook: http://jupyter.org/
 .. _tutorial-qmflows: https://github.com/SCM-NV/qmflows/tree/master/jupyterNotebooks
 .. _examples: https://github.com/SCM-NV/qmflows/tree/master/src/qmflows/examples
