@@ -1,94 +1,124 @@
-# title: PyFrag
+.. image:: https://travis-ci.org/SCM-NV/qmflows.svg?branch=master
+   :target: https://travis-ci.org/SCM-NV/qmflows
+.. image:: https://img.shields.io/badge/python-3.6-blue.svg
+
+QMFlows
+#######
+See documentation_ for tutorials and documentation.
+
+Motivation
+==========
+Research on modern computational quantum chemistry relies on a set of computational
+tools to carry out calculations. The complexity of the calculations usually requires
+intercommunication between the aforementioned tools, such communication is usually done
+through shell scripts that try to automate input/output actions like: launching
+the computations in a cluster, reading the resulting output and feeding the relevant
+numerical result to another program. Such scripts are difficult to maintain and extend,
+requiring a significant programming expertise to work with them. Being then desirable a
+set of automatic and extensible tools that allows to perform complex simulations in
+heterogeneous hardware platforms.
+
+This library tackles the construction and efficient execution of computational chemistry workflows.
+This allows computational chemists to use the emerging massively parallel compute environments in
+an easy manner and focus on interpretation of scientific data rather than on tedious job submission
+procedures and manual data processing.
+
+Description
+===========
+This library consists of a set of modules written in Python3 to
+automate the following tasks:
+
+ 1. Input generation.
+ 2. Handle tasks dependencies (Noodles_).
+ 3. Advanced molecular manipulation capabilities with (rdkit_).
+ 4. Numerical data storage and manipulation (HDF5_).
+ 5. Jobs failure detection and recovery.
+ 6. Distribution in heterogeneous hardware platforms.
+
+Tutorial and Examples
+---------------------
+A tutorial written as a jupyter-notebook_ is available from: tutorial-qmflows_. You can
+also access direclty more advanced examples_.
 
 
-## 1. Project summary
+Installation
+============
 
-The PyFrag program is specially designed to facilitates the study of reaction mechanism in a more efficient and user-friendly way. It is an expansion of a popular program also named by PyFrag in our group. More information can be found in "https://sunxb05.github.io/pyfrag/". It automates the process of finding transition states, potential energy surface by using one simple input file. It follows by an activation strain analysis on the energy profile to characterize the feature of the reaction mechanism and gain insights into the overall reaction energies. Moreover, users can have an real-time monitoring of the running process via a webpage which vividly displays the updated data in the form of videos and figures and, if necessary, user can rerun the job immediately from where it stops. In this way, the three respects of computational chemistry–job management, data management and analysis management can all be contained in a framework and thus allow chemists to focus on the interpretation and creation work rather than waste time and energy on the finding and processing of massive data.
+- Download miniconda for python3: miniconda_ (also you can install the complete anaconda_ version).
 
-## 2. Installation
+- Install according to: installConda_.
 
-### 1 Prerequisite
+- Create a new virtual environment using the following commands:
 
+  - ``conda create -n qmflows``
 
-1. ADF  ()     # computational engine, more information can be found in "https://www.scm.com". Noted the set-up should be handled properly so that adfinput can be called in terminal.
-2. qmflow      # workflow manage engine, you can install qmflow following "https://github.com/SCM-NV/qmflows", however, it is needed to be replaced by the modified version which is located in ```/data/qmflows```
-3. bokeh       # to show the website, more information can be found in "https://bokeh.pydata.org/en/latest/".
-4. fabric      # to connect remote machine and transfer files, can be installed by pip ```pip install Fabric==1.12.2```
+- Activate the new virtual environment
 
+  - ``source activate qmflows``
 
-### 2 PyFrag
-
-Download the resource of pyfrag which comprises two part, the local files and the remote files. The remote files ```/host``` include all files in the directory of host, which should be put in the remote machine where the heavy computation actually happens.
-
-### 3 SETUP:
-
-The path of bin of pyfrag should be put in the .bashrc or .profile in order to run pyfrag anywhere you want, something like:
+To exit the virtual environment type  ``source deactivate``.
 
 
-export PYFRAGHOME="/Users/xiaobo/gitpyfrag"
+.. _dependecies:
 
-export PATH=$PYFRAGHOME/bin:$PATH
+Dependencies installation
+-------------------------
 
+- Type in your terminal:
 
-Similarly, these related infomation should also be put in the .bashrc or .profile in your remote machine.
+  ``conda activate qmflows``
 
-export HOSTPYFRAG='/home/x2sun/bin/host'
-
-export QMWORKS='~/miniconda3/envs/qmworks'
-
-export USERNAME='x2sun'
+Using the conda environment the following packages should be installed:
 
 
+- install rdkit_ using conda:
 
-The basic setup is located in .pyfragrc, including the directory of videos of geometried generated in the optimization process, the local server, which means you need to set up your local websever service, and so on.
+  - ``conda install -y -q --name qmflows -c rdkit rdkit``
 
-export PYFRAGVIDEO="/Users/xiaobo/Sites/video"
+- install HDF5_ using conda:
 
-export PYFRAGHOST="http://localhost/~xiaobo/video"
-
-export JOBCHECK="20"
-
-export REMOTEBASE="/home/x2sun/pyfragtest_2"
-
-export RESULTCHECK="20"
-
-export HOSTPYFRAG='/home/x2sun/bin/host'
+  - ``conda install -y -q --name qmflows -c anaconda h5py``
 
 
-The configure for fabfile is located at utils directory, such as:
+.. _installation:
 
-USERNAME = 'x2sun'
+Package installation
+--------------------
+Finally install the package:
 
-HOSTNAME = 'cartesius.surfsara.nl'
+- Update PLAMS_ using pip:
+  - ``pip install git+https://github.com/SCM-NV/PLAMS@master#egg=plams-1.2``
 
-RESULTCHECK="20"
+- Install **QMFlows** using pip:
+  - ``pip install git+https://github.com/SCM-NV/qmflows@master#egg=qmflows-0.3.0``
+
+Now you are ready to use *qmflows*.
 
 
+  **Notes:**
 
-## 3 Usage
+  - Once the libraries and the virtual environment are installed, you only need to type
+    ``conda activate qmflows`` each time that you want to use the software.
 
-User can type pyfrag -h to see all the commands that can be used in this program, which will show something like:
-Usage: /Users/xiaobo/gitpyfrag/bin/pyfrag [-h] [-s] [-x command]  [...]
 
-       -h          : print this information
-       -s          : run job quietly
-       -x command  : start the executable named command
-                   : command include restart, which restart job
-                   : end, which terminate job
-                   : check, which check the latest jobs information
-                   : restart, which restart a job after it is stoped
-                   : summary, which summarize all job result after jobs finished
-                   : default command is pyfrag itself
-The example command is like as follow, in which job.in is job input
-/Users/xiaobo/gitpyfrag/bin/pyfrag job.in
-or
-/Users/xiaobo/gitpyfrag/bin/pyfrag -x restart job.in
-or
-/Users/xiaobo/gitpyfrag/bin/pyfrag -s -x summary job.in
+.. _Quantum Dots builder:
 
-## 4. Notice
+Quantum Dots builder
+--------------------
+An example input file (including documentation) is located in qd-example_.
+Once the path, input ligands and input cores have been specified the job can be run with ``python qd_input.py``
 
-### 1 Each job should be given a unique name and unique directory, because the result will be stored in the new directory named by the job name.
-
-python3 -m pip install --user  --no-cache-dir  git+https://github.com/sunxb05/PyFrag@master#egg=qmworks-0.0.1
+.. _documentation: https://qmflows.readthedocs.io/en/latest/
+.. _miniconda: http://conda.pydata.org/miniconda.html
+.. _anaconda: https://www.continuum.io/downloads
+.. _installConda: http://conda.pydata.org/docs/install/quick.html
+.. _Noodles: http://nlesc.github.io/noodles/
+.. _HDF5: http://www.h5py.org/
+.. _here: https://www.python.org/downloads/
+.. _rdkit: http://www.rdkit.org
+.. _jupyter-notebook: http://jupyter.org/
+.. _tutorial-qmflows: https://github.com/SCM-NV/qmflows/tree/master/jupyterNotebooks
+.. _examples: https://github.com/SCM-NV/qmflows/tree/master/src/qmflows/examples
+.. _PLAMS: https://github.com/SCM-NV/PLAMS
+.. _qd-example: https://github.com/SCM-NV/qmflows/blob/master/test/QD_input_examples
 
