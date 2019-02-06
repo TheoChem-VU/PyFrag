@@ -2,4 +2,3 @@ sphinx>=1.4
 sphinx_rtd_theme
 nbsphinx
 ipykernel
-doxygen

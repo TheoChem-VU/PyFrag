@@ -25,6 +25,7 @@ if on_rtd:
 
 
 extensions = [
+    'breathe',
     'nbsphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
