@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# qmworks documentation build configuration file, created by
+# pyfrag documentation build configuration file, created by
 # sphinx-quickstart on Wed Nov  8 12:07:40 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -53,7 +53,7 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = 'qmworks'
+project = 'pyfrag'
 copyright = '2019, X. Sun'
 author = 'X. Sun'
 
@@ -122,7 +122,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'qmworksdoc'
+htmlhelp_basename = 'pyfragdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -149,8 +149,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'qmworks.tex', 'qmworks Documentation',
-     'F. Zapata, L. Ridder, B. F. van Beek', 'manual'),
+    (master_doc, 'pyfrag.tex', 'pyfrag Documentation',
+     'X. Sun', 'manual'),
 ]
 
 
@@ -159,7 +159,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'qmworks', 'qmworks Documentation',
+    (master_doc, 'pyfrag', 'pyfrag Documentation',
      [author], 1)
 ]
 
@@ -170,8 +170,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'qmworks', 'qmworks Documentation',
-     author, 'qmworks', 'One line description of project.',
+    (master_doc, 'pyfrag', 'pyfrag Documentation',
+     author, 'pyfrag', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -182,6 +182,6 @@ texinfo_documents = [
 intersphinx_mapping = {'https://docs.python.org/': None}
 
 rst_epilog = """
-.. |Package| replace:: :class:`~qmworks.packages.Package`
+.. |Package| replace:: :class:`~pyfrag.packages.Package`
 .. |Settings| replace:: :class:`~qmwflows.Settings`
 """
