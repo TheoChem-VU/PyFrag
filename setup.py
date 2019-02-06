@@ -82,6 +82,6 @@ setup(
 
     extras_require={
         'test': ['pytest', 'pytest-cov', 'pytest-mock', 'nbsphinx', 'pygraphviz'],
-        'doc': ['sphinx', 'sphinx_rtd_theme', 'nbsphinx', 'breathe']
+        'doc': ['sphinx', 'sphinx_rtd_theme', 'nbsphinx']
     }
 )
