@@ -25,7 +25,6 @@ if on_rtd:
 
 
 extensions = [
-    'pydot',
     'doxygen',
     'nbsphinx',
     'sphinx.ext.autodoc',
