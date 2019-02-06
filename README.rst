@@ -13,23 +13,22 @@ Usage
 ------------
 
 User can type pyfrag -h to see all the commands that can be used in this program, which will show something like: ::
-Usage: /Users/xiaobo/gitpyfrag/bin/pyfrag [-h] [-s] [-x command]  [...]
-
-          -h          : print this information
-          -s          : run job quietly
-          -x          : start the executable named command
-                      : command include restart, which restart job
-                      : end, which terminate job
-                      : check, which check the latest jobs information
-                      : restart, which restart a job after it is stoped
-                      : summary, which summarize all job result after jobs finished
-                      : default command is pyfrag itself
-          The example command is like as follow, in which job.in is job input
-          /Users/xiaobo/gitpyfrag/bin/pyfrag job.in
-          or
-          /Users/xiaobo/gitpyfrag/bin/pyfrag -x restart job.in
-          or
-          /Users/xiaobo/gitpyfrag/bin/pyfrag -s -x summary job.in
+   Usage: /Users/xiaobo/gitpyfrag/bin/pyfrag [-h] [-s] [-x command]  [...]
+   -h          : print this information
+   -s          : run job quietly
+   -x          : start the executable named command
+               : command include restart, which restart job
+               : end, which terminate job
+               : check, which check the latest jobs information
+               : restart, which restart a job after it is stoped
+               : summary, which summarize all job result after jobs finished
+               : default command is pyfrag itself
+   The example command is like as follow, in which job.in is job input
+   /Users/xiaobo/gitpyfrag/bin/pyfrag job.in
+   or
+   /Users/xiaobo/gitpyfrag/bin/pyfrag -x restart job.in
+   or
+   /Users/xiaobo/gitpyfrag/bin/pyfrag -s -x summary job.in
 
 
 Input example
