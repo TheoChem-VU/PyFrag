@@ -13,6 +13,7 @@ Usage
 ------------
 
 User can type pyfrag -h to see all the commands that can be used in this program, which will show something like: ::
+
    Usage: /Users/xiaobo/gitpyfrag/bin/pyfrag [-h] [-s] [-x command]  [...]
    -h          : print this information
    -s          : run job quietly
