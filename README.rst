@@ -11,9 +11,8 @@ Description
 Input:
 
 Result:
-.. |Substitution Name| image:: result.png
-  :width: 400
-  :alt: Alternative text
+.. image:: xsimd.svg
+   :alt: result
 
 Tutorial and Examples
 ---------------------
