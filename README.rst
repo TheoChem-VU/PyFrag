@@ -12,7 +12,7 @@ Input:
 
 Result:
 
-.. image:: _images/merged_tree.jpg?raw=true
+.. image:: merged_tree.jpg
    :alt: result
 
 Tutorial and Examples
