@@ -9,7 +9,7 @@ The PyFrag program is specially designed to facilitates the study of reaction me
 Description
 ===========
 This library consists of a set of modules written in Python3 to
-automate the following tasks:
+automate the following tasks:HHHHHHHH
 
 
 Tutorial and Examples
