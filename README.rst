@@ -12,7 +12,7 @@ Input:
 
 Result:
 
-.. image:: merged_tree.jpg
+.. image:: jobresult.png
    :alt: result
 
 Tutorial and Examples
