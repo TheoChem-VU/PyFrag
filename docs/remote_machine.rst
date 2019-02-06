@@ -1,4 +1,4 @@
-Settings
+Remote machine
 --------
 
 |Settings| is a :mod:`dict` subclass implemented in PLAMS_ and modified in *Qmflows*. This class represents the data in a hierarchical tree-like structure. for example ::
