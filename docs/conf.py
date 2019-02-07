@@ -15,13 +15,13 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-import os
-import subprocess
+# import os
+# import subprocess
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+# on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-if on_rtd:
-    subprocess.call('doxygen', shell=True)
+# if on_rtd:
+#     subprocess.call('doxygen', shell=True)
 
 
 extensions = [
@@ -77,7 +77,7 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
-#html_extra_path = ['build/html']
+html_extra_path = ['build/html']
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

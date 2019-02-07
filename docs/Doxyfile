@@ -73,7 +73,7 @@ FILE_PATTERNS          = *.c \
 
 RECURSIVE              = YES
 GENERATE_HTML          = YES
-HTML_OUTPUT            = build/html/html
+HTML_OUTPUT            = build/html
 HTML_FILE_EXTENSION    = .html
 
 HTML_COLORSTYLE_HUE    = 220

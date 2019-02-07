@@ -54,8 +54,9 @@ clean:
 	rm -rf $(BUILDDIR)/*
 
 html:
-	doxygen
+	# doxygen
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	doxygen
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
