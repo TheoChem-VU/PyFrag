@@ -1,12 +1,9 @@
-App code
+Code Structure
 =======================
 
-For a more detailed description of **PyFrag** read the documentation
+For the advanced users who are interested and want to contribute to the code,
 
-For more information of the code, please check app_
+please check **code_**
 
-Notice
 
-1 Each job should be given a unique name and unique directory, because the result will be stored in the new directory named by the job name.
-
-.. _app: https://pyfragdocument.readthedocs.io/en/latest/annotated.html
+.. _code: https://pyfragdocument.readthedocs.io/en/latest/annotated.html
