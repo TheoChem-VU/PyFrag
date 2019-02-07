@@ -5,10 +5,10 @@ Download the resource of pyfrag which comprises two part, the local files and th
 
 
 Dependencies: in order to run pyfrag, the following programs should be installed: ::
-  1. ADF_         (computational engine)
-  2. qmworks_     (workflow manage engine, however, it is needed to be replaced by the modified version)
-  3. bokeh_       (to show the website.)
-  4. fabric_      (to connect remote machine and transfer files.)
+   1. ADF_         (computational engine)
+   2. qmflows_     (workflow manage engine, however, it is needed to be replaced by the modified version)
+   3. bokeh_       (to show the website.)
+   4. fabric_      (to connect remote machine and transfer files.)
 
 
 **Notes:**
@@ -19,7 +19,7 @@ Dependencies: in order to run pyfrag, the following programs should be installed
 
 
 .. _ADF: https://www.scm.com
-.. _qmflow: https://github.com/SCM-NV/qmflows
+.. _qmflows: https://github.com/SCM-NV/qmflows
 .. _bokeh: https://bokeh.pydata.org/en/latest/
 .. _fabric: http://www.fabfile.org
 
