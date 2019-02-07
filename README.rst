@@ -170,7 +170,7 @@ For installation, please read installation_.
 
 
 
-.. _documentation: https://pyfragdocument.readthedocs.io/en/latest/
+.. _documentation: https://pyfragdocument.readthedocs.io/en/latest/includeme.html
 .. _pyfrag: https://sunxb05.github.io/pyfrag/
 .. _Bickelhaupt Group: http://www.few.vu.nl/~bickel/
 .. _examples: https://github.com/sunxb05/PyFrag/tree/master/example

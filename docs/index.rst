@@ -16,7 +16,7 @@ Contents:
    interactive_tutorial
    Further_reading
    documentation
-
+   app
 
 Indices and tables
 ==================
