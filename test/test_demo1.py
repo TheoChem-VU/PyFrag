@@ -5,4 +5,4 @@ def test_case_2():
     assert 1+1  ==2
 
 def test_case_3():
-    assert 1 +2 ==12
+    assert 1 +2 == 3
