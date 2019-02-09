@@ -40,9 +40,4 @@ setup(
                       'pytest', 'pytest-cov', 'pytest-mock', 'nbsphinx', 'pygraphviz'],
     dependency_links=[
         "git+https://github.com/SCM-NV/PLAMS@master#egg=plams-1.2"]
-
-    # extras_require={
-    #     'test': ['pytest', 'pytest-cov', 'pytest-mock', 'nbsphinx', 'pygraphviz'],
-    #     'doc': ['sphinx', 'sphinx_rtd_theme', 'nbsphinx']
-    # }
 )
