@@ -42,7 +42,7 @@ User can type pyfrag -h to see all the commands that can be used in this program
 Input example
 -------------
 
-For Example, the default parameter for a geometry optimization using ADF are given by: ::
+For Example, the simple job input is as follow, which can be roughtly divided into four section: Slurm information, ADF parameter, pyfrag parameter and geometry parameters. More explation about input can be found in later chapter ::
 
    #!/bin/bash
    #SBATCH -J frag_1
@@ -153,6 +153,7 @@ For Example, the default parameter for a geometry optimization using ADF are giv
 
 Result example
 --------------
+After a job is submited, a website that summarize all information which include the converge inforamtion, the latest structure in the form of movie, the latest energy and coordinate and the activation strain analysis (if a job is finished) will pop up. User can decide if the trend of optimization is right or wrong, if necessary, the job can be stoped. After the input is varied, job will be resubmited and resume from where it stoped before.
 
 .. image:: jobresult.png
    :alt: result

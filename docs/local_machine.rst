@@ -1,28 +1,28 @@
 Local machine
 =============
 
-Download the resource of pyfrag_ and put it in a special directory like `bin` and then do the following set up.
+**Download the resource of pyfrag_ and put it in a special directory like `bin` and then do the following set up.**
 
 
 The path of bin of pyfrag should be put in the .bashrc or .profile in order to run pyfrag anywhere you want, something like: ::
 
-  export PYFRAGHOME="/Users/xiaobo/gitpyfrag"
+  export PYFRAGHOME="/Users/gitpyfrag"   (where you put the source code)
   export PATH=$PYFRAGHOME/bin:$PATH
 
 The basic setup is located in .pyfragrc, including the directory of videos of geometried generated in the optimization process, the local server, which means you need to set up your local websever service, and so on. For example ::
 
-  export PYFRAGVIDEO="/Users/xiaobo/Sites/video"
-  export PYFRAGHOST="http://localhost/~xiaobo/video"
-  export JOBCHECK="20"
-  export REMOTEBASE="/home/x2sun/pyfragtest_2"
-  export RESULTCHECK="20"
-  export HOSTPYFRAG='/home/x2sun/bin/host'
+  export PYFRAGVIDEO="/Users/Sites/video"    (where the video of geometrical optimization will be saved)
+  export PYFRAGHOST="http://localhost/video" (directory of video of your local website)
+  export JOBCHECK="20"                       (time interval to check if your job input is changed)
+  export REMOTEBASE="/home/pyfragtest_2" (the directory in your host machine where all jobs ins saved)
+  export RESULTCHECK="20"                      (time interval to check if result is changed)
+  export HOSTPYFRAG='/home/bin/host'     (where the code of host is stored in your host machine)
 
 
 The configure for fabfile is located at utils directory, such as: ::
 
-  USERNAME = 'x2sun'
-  HOSTNAME = 'cartesius.surfsara.nl'
-  RESULTCHECK="20"
+  USERNAME = 'x2sun'                     (the name of your account in your host machine)
+  HOSTNAME = 'cartesius.surfsara.nl'     (the address of your host machine)
+  RESULTCHECK="20"                       (the same set as before)
 
 .. _pyfrag: https://sunxb05.github.io/pyfrag/

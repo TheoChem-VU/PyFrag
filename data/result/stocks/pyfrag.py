@@ -41,7 +41,16 @@ __all__ = (
 
 def _read_data(name):
     '''
-
+    More data options can be added for instance:
+    data = {
+    'overlap': [],
+    ..............
+    }
+    and
+    for row in reader:
+        overlap, irc, ................
+        data['overlap'].append(overlap)
+    ..............
     '''
     currentPath = os.getcwd()
     filename  = os.path.join(currentPath, str('stocks/PYFRAG.csv'))

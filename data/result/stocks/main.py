@@ -120,6 +120,9 @@ if pyfrag_sign==False:
     layout = column(main_row, series)
 else:
     from pyfrag import PYFRAG
+    # Figure one for ASM which plot energy of total energy, interaction energy and total strain energy
+    # againt bondlength change. You can add more data plot by adding a line like:
+    # p1.line(PYFRAG['bondlength'], PYFRAG['something'], color='#A6CEE3', legend='something')
     p1 = figure(title="Activation strain analysis")
     p1.grid.grid_line_alpha=0.3
     p1.xaxis.axis_label = 'energy'
@@ -130,7 +133,8 @@ else:
     p1.line(PYFRAG['bondlength'], PYFRAG['straintotal'], color='#33A02C', legend='straintotal')
     p1.legend.location = "top_left"
 
-
+    # Figure two for ASM which plot the decomposition of interaction energy into
+    # orbital, pauli, electronic statistic energy terms.
     p2 = figure(title="Activation strain analysis")
     p2.grid.grid_line_alpha=0.3
     p2.xaxis.axis_label = 'energy'
@@ -141,6 +145,17 @@ else:
     p2.line(PYFRAG['bondlength'], PYFRAG['pauli'], color='#33A02C', legend='pauli')
     p2.line(PYFRAG['bondlength'], PYFRAG['elstat'], color='#FB9A99', legend='elstat')
     p2.legend.location = "top_left"
+
+    # Lay out the position of two figures and show figures.
+    # You can add more figures simply by adding something like:
+    # p3 = figure(title="Activation strain analysis")
+    # p3.grid.grid_line_alpha=0.3
+    # p3.xaxis.axis_label = 'energy'
+    # p3.yaxis.axis_label = 'bondlength'
+    # p3.line(PYFRAG['bondlength'], PYFRAG['inter'], color='#A6CEE3', legend='inter')
+    # p3.line(PYFRAG['bondlength'], PYFRAG['inter'], color='#A6CEE3', legend='inter')
+    # p3.legend.location = "top_left"
+    # layout = column(main_row, series,gridplot([[p1,p2,p3]], plot_width=400, plot_height=400))
 
     layout = column(main_row, series,gridplot([[p1,p2]], plot_width=400, plot_height=400))
 
