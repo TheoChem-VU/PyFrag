@@ -125,8 +125,8 @@ else:
     # p1.line(PYFRAG['bondlength'], PYFRAG['something'], color='#A6CEE3', legend='something')
     p1 = figure(title="Activation strain analysis")
     p1.grid.grid_line_alpha=0.3
-    p1.xaxis.axis_label = 'energy'
-    p1.yaxis.axis_label = 'bondlength'
+    p1.xaxis.axis_label = 'bondlength'
+    p1.yaxis.axis_label = 'energy'
 
     p1.line(PYFRAG['bondlength'], PYFRAG['energytotal'], color='#A6CEE3', legend='energytotal')
     p1.line(PYFRAG['bondlength'], PYFRAG['inter'],       color='#B2DF8A', legend='inter')
@@ -137,8 +137,8 @@ else:
     # orbital, pauli, electronic statistic energy terms.
     p2 = figure(title="Activation strain analysis")
     p2.grid.grid_line_alpha=0.3
-    p2.xaxis.axis_label = 'energy'
-    p2.yaxis.axis_label = 'bondlength'
+    p2.xaxis.axis_label = 'bondlength'
+    p2.yaxis.axis_label = 'energy'
 
     p2.line(PYFRAG['bondlength'], PYFRAG['inter'], color='#A6CEE3', legend='inter')
     p2.line(PYFRAG['bondlength'], PYFRAG['oi'], color='#B2DF8A', legend='oi')
