@@ -1,0 +1,4 @@
+Filename       Point  Bondlength_1_3_1.00  TotalIntEn      StrainFrag1     StrainFrag2     StrainTotal     EnergyTotal
+.out           Nr.    Angstrom             kcal/mol        kcal/mol        kcal/mol        kcal/mol        kcal/mol
+pd_cc_ts_0000  0      0.0008               145.8802       -847.3887       -927.3887       -1774.7773      -1628.8972
+pd_cc_ts_0001  1      0.010               141.8802       -841.3887       -921.3887       -1714.7773      -1628.8972
