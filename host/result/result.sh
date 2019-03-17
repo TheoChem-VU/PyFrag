@@ -71,8 +71,18 @@ function result_final {
 output=$*
 step=`grep -En 'Geometry Convergence after Step  ' $output | cut -d":" -f 1`
 steps=`echo $step |wc -w`
-echo $steps
-lstep='Geometry Convergence after Step   '$steps
+
+
+if [ "$steps" -lt 10 ]; then
+  lstep='Geometry Convergence after Step   '$steps
+elif [ "$steps" -ge 10 ]; then
+  if [ "$steps" -lt 100 ]; then
+    lstep='Geometry Convergence after Step  '$steps
+  elif [ "$steps" -ge 100 ]; then
+    lstep='Geometry Convergence after Step '$steps
+  fi
+fi
+
 grep -A 200 "$lstep" $output | grep -B 200 ' Number of elements of the density matrix on this node '    >   slot.txt
 }
 

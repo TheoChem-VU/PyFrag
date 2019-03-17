@@ -108,6 +108,16 @@ def readIRCPath(f, tag, offset):
       return [tmpList[i:i+offset] for i in range(0, nEntry, offset)]
    return []
 
+def GetAtom(kf):
+   # preparations: get geometry info, atomic symbols in the right order
+   nAtoms = kf.read('Geometry', 'nr of atoms')
+   aAtoms = kf.read('Geometry', 'fragment and atomtype index')[nAtoms:]
+   xAtoms = str(kf.read('Geometry', 'atomtype')).split()
+   oAtoms = kf.read('Geometry', 'atom order index')[nAtoms:]
+   sAtoms = [xAtoms[order-1] for numb, order in sorted(zip(oAtoms, aAtoms))]
+   #sAtoms = [xAtoms[aAtoms[order-1]-1] for order in f.read('Geometry', 'atom order index')[nAtoms:]]
+   return nAtoms, sAtoms
+
 
 def ReadIRCt21(fileName, fileName2=None):
    # preparations: get geometry info, atomic symbols in the right order
@@ -277,10 +287,13 @@ def PyFragDriver(inputKeys, fragmentSettings, complexSettings):
    for key, val in inputKeys['coordFile'].items(): # TODO: rename coordFile to pathCoordFile
       if key == 'irct21':
          ircStructures = ReadIRCt21(val)
+         exec ('complexSettings.input.UNITS.length="Bohr"')
       elif key == 'irct21two':
          ircStructures = ReadIRCt21(val[0],val[1])
+         exec ('complexSettings.input.UNITS.length="Bohr"')
       elif key == 'lt':
          ircStructures = ReadLTt21(val)
+         exec ('complexSettings.input.UNITS.length="Bohr"')
       else:
          ircStructures = ParseIRCFile(val)
 
@@ -382,6 +395,14 @@ class PyFragResult:
             self.irrepOrbNum          = complexResult.readkf('Symmetry', 'norb')
             #irrep label for symmetry of complex
             self.irrepType            = str(complexResult.readkf('Symmetry', 'symlab')).split()
+            self.coreOrbNumber        = complexResult.readkf('Symmetry', 'ncbs')
+
+   def ConvertList(self, obj):
+      #single number in adf t21 is number fommat which is need to convert list
+      if type(obj) == list:
+         return obj
+      else:
+         return [obj]
 
    def GetFaIrrep(self):
       #append complex irrep label to each orbital, if symmetry is A, convert self.irrepOrbNum which is float type into list
@@ -400,12 +421,22 @@ class PyFragResult:
       orbSum = 0
       for nrShell, nrCore in zip(self.irrepOrbNum, coreOrbNum):
          orbSum += (nrShell + nrCore)
-         orbNumbers.extend(range(orbSum - nrShell + 1, orbSum + 1))
+         orbNumbers.extend(list(range(orbSum - nrShell + 1, orbSum + 1)))
+      return orbNumbers
+
+   def GetFragOrbNum(self):
+      # GetOrbNumbers including frozen core orbitals, this is necessary to read population, list like [3,4,5,12,13,14,15,23,24,26]
+      #core orbital number corresponding to each irrep of complex symmetry
+      coreOrbNum           = self.ConvertList(self.coreOrbNumber)
+      irrepOrbNum          = self.ConvertList(self.irrepOrbNumber)
+      orbNumbers = []
+      for nrShell, nrCore in zip(irrepOrbNum, coreOrbNum):
+         orbNumbers.extend(range(nrCore + 1, nrShell + nrCore + 1))
       return orbNumbers
 
    def GetAtomNum(self, fragmentList, atoms):
       #change atom number in old presentation of a molecule into atom number in new presentation that formed by assembling fragments
-      atomList = [atomNum for sublist in fragmentList.values() for atomNum in sublist]
+      atomList = [atomNum for key in sorted(list(fragmentList.keys())) for atomNum in list(fragmentList[key])]
       return [atomList.index(i)+1 for i in atoms]
 
    def GetFragNum(self, frag):
@@ -468,13 +499,14 @@ class PyFragResult:
 
    def GetOutputData(self, complexMolecule, outputData, inputKeys):
       #collect default energy parts for activation strain analysis
-      outputData['Pauli']   = self.Pauli
-      outputData['Elstat']  = self.Elstat
-      outputData['OI']      = self.OI
-      outputData['Int']     = self.Int
-      outputData['EnergyTotal']  = self.Int + outputData['StrainTotal']
+      outputData['Pauli']   = Units.convert(self.Pauli, 'hartree', 'kcal/mol')
+      outputData['Elstat']  = Units.convert(self.Elstat, 'hartree', 'kcal/mol')
+      outputData['OI']      = Units.convert(self.OI, 'hartree', 'kcal/mol')
+      outputData['Int']     = Units.convert(self.Int, 'hartree', 'kcal/mol')
+      outputData['EnergyTotal']  = Units.convert(self.Int, 'hartree', 'kcal/mol') + outputData['StrainTotal']
+      outputData['Steric']  = outputData['Pauli'] + outputData['Elstat']
       #collect user defined data
-      for key, val in inputKeys.items():
+      for key, val in list(inputKeys.items()):
          value = []
          if key == 'overlap':
             outputData[key] = [self.ReadOverlap(self.GetOrbitalIndex(od1), self.GetOrbitalIndex(od2)) for od1, od2 in val]
@@ -497,15 +529,20 @@ class PyFragResult:
          elif key == 'bondlength':
             for od in val:
                atoms = self.GetAtomNum(inputKeys['fragment'], od['bondDef'])
-               value.append(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]) - od['oriVal'])
+               #coordinate read directly from t21 is in bohr while from .amv is in amstrom
+               for coorKey, coorVal in list(inputKeys['coordFile'].items()):
+                  if coorKey == 'ircpath':
+                     value.append(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]) - od['oriVal'])
+                     print ('bondlength', complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]) )
+                  else:
+                     value.append(Units.convert(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]), 'bohr', 'angstrom') - od['oriVal'])
             outputData[key] = value
 
          elif key == 'angle':
             for od in val:
                atoms = self.GetAtomNum(inputKeys['fragment'], od['angleDef'])
-               value.append(complexMolecule[atoms[0]].angle(complexMolecule[atoms[1]], complexMolecule[atoms[2]]) - od['oriVal'])
+               value.append(Units.convert((complexMolecule[atoms[0]].angle(complexMolecule[atoms[1]], complexMolecule[atoms[2]])), 'rad', 'deg') - od['oriVal'])
             outputData[key] = value
-
       return GetOutputTable(outputData)
 
 
@@ -524,7 +561,7 @@ class PyFragResult:
 class PyFragJob:
    def __init__(self, fragmentSettings, complexSettings, inputArgues, others = None):
 #      if others['irct21'] == None and  others['lt'] == None and  others['ircpath'] == None:
-      others_1 = dict((k,v) for k, v in others.items() if v is not None)          
+      others_1 = dict((k,v) for k, v in others.items() if v is not None)
       others_1['irct21'] = [[inputArgues]]
 #         others['irct21'] = [[inputArgues['ircpath']]]    # provide irc t21 from irc calculation
 #      elif others['strain'] == None:

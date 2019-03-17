@@ -53,4 +53,3 @@ while [ $Mark = "True" ]; do
 done
 
 kill -9 $(ps -p $PPID -o ppid=)
-# osascript -e "tell application \"System Events\" to keystroke \"w\" using command down"

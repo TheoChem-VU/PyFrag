@@ -13,7 +13,7 @@ REMOTEDIR=$REMOTEBASE/"${JOBNAME%.*}"
 
 cp $JOBSTATE $JOBDIR/result
 
-# connect to remote machine and send job input and start to parce and submit job.
+# connect to remote machine and send job input and start to parse and submit job.
 fab -f $PYFRAGHOME/utils/jobsub/fabfile.py deploy:$JOBDIR,$JOBNAME,$REMOTEDIR &
 
 # Every a time interval, connect and check if new result is generated. If so, cp it to local machine.
