@@ -504,7 +504,6 @@ class PyFragResult:
       outputData['OI']      = Units.convert(self.OI, 'hartree', 'kcal/mol')
       outputData['Int']     = Units.convert(self.Int, 'hartree', 'kcal/mol')
       outputData['EnergyTotal']  = Units.convert(self.Int, 'hartree', 'kcal/mol') + outputData['StrainTotal']
-      outputData['Steric']  = outputData['Pauli'] + outputData['Elstat']
       #collect user defined data
       for key, val in list(inputKeys.items()):
          value = []
