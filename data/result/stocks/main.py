@@ -125,25 +125,25 @@ else:
     # p1.line(PYFRAG['bondlength'], PYFRAG['something'], color='#A6CEE3', legend='something')
     p1 = figure(title="Activation strain analysis")
     p1.grid.grid_line_alpha=0.3
-    p1.xaxis.axis_label = 'bondlength'
-    p1.yaxis.axis_label = 'energy'
+    p1.xaxis.axis_label = 'Bond Stretch /Å'
+    p1.yaxis.axis_label = 'Energy / kcal mol-1'
 
-    p1.line(PYFRAG['bondlength'], PYFRAG['energytotal'], color='#A6CEE3', legend='energytotal')
-    p1.line(PYFRAG['bondlength'], PYFRAG['inter'],       color='#B2DF8A', legend='inter')
-    p1.line(PYFRAG['bondlength'], PYFRAG['straintotal'], color='#33A02C', legend='straintotal')
+    p1.line(PYFRAG['bondlength'], PYFRAG['energytotal'], color='black', legend='energytotal')
+    p1.line(PYFRAG['bondlength'], PYFRAG['inter'],       color='green', legend='inter')
+    p1.line(PYFRAG['bondlength'], PYFRAG['straintotal'], color='red', legend='straintotal')
     p1.legend.location = "top_left"
 
     # Figure two for ASM which plot the decomposition of interaction energy into
     # orbital, pauli, electronic statistic energy terms.
     p2 = figure(title="Activation strain analysis")
     p2.grid.grid_line_alpha=0.3
-    p2.xaxis.axis_label = 'bondlength'
-    p2.yaxis.axis_label = 'energy'
+    p2.xaxis.axis_label = 'Bond Stretch /Å'
+    p2.yaxis.axis_label = 'Energy / kcal mol-1'
 
-    p2.line(PYFRAG['bondlength'], PYFRAG['inter'], color='#A6CEE3', legend='inter')
-    p2.line(PYFRAG['bondlength'], PYFRAG['oi'], color='#B2DF8A', legend='oi')
-    p2.line(PYFRAG['bondlength'], PYFRAG['pauli'], color='#33A02C', legend='pauli')
-    p2.line(PYFRAG['bondlength'], PYFRAG['elstat'], color='#FB9A99', legend='elstat')
+    p2.line(PYFRAG['bondlength'], PYFRAG['inter'], color='green', legend='inter')
+    p2.line(PYFRAG['bondlength'], PYFRAG['oi'], color='blue', legend='oi')
+    p2.line(PYFRAG['bondlength'], PYFRAG['pauli'], color='black', legend='pauli')
+    p2.line(PYFRAG['bondlength'], PYFRAG['elstat'], color='red', legend='elstat')
     p2.legend.location = "top_left"
 
     # Lay out the position of two figures and show figures.

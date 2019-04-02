@@ -1,6 +1,6 @@
 INPUT_SPECS
 type = IRC
-output file = Ethylene-forward.out
+output file = Ethylene-forward.amv
 fa1_name = complex
 frag1 = C4H6
 1.C
