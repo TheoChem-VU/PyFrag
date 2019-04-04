@@ -25,4 +25,4 @@ The configure for fabfile is located at utils directory, such as: ::
   HOSTNAME = 'cartesius.surfsara.nl'     (the address of your host machine)
   RESULTCHECK="20"                       (the same set as before)
 
-.. _pyfrag: https://sunxb05.github.io/pyfrag/
+.. _pyfrag: https://github.com/sunxb05/PyFrag
