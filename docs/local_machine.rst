@@ -1,7 +1,7 @@
 Local machine
 =============
 
-**Download the resource of pyfrag_ and put it in a special directory like `bin` and then do the following set up.**
+Download the resource of pyfrag_ and put it in a special directory like `bin` and then do the following set up.
 
 
 The path of bin of pyfrag should be put in the .bashrc or .profile in order to run pyfrag anywhere you want, something like: ::
