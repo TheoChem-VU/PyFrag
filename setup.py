@@ -18,6 +18,10 @@ setup(
     keywords='chemistry workflows simulation materials',
     long_description=readme(),
     packages=["qmworks",
+              "qmworks.plams",
+              "qmworks.plams.core",
+              "qmworks.plams.interfaces",
+              "qmworks.plams.tools",
               "qmworks.components",
               "qmworks.data",
               "qmworks.data.dictionaries",
@@ -30,14 +34,19 @@ setup(
     },
     classifiers=[
         'Intended Audience :: Science/Research',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.5',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Chemistry'
     ],
-    install_requires=['h5py', 'numpy', 'noodles==0.3.1', 'plams>=1.2', 'pymonad',
-                      'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy',
-                      'pytest', 'pytest-cov', 'pytest-mock', 'nbsphinx'],
-    dependency_links=[
-        "git+https://github.com/SCM-NV/PLAMS@master#egg=plams-1.2"]
+
+    install_requires=['h5py', 'numpy', 'noodles==0.3.1', 'pymonad',
+                      'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy'
+                      ]
+
+    # install_requires=['h5py', 'numpy', 'noodles==0.3.1', 'plams>=1.2', 'pymonad',
+    #                   'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy',
+    #                   'pytest', 'pytest-cov', 'pytest-mock', 'nbsphinx'],
+    # dependency_links=[
+    #     "git+https://github.com/SCM-NV/PLAMS@master#egg=plams-1.2"]
 )

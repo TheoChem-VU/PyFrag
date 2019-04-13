@@ -2,7 +2,7 @@
 
 ## Added
  * Quantum Dots builder functionality
- 
+
 ## Changed
 
  * Use [noodles==0.3.0](https://github.com/NLeSC/noodles/releases)
@@ -20,15 +20,10 @@
 ## Fixed
 
  * Job manager issue when removing a SCM job
- 
- 
+
 
 # 02/12/2018
 
-## Added
- * Ligand MOPAC+COSMO-RS property calculation
- * Inter-ligand activation strain analysis have been (UFF)
- 
 ## Changed
+divide all code into three level: pyfrag module; easy job submit and restart and summary(without the requirement of open local server and applescript); full functionalities.
 
- * Ligand optimization has been overhauled
