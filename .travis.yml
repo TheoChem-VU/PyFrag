@@ -18,13 +18,13 @@ install:
   - conda install -c rdkit rdkit==2018.03.4.0
 
   # Install qmflows package
-  - pip install git+https://github.com/SCM-NV/PLAMS.git@master#egg=plams-1.2 --upgrade
+  # - pip install git+https://github.com/SCM-NV/PLAMS.git@master#egg=plams-1.2 --upgrade
   # - python -m pip install --no-cache-dir  git+https://github.com/sunxb05/PyFrag@master#egg=PyFrag-0.0.1
   - pip install .
-script:
-  # Run the unitary tests
-  - pytest  --cov=qmworks test
-  - coverage xml && coverage report -m
+# script:
+#   # Run the unitary tests
+#   - pytest  --cov=qmworks test
+#   - coverage xml && coverage report -m
 
 branches:
   only:
