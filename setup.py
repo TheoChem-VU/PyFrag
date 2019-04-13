@@ -30,11 +30,11 @@ setup(
               "qmworks.parsers",
               "qmworks.templates"],
     package_data={
-        "qmworks": ['data/templates/*json', 'data/dictionaries/*json']
+        "qmworks": ['data/templates/*json', 'data/dictionaries/*json', 'plams/plams_defaults']
     },
     classifiers=[
         'Intended Audience :: Science/Research',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Chemistry'
