@@ -40,7 +40,7 @@ setup(
         'Topic :: Scientific/Engineering :: Chemistry'
     ],
 
-    install_requires=['h5py', 'numpy', 'noodles==0.3.1', 'pymonad',
+    install_requires=['h5py', 'numpy', 'noodles==0.2.3', 'pymonad',
                       'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy'
                       ]
     # pytest block
