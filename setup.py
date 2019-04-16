@@ -34,13 +34,13 @@ setup(
     },
     classifiers=[
         'Intended Audience :: Science/Research',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.5',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Chemistry'
     ],
 
-    install_requires=['h5py', 'numpy', 'noodles==0.2.3', 'pymonad',
+    install_requires=['h5py==2.6.0', 'numpy', 'noodles==0.2.3', 'pymonad',
                       'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy'
                       ]
     # pytest block
