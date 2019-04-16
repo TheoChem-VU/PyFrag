@@ -1,35 +1,27 @@
 Installation
 ============
 
-Dependencies: in order to run pyfrag, the following programs should be installed:
+To install and test pyfrag, user need do three steps:
 
-   1. ADF_         (computational engine)
-   2. qmworks_     (workflow management engine)
-   3. bokeh_       (web server)
-   4. fabric_      (data transfer program)
+1) Go to your local machine (your laptop or desktop), open a terminal and run the following command on your terminal.
 
-
-**Notes:**
-
-- ADF_ is a popular DFT compuational program and its instalation is pretty staightford. However, after installation, the set-up of ADF_ should be handled properly so that adfinput can be called in terminal.
-- qmworks_ is an extentison of workflow management python library qmflows_ developed by  F. Zapata, L. Ridder and B. F. van Beek which provide more functions than qmworks and more information can be find in the qmflows document_. The installation of qmworks_ is a bit tricky and is elaberated later.
-- bokeh_ is an interactive visualization library that targets modern web browsers for presentation. It can be installed by ``pip install bokeh``
-- fabric_ is a high level Python library designed to execute shell commands remotely over SSH, yielding useful Python objects in return. We use old version of fabirc which can be installed by ``pip install Fabric==1.12.2``.
+``curl -L -o install_local.sh  https://github.com/sunxb05/PyFrag/install_local.sh``
+``bash install_local.sh``
 
 
+2) Go to your host machine (supercomputer or cluster), open a terminal and run the following command on your terminal.
 
-.. _ADF: https://www.scm.com
-.. _qmworks: https://github.com/sunxb05/PyFrag/tree/master/qmworks
-.. _qmflows: https://github.com/SCM-NV/qmflows
-.. _document: https://qmflows.readthedocs.io/en/latest/
-.. _bokeh: https://bokeh.pydata.org/en/latest/
-.. _fabric: http://www.fabfile.org
+``curl -L -o install_host.sh  https://github.com/sunxb05/PyFrag/install_host.sh``
+``bash install_host.sh``
 
+3) Open a terminal in your local machine, make a directory, enter into that directory and run the following command.
 
+``curl -L -o job.in  https://github.com/sunxb05/PyFrag/blob/master/example/job.in``
 
+change the submit information in job.in using vim or any editor, and run:
 
-For a more detailed description of **instalation** read the documentation
+``pyfrag job.in``
 
-.. toctree::
-   local_machine
-   remote_machine
+if your want to know the latest information about your job, just run:
+
+``pyfrag -x summary job.in``
