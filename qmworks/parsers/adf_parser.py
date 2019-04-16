@@ -1,6 +1,7 @@
 
 from qmworks.settings import Settings
-import plams
+#import plams
+from qmworks import plams
 import numpy as np
 
 

@@ -1,27 +1,28 @@
-from plams import *
+#from plams import *
+from qmworks.plams import *
 import argparse as ag
 
 
 __all__ = ['PyFragJob']
 
-def ReturnArgues():
-   parser = ag.ArgumentParser(description='Print user defined values')
-   parser.add_argument("--ircpath", type=str, action='append', nargs='*', help='IRC coordinate file')
-   parser.add_argument("--irct21", type=str, action='append', nargs='*', help='IRC coordinate file')
-   parser.add_argument("--lt", type=str, action='append', nargs='*', help='LT coordinate file')
-   parser.add_argument("--fragment", type=int, action='append', nargs='*', help='atom number for each fragment')
-   parser.add_argument("--strain", type=float, action='append', nargs='*', help='print strain energy')
-   parser.add_argument("--VDD", type=int, action='append',  nargs='*', help='print VDD charges')
-   parser.add_argument("--hirshfeld", type=str, action='append',  nargs='*', help='print hirshfeld charges')
-   parser.add_argument("--bondlength", type=foat, action='append', nargs='*', help='print bond length')
-   parser.add_argument("--angle", type=float, action='append', nargs='*', help='print angle')
-   parser.add_argument("--irrepOI", type=str, nargs='*', action='append', help='print OI energy for point group symmetry irrep')
-   parser.add_argument("--population", type=str, nargs='*',action='append', help='print population for fragment orbital')
-   parser.add_argument("--overlap", type=str, nargs='*',action='append', help='print overlap between two fragment orbitals')
-   parser.add_argument("--orbitalenergy", type=str, nargs='*',action='append', help='print orbital energy')
-   parser.add_argument("--adfinput", type=str, nargs='*',action='append', help='adfinput parameter set')
-   parser.add_argument("--adfinputfile", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
-   return vars(parser.parse_args())
+#def ReturnArgues():
+#   parser = ag.ArgumentParser(description='Print user defined values')
+#   parser.add_argument("--ircpath", type=str, action='append', nargs='*', help='IRC coordinate file')
+#   parser.add_argument("--irct21", type=str, action='append', nargs='*', help='IRC coordinate file')
+#   parser.add_argument("--lt", type=str, action='append', nargs='*', help='LT coordinate file')
+#   parser.add_argument("--fragment", type=int, action='append', nargs='*', help='atom number for each fragment')
+#   parser.add_argument("--strain", type=float, action='append', nargs='*', help='print strain energy')
+#   parser.add_argument("--VDD", type=int, action='append',  nargs='*', help='print VDD charges')
+#   parser.add_argument("--hirshfeld", type=str, action='append',  nargs='*', help='print hirshfeld charges')
+#   parser.add_argument("--bondlength", type=foat, action='append', nargs='*', help='print bond length')
+#   parser.add_argument("--angle", type=float, action='append', nargs='*', help='print angle')
+#   parser.add_argument("--irrepOI", type=str, nargs='*', action='append', help='print OI energy for point group symmetry irrep')
+#   parser.add_argument("--population", type=str, nargs='*',action='append', help='print population for fragment orbital')
+#   parser.add_argument("--overlap", type=str, nargs='*',action='append', help='print overlap between two fragment orbitals')
+#   parser.add_argument("--orbitalenergy", type=str, nargs='*',action='append', help='print orbital energy')
+#   parser.add_argument("--adfinput", type=str, nargs='*',action='append', help='adfinput parameter set')
+#   parser.add_argument("--adfinputfile", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+#   return vars(parser.parse_args())
 
 def CollectInput(argues):
    inputKeys = {}
@@ -247,13 +248,28 @@ def writeKey(file, value, pform=r'%7.5f', ljustwidth=16): # TODO: move to standa
    file.write('\n')
 
 def WriteTable(tableValues, fileName):
-   energyfile  = open('pyfrag'+fileName+'.txt', "w")
+   energyfile  = open('pyfrag.txt', "w")
    headerlist  = sorted(tableValues[0])
    writeKey(energyfile, headerlist) # TODO: adapt as parts of this are in standalone
    for entry in tableValues:
       sortedEntry = [entry[i] for i in headerlist]
       writeKey(energyfile, sortedEntry)
    energyfile.close()
+
+
+def WriteDefaultTable(tableValues, fileName):
+   energyfile  = open('pyfragdefault.txt', "w")
+   headerlist_all  = sorted(tableValues[0])
+   for item in headerlist_all:
+      if item == "bondlength_1":
+         headerlist_real = ["#IRC","Elstat","EnergyTotal","Int","OI","Pauli","StrainTotal","bondlength_1","frag1Strain","frag2Strain"]
+   headerlist  = ["#IRC","Elstat","EnergyTotal","Int","OI","Pauli","StrainTotal","bondlength","frag1Strain","frag2Strain"]
+   writeKey(energyfile, headerlist)
+   for entry in tableValues:
+      sortedEntry = [entry[i] for i in headerlist_real]
+      writeKey(energyfile, sortedEntry)
+   energyfile.close()
+
 
 def WriteFailFiles(failStructures, fileName):
    structureFile = open('pyfragfailed'+fileName+'.xyz', "w")
@@ -281,7 +297,7 @@ def PrintTable(cellList, widthlist, bar):
    if bar: print (line)
    # TODO: this should return a string (including "\n" if more than one line)
 
-def PyFragDriver(inputKeys, fragmentSettings, complexSettings):
+def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
    #main pyfrag driver used for fragment and complex calculation.
    #read coordinates from IRC or LT t21 file. Other choice is xyz file generated from other tools.
    for key, val in inputKeys['coordFile'].items(): # TODO: rename coordFile to pathCoordFile
@@ -307,8 +323,14 @@ def PyFragDriver(inputKeys, fragmentSettings, complexSettings):
       complexMolecule     = Molecule()      #each molecule is a subject of plams class Molecule()
       ircTag              = '.'+str(ircIndex+1).zfill(5)
       # for fragTag in ircFrags.keys():
-      for fragTag in list(ircFrags.keys()):
+#      for fragTag in list(ircFrags.keys()):
+      for fragTag in ['frag1','frag2']:      
          success = True
+         if fragTag == 'frag1':
+            fragmentSettings = frag1Settings
+         else:
+            fragmentSettings = frag2Settings
+         exec ('fragmentSettings.input.UNITS.length="Bohr"')
          jobFrag = ADFJob(molecule=ircFrags[fragTag], settings=fragmentSettings, name=fragTag+ircTag)
          jobFrag.run()
          if jobFrag.check():
@@ -316,6 +338,7 @@ def PyFragDriver(inputKeys, fragmentSettings, complexSettings):
             exec ("complexSettings.input.Fragments." + fragTag + "=" + '"' + jobFrag.results._kfpath() + '"')
             #get strain and total strain which is the energy difference between current and previous geometry.
             outputData[fragTag + 'Strain'] = jobFrag.results.readkf('Energy', 'Bond Energy') - inputKeys['strain'][fragTag]
+            outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - inputKeys['strain'][fragTag]
             outputData['StrainTotal'] += outputData[fragTag + 'Strain']
             #reorganize new complex from fragments by appending fragment label. Beware the atomic orders maybe changed
             for atom in ircFrags[fragTag]:
@@ -437,8 +460,8 @@ class PyFragResult:
    def GetAtomNum(self, fragmentList, atoms):
       #change atom number in old presentation of a molecule into atom number in new presentation that formed by assembling fragments
       atomList = [atomNum for key in sorted(list(fragmentList.keys())) for atomNum in list(fragmentList[key])]
+#      return [atomList.index(i)+1 for i in atoms]
       return [atomList.index(i)+1 for i in atoms]
-
    def GetFragNum(self, frag):
       #change frag type like 'frag1' into number like "1" recorded in t21
       #append fragmenttype(like 1 or 2) to each orbital
@@ -532,9 +555,13 @@ class PyFragResult:
                for coorKey, coorVal in list(inputKeys['coordFile'].items()):
                   if coorKey == 'ircpath':
                      value.append(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]) - od['oriVal'])
-                     print ('bondlength', complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]) )
                   else:
                      value.append(Units.convert(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]), 'bohr', 'angstrom') - od['oriVal'])
+                     print("==================atom0",atoms[0])
+                     print("==================atom1",atoms[1])
+                     print ("==================bondlength1", complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]))
+                     print ("==================bondlength2", Units.convert(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]), 'bohr', 'angstrom'))
+                     print ("==================bondleng", od['oriVal'])
             outputData[key] = value
 
          elif key == 'angle':
@@ -544,41 +571,20 @@ class PyFragResult:
             outputData[key] = value
       return GetOutputTable(outputData)
 
-
-# class PyFragJob:
-#    def __init__(self, fragmentSettings, complexSettings, inputArgues):
-#       self.inputArgues    = CollectInput(inputArgues)
-#       self.fragmentSettings  = fragmentSettings
-#       self.complexSettings   = complexSettings
-
-#    def run(self):
-#       tableValue, fileName, failStructures = PyFragDriver(self.inputArgues, self.fragmentSettings, self.complexSettings)
-#       WriteTable(tableValue, fileName)
-#       if failStructures is not None:
-#          WriteFailFiles(failStructures, fileName)
-
 class PyFragJob:
-   def __init__(self, fragmentSettings, complexSettings, inputArgues, others = None):
-#      if others['irct21'] == None and  others['lt'] == None and  others['ircpath'] == None:
+   def __init__(self, fragment1Settings, fragment2Settings, complexSettings, inputArgues, others = None):
       others_1 = dict((k,v) for k, v in others.items() if v is not None)
       others_1['irct21'] = [[inputArgues]]
-#         others['irct21'] = [[inputArgues['ircpath']]]    # provide irc t21 from irc calculation
-#      elif others['strain'] == None:
-#         others.pop('strain')
-#         others['strain'] = [[inputArgues['strain']]]    # provide strain from r1 r2 calculation
-#      elif others['bondlength'][0][2] == 0:
-#         others.pop('bondlength')
-#         others['bondlength'] = [[inputArgues['bondlength']]]    # provide strain from r1 r2 calculation
 
       self.inputArgues    = CollectInput(others_1)
-      self.fragmentSettings  = fragmentSettings
+      self.fragment1Settings  = fragment1Settings
+      self.fragment2Settings  = fragment2Settings
       self.complexSettings   = complexSettings
 
    def run(self):
-      tableValue, fileName, failStructures = PyFragDriver(self.inputArgues, self.fragmentSettings, self.complexSettings)
+      tableValue, fileName, failStructures = PyFragDriver(self.inputArgues, self.fragment1Settings, self.fragment2Settings, self.complexSettings)
       WriteTable(tableValue, fileName)
-#      if failStructures is not None:
-#         WriteFailFiles(failStructures, fileName)
+      WriteDefaultTable(tableValue, fileName)
 
 
 

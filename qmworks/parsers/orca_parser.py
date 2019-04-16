@@ -1,5 +1,5 @@
 
-from plams import (Atom, Molecule)
+from qmworks.plams import (Atom, Molecule)
 from pyparsing import (alphanums, Group, OneOrMore, Word)
 from .parser import (floatNumber, parse_file, parse_section, skipLine,
                      skipSupress, string_array_to_molecule)

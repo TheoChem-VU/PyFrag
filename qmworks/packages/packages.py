@@ -10,7 +10,8 @@ import fnmatch
 import importlib
 import inspect
 import os
-import plams
+#import plams
+from qmworks import plams
 import pkg_resources as pkg
 import builtins
 
@@ -319,7 +320,7 @@ class Package_pyfrag:
         display="Running {self.pkg_name} {job_name}...",
         store=True, confirm=True)
 
-    def __call__(self, settings, settings_2 = None , inputArgues=None, job_name='', **kwargs):
+    def __call__(self, settings, settings_2 = None, settings_3 = None, inputArgues=None, job_name='', **kwargs):
         """
         This function performs a job with the package specified by
         self.pkg_name
@@ -337,11 +338,12 @@ class Package_pyfrag:
 
         self.prerun()
 
-        FragmentSettings = self.generic2specific(settings)
-        ComplexSettings  = self.generic2specific(settings_2)
+        Fragment1Settings = self.generic2specific(settings)
+        Fragment2Settings = self.generic2specific(settings_2)
+        ComplexSettings  = self.generic2specific(settings_3)
 
 
-        result = self.run_job(FragmentSettings, ComplexSettings, inputArgues, **kwargs)
+        result = self.run_job(Fragment1Settings,Fragment2Settings, ComplexSettings, inputArgues, **kwargs)
         return result
 
         self.postrun()

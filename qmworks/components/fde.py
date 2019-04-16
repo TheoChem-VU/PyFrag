@@ -4,8 +4,8 @@ from qmworks import Settings, templates
 from qmworks.packages import Result
 from qmworks.packages.SCM import adf
 from noodles import gather, schedule, Storable
-from plams import Molecule
-
+#from plams import Molecule
+from qmworks.plams import Molecule
 import numpy as np
 
 @schedule

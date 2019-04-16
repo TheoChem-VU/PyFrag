@@ -1,7 +1,8 @@
 
 __all__ = ['Settings']
 
-import plams
+#import plams
+from qmworks import plams
 
 from noodles import Storable
 from six import string_types

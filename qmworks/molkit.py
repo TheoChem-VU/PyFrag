@@ -12,7 +12,7 @@ This is a series of functions that apply RDKit functionality on PLAMS molecules
 
 from rdkit import Chem, Geometry
 from rdkit.Chem import AllChem
-from plams import (Molecule, Bond, Atom)
+from qmworks.plams import (Molecule, Bond, Atom)
 import sys
 
 

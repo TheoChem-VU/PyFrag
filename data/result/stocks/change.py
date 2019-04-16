@@ -6,7 +6,6 @@ for line in ircFile:
    llist = line.split()
    ircRaw.append(llist)
 ircRawList = [_f for _f in ircRaw if _f]
-print (ircRawList)
 ircFile.close()
 
 currentPath = os.getcwd()
@@ -19,11 +18,11 @@ for Index, Molecule in enumerate(ircRawList):
    coordFile.write('\n')
 coordFile.close()
 
-csvName=sys.argv[2]
+# csvName=sys.argv[2]
 
-tableFile = open(csvName, "a")
-for Index, Molecule in enumerate(ircRawList):
-    tableFile.write('"","' + "  ".join(str(bit) for bit in Molecule) + '"')
-    tableFile.write('\n')
-tableFile.close()
+# tableFile = open(csvName, "a")
+# for Index, Molecule in enumerate(ircRawList):
+#     tableFile.write('"","' + "  ".join(str(bit) for bit in Molecule) + '"')
+#     tableFile.write('\n')
+# tableFile.close()
 

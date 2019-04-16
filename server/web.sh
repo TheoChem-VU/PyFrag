@@ -2,28 +2,9 @@
 
 
 function webedit {
-# loginput=$RESULTDIR/*log
+
 htmlfile=$RESULTDIR/stocks/templates/index.html
-# logfile=$RESULTDIR/log.txt
 
-# touch $logfile
-# grep  'finished with status' $loginput  > $logfile
-
-# if [ -s $logfile ]; then
-#   loginfo=$logfile
-# else
-#   loginfo=$loginput
-# fi
-
-
-# while read line
-# do
-# echo -e  '<br>' $line                          >> $htmlfile
-# done < $loginfo
-
-
-# echo '    </p>'                                >> $htmlfile
-# echo '    {{ super() }}'                       >> $htmlfile
 for dir in r1geometry r2geometry rcgeometry tsgeometry pgeometry ircgeometry
 do
     if [ -d $RESULTDIR/$dir ]; then
@@ -61,10 +42,10 @@ fi
 }
 
 function pyfragfig {
-if  [ -e $RESULTDIR/pyfrag* ]; then
-  cp $RESULTDIR/pyfrag*   $RESULTDIR/stocks/daily/pyfrag.txt
+if  [ -e $RESULTDIR/pyfragdefault.txt ]; then
+  mv $RESULTDIR/pyfragdefault.txt   $RESULTDIR/stocks/daily/pyfrag.txt
   cd $RESULTDIR/stocks
-  python3 change.py $RESULTDIR/stocks/daily/pyfrag.txt $PYFRAGVIDEO/$JOBNAME/csv2html/data/coor.csv
+  python3 change.py $RESULTDIR/stocks/daily/pyfrag.txt
 fi
 }
 
@@ -83,6 +64,12 @@ if  [ -e $RESULTDIR ]; then
 fi
 }
 
+function pyfragtable {
+
+if  [ -e $RESULTDIR/pyfrag.txt ]; then
+  python3 $PYFRAGHOME/server/pyfragtable.py $RESULTDIR/pyfrag.txt $PYFRAGVIDEO/$JOBNAME/csv2html/data/coor.csv
+fi
+}
 
 
 RESULTDIR="$( pwd -P )"
@@ -100,9 +87,11 @@ cp $PYFRAGHOME/data/video/csv2html/data/coor.csv $PYFRAGVIDEO/$JOBNAME/csv2html/
 #table for latest coordinate
 geotable
 
-
 #figure for pyfrag
 pyfragfig
+
+#table for pyfrag
+pyfragtable
 
 # if  [ -e $RESULTDIR/pyfrag* ]; then
 #   cp $RESULTDIR/pyfrag*   $RESULTDIR/stocks/daily/pyfrag.txt

@@ -4,7 +4,8 @@ __all__ = ['Distance', 'Angle', 'Dihedral', 'PES']
 from qmworks import templates, molkit
 from qmworks.settings import Settings
 from noodles import gather, schedule
-from plams import Molecule
+#from plams import Molecule
+from qmworks.plams import Molecule
 from rdkit.Chem import AllChem
 
 

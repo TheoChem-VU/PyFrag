@@ -3,7 +3,7 @@ from qmworks.packages.packages import (Package, package_properties, Result)
 from qmworks.settings import Settings
 from warnings import warn
 
-import plams
+from qmworks import plams
 # ======================================<>=====================================
 __all__ = ['gamess']
 

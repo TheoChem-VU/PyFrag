@@ -1,7 +1,8 @@
 __author__ = "Felipe Zapata"
 
 # ===============> Standard libraries and third-party <========================
-from plams import (Atom, Molecule)
+#from plams import (Atom, Molecule)
+from qmworks.plams import (Atom, Molecule)
 from pyparsing import (CaselessKeyword, Combine, Literal, nums, Optional,
                        ParseException, Regex, SkipTo, Suppress, Word)
 import numpy as np

@@ -162,4 +162,4 @@ else:
 # initialize
 update()
 curdoc().add_root(layout)
-curdoc().title = "Stocks"
+curdoc().title = "PyFrag"

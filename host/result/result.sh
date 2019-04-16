@@ -19,18 +19,6 @@ fi
 }
 
 
-# function result_pro {
-# cycle=$*
-# eners=`grep -En 'GEOMETRY CONV|current energy' $cycle |awk '{print $3}'`
-# enech=`grep 'energy change'            $cycle |awk '{print $3}'`
-# gmaxs=`grep 'constrained gradient max' $cycle |awk '{print $4}'`
-# grmss=`grep 'constrained gradient rms' $cycle |awk '{print $4}'`
-# smaxs=`grep 'cart. step max'           $cycle |awk '{print $4}'`
-# srmss=`grep 'cart. step rms'           $cycle |awk '{print $4}'`
-# ener=`echo $eners |awk '{printf"%14.6f",627.509541*$1}'`
-# printf "%15.4f %15.4f %15.6f %15.6f %15.6f %15.6f\n" $ener $enech $gmaxs $grmss $smaxs $srmss >  converge.txt
-# grep -A 200 ' Coordinates' $cycle | grep -B 200 ' Number of elements' | grep -v ' ====' | grep -v '     Atom'| grep -v '                   X' | grep -v ' ------'| grep -v ' Number of elements' | grep -v ' Coordinates' > geometry.xyz
-# }
 
 function result_pro {
 cycle=$*
@@ -72,7 +60,6 @@ output=$*
 step=`grep -En 'Geometry Convergence after Step  ' $output | cut -d":" -f 1`
 steps=`echo $step |wc -w`
 
-
 if [ "$steps" -lt 10 ]; then
   lstep='Geometry Convergence after Step   '$steps
 elif [ "$steps" -ge 10 ]; then
@@ -82,6 +69,7 @@ elif [ "$steps" -ge 10 ]; then
     lstep='Geometry Convergence after Step '$steps
   fi
 fi
+
 
 grep -A 200 "$lstep" $output | grep -B 200 ' Number of elements of the density matrix on this node '    >   slot.txt
 }
@@ -171,7 +159,10 @@ if  [ -e $latest ]; then
   done
 fi
 
-if [ -e "$REMOTEDIR"/pyfrag* ]; then
-  cp "$REMOTEDIR"/pyfrag* $RESULTDIR
-  # printf " 1 "   >>   $RESULTDIR/result.txt
+if [ -e "$REMOTEDIR"/pyfrag.txt ]; then
+  cp "$REMOTEDIR"/pyfrag.txt $RESULTDIR
+fi
+
+if [ -e "$REMOTEDIR"/pyfragdefault.txt ]; then
+  cp "$REMOTEDIR"/pyfragdefault.txt $RESULTDIR
 fi

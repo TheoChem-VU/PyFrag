@@ -4,8 +4,6 @@ from .fileFunctions import json2Settings
 from .hdf5 import (StoreasHDF5, cp2k2hdf5, dump_to_hdf5, turbomole2hdf5)
 from .packages import (Package, Result, SerMolecule, SerSettings, adf, cp2k,
                        dftb, dirac, orca, registry, run, pyfrag, Package_pyfrag)
-# from qmworks.packages.packages_pyfrag import (Package_pyfrag, registry_pyfrag)
-# from qmworks.packages.pyfrag import pyfrag
 from .parsers import (manyXYZ, parse_string_xyz, read_cp2k_coefficients,
                       readCp2KOverlap, readTurbomoleBasis, readTurbomoleMO,
                       readXYZ, read_cp2k_number_of_orbitals)
@@ -13,7 +11,7 @@ from .molkit import (apply_reaction_smarts, apply_template, gen_coords_rdmol,
                      modify_atom,
                      to_rdmol, from_rdmol, from_sequence, from_smiles,
                      write_molblock)
-from .templates import (freq, geometry, get_template, singlepoint, ts, irc, fa, frag)
+from .templates import (freq, geometry, get_template, singlepoint, ts, irc, fa, frag1, frag2)
 from .settings import Settings
 from .utils import (chunksOf, concat, concatMap, dict2Setting,
                     settings2Dict, zipWith, zipWith3)
@@ -35,4 +33,4 @@ __all__ = ['AtomBasisData', 'AtomBasisKey', 'AtomXYZ', 'CGF', 'InfoMO',
            'run', 'select_max',
            'from_sequence', 'settings2Dict', 'singlepoint', 'from_smiles',
            'ts', 'turbomole2hdf5', 'write_molblock', 'zipWith', 'zipWith3',
-           'pyfrag', 'irc', 'fa', 'frag', 'Package_pyfrag']
+           'pyfrag', 'irc', 'fa', 'frag1', 'frag2', 'Package_pyfrag']

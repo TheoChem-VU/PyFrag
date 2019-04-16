@@ -7,8 +7,10 @@ from qmworks.settings import Settings
 from qmworks.packages.packages import (Package,Package_pyfrag, package_properties, Result)
 from qmworks.packages.PyFragModules import PyFragJob
 import builtins
-import plams
-from plams import Molecule
+#import plams
+from qmworks import plams
+#from plams import Molecule
+from qmworks.plams import Molecule
 # ========================= ADF ============================
 
 class PyFrag(Package_pyfrag):
@@ -25,7 +27,7 @@ class PyFrag(Package_pyfrag):
     def prerun(self):
         pass
 
-    def run_job(self, settings,  settings_2=None, inputArgues=None, others = None, job_name='', **kwargs):
+    def run_job(self, settings,  settings_2=None, settings_3=None, inputArgues=None, others = None, job_name='', **kwargs):
         """
         Execute ADF job.
 
@@ -43,11 +45,13 @@ class PyFrag(Package_pyfrag):
         """
 
 
-        fragmentset = Settings()
+        fragment1set = Settings()
+        fragment2set = Settings() 
         complexset  = Settings()
-        fragmentset.input = settings.specific.fragment
-        complexset.input  = settings_2.specific.complex
-        job = PyFragJob(fragmentset, complexset, inputArgues, others)
+        fragment1set.input = settings.specific.fragment1
+        fragment2set.input = settings_2.specific.fragment2
+        complexset.input  = settings_3.specific.complex
+        job = PyFragJob(fragment1set, fragment2set, complexset, inputArgues, others)
         result = job.run()
         return result
 

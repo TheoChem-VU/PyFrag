@@ -1,0 +1,12 @@
+{
+    "SCF.CONVERGE": "scf.converge",
+    "SCF.ITERATIONS": "scf.iterations",
+    "SCF.CONVERGE": "scf.converge",
+    "SCF.CONVERGE": "scf.converge",
+    "BAZIS.TYPE": "basis.type",
+    "BAZIS.Core": "basis.core",
+    "XC.GGA": "xc.gga",
+    "optimize": "geometry.optim",
+    "ts": "geometry.transitionstate",
+    "charge": "charge"
+}

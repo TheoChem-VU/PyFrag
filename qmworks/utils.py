@@ -10,7 +10,8 @@ from itertools import chain
 from pymonad   import curry
 
 import builtins
-import plams
+#import plams
+from qmworks import plams
 # ======================> List Functions <========================
 
 

@@ -12,5 +12,5 @@ REMOTEDIR=$REMOTEBASE/"${JOBNAME%.*}"
 
 
 
-fab -f $PYFRAGHOME/utils/termjob/fabfile.py deploy:$JOBDIR,$REMOTEDIR
-fab -f $PYFRAGHOME/utils/resub/fabfile.py deploy:$JOBDIR,$REMOTEDIR,$JOBNAME &
+/usr/local/bin/fab -f $PYFRAGHOME/utils/termjob/fabfile.py deploy:$JOBDIR,$REMOTEDIR
+/usr/local/bin/fab -f $PYFRAGHOME/utils/resub/fabfile.py deploy:$JOBDIR,$REMOTEDIR,$JOBNAME &

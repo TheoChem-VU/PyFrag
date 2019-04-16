@@ -35,4 +35,4 @@ cp  -r $PYFRAGHOME/data/video/csv2html $VIDEODIR
 #save all information about job for future check
 
 # connect to remote machine and send job input and start to parce and submit job.
-fab -f $PYFRAGHOME/utils/jobsub/fabfile.py deploy:$JOBDIR,$JOBNAME,$REMOTEDIR &
+/usr/local/bin/fab -f $PYFRAGHOME/utils/jobsub/fabfile.py deploy:$JOBDIR,$JOBNAME,$REMOTEDIR &

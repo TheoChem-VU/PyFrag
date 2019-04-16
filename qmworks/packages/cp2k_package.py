@@ -1,6 +1,7 @@
 # =======>  Standard and third party Python Libraries <======
 from warnings import warn
-import plams
+#import plams
+from qmworks import plams
 
 # ==================> Internal modules <====================
 from qmworks.packages.packages import (Package, package_properties, Result)

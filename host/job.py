@@ -5,7 +5,8 @@ from noodles import gather
 from qmworks.packages.SCM import dftb, adf, pyfrag
 from qmworks.components import Distance, select_max
 from qmworks.packages.PyFragModules import GetFragmentList
-import plams
+#import plams
+from qmworks import plams
 
 parser = ag.ArgumentParser(description='Print user defined values')
 parser.add_argument("--ircpath", type=str, action='append', nargs='*', help='IRC coordinate file')
@@ -31,12 +32,19 @@ parser.add_argument("--irrepOI", type=str, nargs='*', action='append', help='pri
 parser.add_argument("--population", type=str, nargs='*',action='append', help='print population for fragment orbital')
 parser.add_argument("--overlap", type=str, nargs='*',action='append', help='print overlap between two fragment orbitals')
 parser.add_argument("--orbitalenergy", type=str, nargs='*',action='append', help='print orbital energy')
-parser.add_argument("--adfinput", type=str, nargs='*',action='append', help='adfinput parameter set')
+# parser.add_argument("--adfinput", type=str, nargs='*',action='append', help='adfinput parameter set')
 parser.add_argument("--adfinputfile", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
-
+parser.add_argument("--R1_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--R2_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--RC_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--TS_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--P_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--IRC_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--fragment1_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--fragment2_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--complex_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
 
 hartree2kcal = 627.5095
-
 
 
 inputKeys = {}
@@ -125,38 +133,139 @@ for key, val in vars(parser.parse_args()).items():
          inputKeys[key] = [{'frag': term[0]} for term in val]
 
       elif key == 'bondlength':
-         inputKeys[key] = [{'bondDef': [term[0], term[1]], 'oriVal': term[2]} for term in val]
+         for term in val:
+            if len(term) == 2:
+               inputValue.append(({'bondDef': [term[0], term[1]], 'oriVal': 0}))
+            else:
+               inputValue.append(({'bondDef': [term[0], term[1]], 'oriVal': term[2]}))
+         inputKeys[key] = inputValue
 
       elif key == 'angle':
-         inputKeys[key] = [{'angleDef': [term[0], term[1], term[2]], 'oriVal': term[3]} for term in val]
+         for term in val:
+            if len(term) == 3:
+               inputValue.append(({'angleDef': [term[0], term[1], term[2]], 'oriVal': 0}))
+            else:
+               inputValue.append(({'angleDef': [term[0], term[1], term[2]], 'oriVal': term[3]}))
+         inputKeys[key] = inputValue
 
-      elif key == 'adfinput':
-         adfinputList   = [(term.split('=')) for term in val[0]]
-         inputKeys[key] = ['settings.specific.adf.'+adfkey+'="'+keyval+'"' for adfkey, keyval in adfinputList]
+
+      # elif key == 'adfinput':
+      #    adfinputList   = [(term.split('=')) for term in val[0]]
+      #    inputKeys[key] = ['settings.specific.adf.'+adfkey+'="'+keyval+'"' for adfkey, keyval in adfinputList]
 
       elif key == 'adfinputfile':
          f = open(val[0][0])
-         adfinputLine   = [(line.split('=')) for line in f.readlines()]
-         inputKeys[key] = ['settings.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         inputKeys['fragmentinputfile'] = ['settings.specific.fragment.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         inputKeys['complexinputfile'] = ['settings.specific.complex.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         adfGeneral = ['settings.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfR1 = ['settings_R1.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfR2 = ['settings_R2.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfRC = ['settings_RC.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfTS = ['settings_TS.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfP = ['settings_P.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfIRC = ['settings_IRC.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfFrag1 = ['settings_Frag1.specific.fragment1.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfFrag2 = ['settings_Frag2.specific.fragment2.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfComplex = ['settings_Fa.specific.complex.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         inputKeys[key] = adfGeneral + adfR1 + adfR2 + adfRC + adfTS + adfIRC + adfP + adfFrag1 + adfFrag2 + adfComplex
+
+      elif key == 'R1_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_R1.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
+      elif key == 'R2_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_R2.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
+      elif key == 'RC_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_RC.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
+      elif key == 'TS_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_TS.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
+      elif key == 'P_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_P.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
+      elif key == 'IRC_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_IRC.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
+      elif key == 'fragment1_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_Frag1.specific.fragment1.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
+      elif key == 'fragment2_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_Frag2.specific.fragment2.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
+      elif key == 'complex_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_Fa.specific.complex.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
       else:
          inputKeys[key] = [term for term in val]
 
-settings = Settings()
+settings       = Settings()
+settings_R1    = Settings()
+settings_R2    = Settings()
+settings_RC    = Settings()
+settings_TS    = Settings()
+settings_P     = Settings()
+settings_IRC   = Settings()
+settings_Frag1 = Settings()
+settings_Frag2 = Settings()
+settings_Fa    = Settings()
 
 for key, val in list(inputKeys.items()):
-   if key == 'adfinput':
-      for option in inputKeys['adfinput']:
-         exec(option)
-   elif key == 'adfinputfile':
+   if key == 'adfinputfile':
       for option in inputKeys['adfinputfile']:
          exec(option)
-   elif key == 'fragmentinputfile':
-      for option in inputKeys['fragmentinputfile']:
+for key, val in list(inputKeys.items()):
+   if key == 'R1_EXTRA':
+      for option in inputKeys['R1_EXTRA']:
          exec(option)
-   elif key == 'complexinputfile':
-      for option in inputKeys['complexinputfile']:
+for key, val in list(inputKeys.items()):
+   if key == 'R2_EXTRA':
+      for option in inputKeys['R2_EXTRA']:
+         exec(option)
+for key, val in list(inputKeys.items()):
+   if key == 'RC_EXTRA':
+      for option in inputKeys['RC_EXTRA']:
+         exec(option)
+for key, val in list(inputKeys.items()):
+   if key == 'TS_EXTRA':
+      for option in inputKeys['TS_EXTRA']:
+         exec(option)
+for key, val in list(inputKeys.items()):
+   if key == 'P_EXTRA':
+      for option in inputKeys['P_EXTRA']:
+         exec(option)
+for key, val in list(inputKeys.items()):
+   if key == 'IRC_EXTRA':
+      for option in inputKeys['IRC_EXTRA']:
+         exec(option)
+for key, val in list(inputKeys.items()):
+   if key == 'fragment1_EXTRA':
+      for option in inputKeys['fragment1_EXTRA']:
+         exec(option)
+for key, val in list(inputKeys.items()):
+   if key == 'fragment2_EXTRA':
+      for option in inputKeys['fragment2_EXTRA']:
+         exec(option)
+for key, val in list(inputKeys.items()):
+   if key == 'complex_EXTRA':
+      for option in inputKeys['complex_EXTRA']:
          exec(option)
 
 job_list = []
@@ -166,38 +275,33 @@ for key, val in list(inputKeys.items()):
    if key == 'r1path':
       ircFrags = GetFragmentList(val['r1path'], [inputKeys['r1fragment']])[0]
       r1_mol = ircFrags['frag1']
-      r1 =      adf(templates.geometry.overlay(settings), r1_mol, job_name="r1")
+      r1 =      adf(templates.geometry.overlay(settings_R1), r1_mol, job_name="r1")
       job_list.append(gather(r1))
    elif key == 'r2path':
       ircFrags = GetFragmentList(val['r2path'], [inputKeys['r2fragment']])[0]
       r2_mol = ircFrags['frag1']
-      r2 =      adf(templates.geometry.overlay(settings), r2_mol, job_name="r2")
+      r2 =      adf(templates.geometry.overlay(settings_R2), r2_mol, job_name="r2")
       job_list.append(gather(r2))
    elif key == 'rcpath':
       ircFrags = GetFragmentList(val['rcpath'], [inputKeys['rcfragment']])[0]
       rc_mol = ircFrags['frag1']
-      rc =      adf(templates.geometry.overlay(settings), rc_mol, job_name="rc")
+      rc =      adf(templates.geometry.overlay(settings_RC), rc_mol, job_name="rc")
       job_list.append(gather(rc))
    elif key == 'ppath':
       ircFrags = GetFragmentList(val['ppath'], [inputKeys['pfragment']])[0]
       p_mol = ircFrags['frag1']
-      p =      adf(templates.geometry.overlay(settings), p_mol, job_name="p")
+      p =      adf(templates.geometry.overlay(settings_P), p_mol, job_name="p")
       job_list.append(gather(p))
    elif key == 'tspath':
       ircFrags = GetFragmentList(val['tspath'], [inputKeys['tsfragment']])[0]
       ts_mol = ircFrags['frag1']
-      ts =      adf(templates.ts.overlay(settings), ts_mol, job_name="ts")
+      ts =      adf(templates.ts.overlay(settings_TS), ts_mol, job_name="ts")
       job_list.append(gather(ts))
 
 
-irc = adf(templates.irc.overlay(settings), ts.molecule, job_name="irc")
+irc = adf(templates.irc.overlay(settings_IRC), ts.molecule, job_name="irc")
+pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa), inputArgues = irc.kf.path , others =  vars(parser.parse_args()), job_name="pyfrag" )
 
-#newInput={}
-#newInput['ircpath'] = irc.kf.path
-#newInput['strain'] = irc.kf.path
-#newInput['bondlength'] = irc.kf.path
-
-pyfrag = pyfrag(templates.frag.overlay(settings), settings_2 = templates.fa.overlay(settings), inputArgues = irc.kf.path , others =  vars(parser.parse_args()), job_name="pyfrag" )
 job_list.append(gather(irc, pyfrag))
 # Finalize and draw workflow
 wf = gather(*job_list)

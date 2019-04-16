@@ -5,7 +5,7 @@
           "geometry": {
                        "iterations": 300,
                        "converge": 0.00001,
-                       "IRC": "POINTS=30 STEP=1"} },
+                       "IRC": "POINTS=2 STEP=1"} },
         "dftb": {
             "task": {"runtype": "GO"},
             "dftb": {"resourcesdir": "QUASINANO2015"} },

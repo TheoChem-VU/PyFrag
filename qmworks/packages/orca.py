@@ -6,7 +6,7 @@ from qmworks.parsers.orca_parser import parse_molecule
 from warnings import warn
 
 import builtins
-import plams
+from qmworks import plams
 import numpy as np
 # ============================= Orca ==========================================
 
