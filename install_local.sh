@@ -33,14 +33,14 @@ The easy way to install python3 is to download python3 package from
 https://www.python.org/downloads/release/python-368/
 "
 
-if  ! [ -e "python3 -h" ] >/dev/null 2>&1; then
+if  [ -e "python3 -h" ] >/dev/null 2>&1; then
     printf "\\nWARNING: python3 does not appear to be installed or properly set up, you need resolve this problem to continue" >&2
     printf "%s \\n"  "$USAGE_Python3"  >&2
     exit 1
 fi
 
 
-if  ! [ -e "pip3 -h" ] >/dev/null 2>&1; then
+if  [ -e "pip3 -h" ] >/dev/null 2>&1; then
     printf "\\nWARNING: Pip3 does not appear to be installed or properly set up, you need resolve this problem to continue" >&2
     exit 1
 fi

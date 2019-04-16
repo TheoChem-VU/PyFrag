@@ -23,8 +23,8 @@ from noodles.run.run_with_prov import run_parallel_opt
 from noodles.run.runners import run_parallel
 from noodles.serial import (Serialiser, Registry, AsDict)
 from noodles.serial.base import SerStorable
-from noodles.run.xenon import (
-    XenonKeeper, XenonConfig, RemoteJobConfig, run_xenon_prov)
+#from noodles.run.xenon import (
+#    XenonKeeper, XenonConfig, RemoteJobConfig, run_xenon_prov)
 from noodles.serial.numpy import arrays_to_hdf5
 
 from qmworks.settings import Settings

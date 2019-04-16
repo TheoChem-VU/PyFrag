@@ -41,7 +41,7 @@ setup(
     ],
 
     install_requires=['h5py==2.6.0', 'numpy', 'noodles==0.2.3', 'pymonad',
-                      'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy'
+                      'pyparsing', 'filelock', 'openpyxl', 'pyyaml', 'xlrd', 'scipy', 'tinydb', 'msgpack'
                       ]
     # pytest block
     # install_requires=['h5py', 'numpy', 'noodles==0.3.1', 'plams>=1.2', 'pymonad',
