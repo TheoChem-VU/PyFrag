@@ -11,7 +11,8 @@ See documentation_ for tutorials and documentation.
 
 Motivation
 ==========
-The PyFrag program is specially designed to facilitates the study of reaction mechanism in a more efficient and user-friendly way. It is an expansion of a popular program also named by pyfrag_ in `Bickelhaupt Group`_. It automates the process of finding transition states, potential energy surface by using one simple input file. It follows by an activation strain analysis on the energy profile to characterize the feature of the reaction mechanism and gain insights into the overall reaction energies. Moreover, users can have an real-time monitoring of the running process via a webpage which vividly displays the updated data in the form of videos and figures and, if necessary, user can rerun the job immediately from where it stops. In this way, the three respects of computational chemistry–job management, data management and analysis management can all be contained in a framework and thus allow chemists to focus on the interpretation and creation work rather than waste time and energy on the finding and processing of massive data.
+The PyFrag 2019 program is specially designed to facilitates the study of reaction mechanism in a more efficient and user-friendly way.The original `PyFrag 2008`_ workflow facilitated the characterization of reaction mechanisms in terms of the intrinsic properties of reactants, which has been commonly used for research in `Bickelhaupt Group`_. The new PyFrag 2019  program has automated and reduced the time-consuming and laborious task of setting up, running, analyzing, and visualizing computational data from reaction mechanism studies to a single job. PyFrag 2019 resolves three main challenges associated with the automatized computational exploration of reaction mechanisms: 1) the management of multiple parallel calculations to automatically find a reaction path; 2) the monitoring of the entire computational process along with the extraction and plotting of relevant information from large amounts of data; and 3) the analysis and presentation of these data in a clear and informative way. The activation strain and canonical energy decomposition results that are generated, relate the characteristics of the reaction profile in terms of intrinsic properties (strain, interaction, orbital overlaps, orbital energies, populations) of the reactant species.
+
 
 Description
 ===========
@@ -55,7 +56,6 @@ More explation about input can be found in later chapter ::
 
    JOBSUB END
 
-
    ADF
 
    basis
@@ -69,8 +69,6 @@ More explation about input can be found in later chapter ::
 
    relativistic SCALAR ZORA
 
-
-
    scf
    iterations 299
    converge 0.00001
@@ -82,9 +80,7 @@ More explation about input can be found in later chapter ::
    charge 0 0
    symmetry auto
 
-
    ADF END
-
 
    PyFrag
 
@@ -96,15 +92,10 @@ More explation about input can be found in later chapter ::
 
    PyFrag END
 
-
-
-
    Geometrycoor
 
    R1: Fe-II(CO)4 + CH4
    Pd       0.00000000       0.00000000       0.32205546
-
-
 
    R2: CH4
    C       0.00000000       0.00000000      -1.93543634
@@ -112,9 +103,6 @@ More explation about input can be found in later chapter ::
    H       0.00000000      -0.90063254      -2.55201285
    H       0.00000000       0.90063254      -2.55201285
    H       0.96181082       0.00000000      -1.33610429
-
-
-
 
    RC: Fe-II(CO)4 + CH4
    C       0.00000000       0.00000000      -1.93543615
@@ -124,8 +112,6 @@ More explation about input can be found in later chapter ::
    H       0.00000000       0.90063254      -2.55201285
    H       0.96181082       0.00000000      -1.33610429
 
-
-
    TS: Fe-II(CO)4 + CH4
    C      -1.74196777      -2.22087997       0.00000000
    Pd     -2.13750904      -0.23784341       0.00000000
@@ -133,9 +119,6 @@ More explation about input can be found in later chapter ::
    H      -1.26528821      -2.62993236       0.8956767
    H      -1.26528821      -2.62993236      -0.895676
    H      -0.75509932      -0.88569836       0.00000000
-
-
-
 
    P: Fe-II(CO)4 + CH4
    C      -2.10134690      -2.41901732       0.1862099
@@ -166,7 +149,7 @@ For installation, please read installation_.
 
 
 .. _documentation: https://pyfragdocument.readthedocs.io/en/latest/includeme.html
-.. _pyfrag: https://sunxb05.github.io/pyfrag/
+.. _PyFrag 2008:  http://www.few.vu.nl/~xsn800/Home.html
 .. _Bickelhaupt Group: http://www.few.vu.nl/~bickel/
 .. _examples: https://github.com/sunxb05/PyFrag/tree/master/example
 .. _notebook: https://github.com/sunxb05/PyFrag/tree/master/jupyterNotebooks/

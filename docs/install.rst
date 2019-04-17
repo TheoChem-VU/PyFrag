@@ -3,7 +3,7 @@ Installation
 
 Activation Strain Analysis
 --------------------------
-User could choose to install only part of the program to perform an activation strain analysis based on Activation Strain Model(ASM), which also known as the distortion/interaction model. The old PyFrag program (PyFrag2008_) can perform similar analysis using ADF as computational engine. This analysis now can be carried out on ADF_, Gaussian_, Orca_ and Turbomole_, given a series of coordinate from the potential energy surface is available.
+User could choose to install only part of the program to perform an activation strain analysis based on Activation Strain Model(ASM), which also known as the distortion/interaction model. The old PyFrag program (`PyFrag 2008`_) can perform similar analysis using ADF as computational engine. This analysis now can be carried out on ADF_, Gaussian_, Orca_ and Turbomole_, given a series of coordinate from the potential energy surface is available.
 To install the activation strain analysis module of PyFrag2019, user need do the following step:
 
 Go to your host machine (supercomputer or cluster), open a terminal and run the following command on your terminal.
@@ -45,10 +45,10 @@ if your want to know the latest information about your job, just run:
 ``pyfrag -x summary job.in``
 
 
-_PyFrag2008: http://www.few.vu.nl/~xsn800/Home.html
-_standalone: https://github.com/sunxb05/PyFrag/tree/master/host/standalone
-_PyFrag2019: https://sunxb05.github.io/pyfrag/
-_Gaussian:   http://gaussian.com
-_ADF:       https://www.scm.com
-_Orca:      http://www.orcahome.de/orcanews.htm
-_Turbomole: http://www.turbomole.com
+.. _PyFrag 2008: http://www.few.vu.nl/~xsn800/Home.html
+.. _standalone: https://github.com/sunxb05/PyFrag/tree/master/host/standalone
+.. _PyFrag 2019: https://sunxb05.github.io/pyfrag/
+.. _Gaussian:   http://gaussian.com
+.. _ADF:       https://www.scm.com
+.. _Orca:      http://www.orcahome.de/orcanews.htm
+.. _Turbomole: http://www.turbomole.com
