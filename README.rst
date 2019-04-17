@@ -19,30 +19,29 @@ Description
 Usage
 ------------
 
-User can type pyfrag -h to see all the commands that can be used in this program, which will show something like: ::
+User can type pyfrag -h to see all the commands that can be used in this program, which will show: ::
 
-   Usage: /Users/xiaobo/gitpyfrag/bin/pyfrag [-h] [-s] [-x command]  [...]
+   Usage: pyfrag [-h] [-s] [-x command]  [...]
    -h          : print this information
    -s          : run job quietly
    -x          : start the executable named command
                : command include restart, which restart job
-               : end, which terminate job
-               : check, which check the latest jobs information
                : restart, which restart a job after it is stoped
                : summary, which summarize all job result after jobs finished
                : default command is pyfrag itself
    The example command is like as follow, in which job.in is job input
-   /Users/xiaobo/gitpyfrag/bin/pyfrag job.in
+   pyfrag job.in
    or
-   /Users/xiaobo/gitpyfrag/bin/pyfrag -x restart job.in
+   pyfrag -x restart job.in
    or
-   /Users/xiaobo/gitpyfrag/bin/pyfrag -s -x summary job.in
+   pyfrag -s -x summary job.in
 
 
 Input example
 -------------
 
-For Example, the simple job input is as follow, which can be roughtly divided into four section: Slurm information, ADF parameter, pyfrag parameter and geometry parameters. More explation about input can be found in later chapter ::
+For Example, the simple job input is as follow, which can be roughtly divided into four section: Slurm information, ADF parameter, pyfrag parameter and geometry parameters.
+More explation about input can be found in later chapter ::
 
    #!/bin/bash
    #SBATCH -J frag_1
@@ -157,11 +156,6 @@ After a job is submited, a website that summarize all information which include 
 
 .. image:: jobresult.png
    :alt: result
-
-Tutorial and more Examples
----------------------
-A tutorial written as a jupyter-notebook is available from notebook_. You can
-also access direclty more examples.
 
 
 Installation
