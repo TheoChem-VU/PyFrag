@@ -21,11 +21,9 @@ User can type pyfrag -h to see all the commands that can be used in this program
    or
    pyfrag -s -x summary job.in
 
-To submit a job, create a directory and generate a input file and run the following command to submit a job:
+To submit a job, create a directory and generate a input file and run the following command to submit a job. Noted for each job a new directory and a new job name should be given. Don’t put more than one job in one directory, othervise it may cause clash.
 
 ``pyfrag job.in``
-
-Noted for each job a new directory and a new job name should be given. Don’t put more than one job in one directory, othervise it may cause clash.
 
 if your want to know the latest information about your job, just run:
 
