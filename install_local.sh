@@ -153,29 +153,45 @@ EOF
 
 BASH_RC="$HOME"/.bashrc
 BASH_FILE="$HOME"/.profile
-BASH_PROFIEL="$HOME"/.bash_profile
+BASH_PROFILE="$HOME"/.bash_profile
 
 if [ -f "$BASH_RC" ]; then
     printf "\\n"
     printf "Initializing PyFrag in %s\\n" "$BASH_RC"
     printf "\\n"
-    BASHSET="$BASH_RC"
-elif [ -f "$BASH_FILE" ]; then
-    printf "\\n"
-    printf "Initializing PyFrag in %s\\n" "$BASH_FILE"
-    printf "\\n"
-    BASHSET="$BASH_FILE"
-else
-    printf "\\n"
-    printf "Initializing PyFrag in %s\\n" "$BASH_PROFIEL"
-    BASHSET="$BASH_PROFIEL"
-fi
-cat <<EOF >> "$BASHSET"
+
+cat <<EOF >> "$BASH_RC"
 # added by PyFrag installer
 export PYFRAGHOME="$PREFIX/pyfrag"
 export PATH="\$PYFRAGHOME/bin:\$PATH"
 # added by PyFrag installer
 EOF
+
+
+elif [ -f "$BASH_FILE" ]; then
+    printf "\\n"
+    printf "Initializing PyFrag in %s\\n" "$BASH_FILE"
+    printf "\\n"
+cat <<EOF >> "BASH_FILE"
+# added by PyFrag installer
+export PYFRAGHOME="$PREFIX/pyfrag"
+export PATH="\$PYFRAGHOME/bin:\$PATH"
+# added by PyFrag installer
+EOF
+
+else
+    printf "\\n"
+    printf "Initializing PyFrag in %s\\n" "$BASH_PROFILE"
+    BASHSET="$BASH_PROFIEL"
+cat <<EOF >> "$BASH_PROFILE"
+# added by PyFrag installer
+export PYFRAGHOME="$PREFIX/pyfrag"
+export PATH="\$PYFRAGHOME/bin:\$PATH"
+# added by PyFrag installer
+EOF
+
+fi
+
 printf "\\n"
 printf "For this change to become active, you have to open a new terminal.\\n"
 printf "\\n"

@@ -6,7 +6,7 @@ Whole Time Monitor
 
 User can have full time monitor the whole calculation process: ::
 
-``pyfrag -x consist job.in``
+   pyfrag -x consist job.in
 
 In this mode, every a period of time, a new data will be collected and update in the form of webpage.
 In the meantime, if the original input is changed, a window will pop up to ask if you want to resummit job.

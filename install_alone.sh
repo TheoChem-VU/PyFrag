@@ -4,34 +4,46 @@ cd $HOME
 
 BASH_RC="$HOME"/.bashrc
 BASH_FILE="$HOME"/.profile
-BASH_PROFIEL="$HOME"/.bash_profile
+BASH_PROFILE="$HOME"/.bash_profile
 
 if [ -f "$BASH_RC" ]; then
     printf "\\n"
     printf "Initializing PyFrag in %s\\n" "$BASH_RC"
     printf "\\n"
-    BASHSET="$BASH_RC"
+
+cat <<EOF >> "$BASH_RC"
+# added by PyFrag installer
+export PYFRAGHOME="$PREFIX/pyfrag"
+export PATH="\$PYFRAGHOME/bin:\$PATH"
+# added by PyFrag installer
+EOF
+source "$HOME"/.bashrc
+
 elif [ -f "$BASH_FILE" ]; then
     printf "\\n"
     printf "Initializing PyFrag in %s\\n" "$BASH_FILE"
     printf "\\n"
-    BASHSET="$BASH_FILE"
+cat <<EOF >> "BASH_FILE"
+# added by PyFrag installer
+export PYFRAGHOME="$PREFIX/pyfrag"
+export PATH="\$PYFRAGHOME/bin:\$PATH"
+# added by PyFrag installer
+EOF
+source "$HOME"/.profile
+
 else
     printf "\\n"
-    printf "Initializing PyFrag in %s\\n" "$BASH_PROFIEL"
+    printf "Initializing PyFrag in %s\\n" "$BASH_PROFILE"
     BASHSET="$BASH_PROFIEL"
-fi
-
-cat <<EOF >> "$BASH_SET"
-# added by conda installer
-export HOSTPYFRAG="$HOME/pyfrag"
-export PATH="\$HOSTPYFRAG/bin:\$PATH"
-# added by conda installer
+cat <<EOF >> "$BASH_PROFILE"
+# added by PyFrag installer
+export PYFRAGHOME="$PREFIX/pyfrag"
+export PATH="\$PYFRAGHOME/bin:\$PATH"
+# added by PyFrag installer
 EOF
 
-source "$HOME"/.bashrc
-source "$HOME"/.profile
 source "$HOME"/.bash_profile
+fi
 
 
 curl -L -o pyfrag.zip  https://github.com/sunxb05/PyFrag/zipball/master/
