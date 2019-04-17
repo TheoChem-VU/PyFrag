@@ -22,8 +22,11 @@ if [ -f "$BASH_RC" ]; then
 
 cat <<EOF >> "$BASH_RC"
 # added by PyFrag installer
-export PYFRAGHOME="$PREFIX/pyfrag"
-export PATH="\$PYFRAGHOME/bin:\$PATH"
+export PATH="$HOME/miniconda/bin:\$PATH"
+export HOSTPYFRAG="$HOME/pyfrag"
+export PATH="\$HOSTPYFRAG/bin:\$PATH"
+export QMWORKS="$HOME/miniconda/envs/qmworks"
+export USERNAME="$USER"
 # added by PyFrag installer
 EOF
 source "$HOME"/.bashrc
@@ -34,8 +37,11 @@ elif [ -f "$BASH_FILE" ]; then
     printf "\\n"
 cat <<EOF >> "BASH_FILE"
 # added by PyFrag installer
-export PYFRAGHOME="$PREFIX/pyfrag"
-export PATH="\$PYFRAGHOME/bin:\$PATH"
+export PATH="$HOME/miniconda/bin:\$PATH"
+export HOSTPYFRAG="$HOME/pyfrag"
+export PATH="\$HOSTPYFRAG/bin:\$PATH"
+export QMWORKS="$HOME/miniconda/envs/qmworks"
+export USERNAME="$USER"
 # added by PyFrag installer
 EOF
 source "$HOME"/.profile
@@ -46,16 +52,16 @@ else
     BASHSET="$BASH_PROFIEL"
 cat <<EOF >> "$BASH_PROFILE"
 # added by PyFrag installer
-export PYFRAGHOME="$PREFIX/pyfrag"
-export PATH="\$PYFRAGHOME/bin:\$PATH"
+export PATH="$HOME/miniconda/bin:\$PATH"
+export HOSTPYFRAG="$HOME/pyfrag"
+export PATH="\$HOSTPYFRAG/bin:\$PATH"
+export QMWORKS="$HOME/miniconda/envs/qmworks"
+export USERNAME="$USER"
 # added by PyFrag installer
 EOF
 
 source "$HOME"/.bash_profile
 fi
-
-
-
 
 
 conda create -n qmworks python=3.5        || exit 1
