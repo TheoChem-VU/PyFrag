@@ -14,6 +14,8 @@ Contents:
    includeme
    install
    interactive_tutorial
+   pyfragparameter
+   standalone
    Further_reading
    documentation
    app
