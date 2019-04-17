@@ -45,7 +45,7 @@ Change the submit information like the number of node and wall time in job.in us
 
 ``pyfrag job.in``
 
-if your want to know the latest information about your job, just run:
+To know the latest information about your job, just run:
 
 ``pyfrag -x summary job.in``
 
