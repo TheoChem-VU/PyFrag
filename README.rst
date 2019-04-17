@@ -138,6 +138,7 @@ Result example
 After a job is submited, a website that summarize all information which include the converge inforamtion, the latest structure in the form of movie, the latest energy and coordinate and the activation strain analysis (if a job is finished) will pop up. User can decide if the trend of optimization is right or wrong, if necessary, the job can be stoped. After the input is varied, job will be resubmited and resume from where it stoped before.
 
 .. image:: jobresult.png
+   :scale: 50 %
    :alt: result
 
 

@@ -45,8 +45,6 @@ if  ! which pip3 >/dev/null 2>&1; then
 fi
 
 
-xcode-select --install
-
 pip3 install pandas
 pip3 install bokeh
 pip3 install opencv-python

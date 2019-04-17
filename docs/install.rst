@@ -24,6 +24,8 @@ To install and test pyfrag, user need do three steps:
 
 1) Go to your local machine (your laptop or desktop), open a terminal and run the following command on your terminal.
 
+``xcode-select --install``
+
 ``curl -L -o install_local.sh  https://raw.githubusercontent.com/sunxb05/PyFrag/master/install_local.sh``
 
 ``bash install_local.sh``
