@@ -4,11 +4,12 @@ Installation
 Activation Strain Analysis
 --------------------------
 User could choose to install only part of the program to perform an activation strain analysis based on Activation Strain Model(ASM), which also known as the distortion/interaction model. The old PyFrag program (`PyFrag 2008`_) can perform similar analysis using ADF as computational engine. This analysis now can be carried out on ADF_, Gaussian_, Orca_ and Turbomole_, given a series of coordinate from the potential energy surface is available.
-To install the activation strain analysis module of PyFrag2019, user need do the following step:
 
+To install the activation strain analysis module of PyFrag2019, user need do the following step:
 Go to your host machine (supercomputer or cluster), open a terminal and run the following command on your terminal.
 
 ``curl -L -o install_alone.sh  https://raw.githubusercontent.com/sunxb05/PyFrag/master/install_alone.sh``
+
 ``bash install_alone.sh``
 
 User can also download the module for either ADF, Gaussian, Orca and Turbomole seperatedly from PyFrag standalone_ and run it as a normal python code in your laptop or desktop.
@@ -24,12 +25,14 @@ To install and test pyfrag, user need do three steps:
 1) Go to your local machine (your laptop or desktop), open a terminal and run the following command on your terminal.
 
 ``curl -L -o install_local.sh  https://raw.githubusercontent.com/sunxb05/PyFrag/master/install_local.sh``
+
 ``bash install_local.sh``
 
 
 2) Go to your host machine (supercomputer or cluster), open a terminal and run the following command on your terminal.
 
 ``curl -L -o install_host.sh  https://raw.githubusercontent.com/sunxb05/PyFrag/master/install_host.sh``
+
 ``bash install_host.sh``
 
 3) Open a terminal in your local machine, make a directory, enter into that directory and run the following command.

@@ -1,7 +1,5 @@
 Basic Usage Tutorial
 ====================
-The PyFrag 2019 program is specially designed to facilitates the study of reaction mechanism in a more efficient and user-friendly way.The original `PyFrag 2008`_ workflow facilitated the characterization of reaction mechanisms in terms of the intrinsic properties of reactants, which has been commonly used for research in `Bickelhaupt Group`_. The new PyFrag 2019  program has automated and reduced the time-consuming and laborious task of setting up, running, analyzing, and visualizing computational data from reaction mechanism studies to a single job. PyFrag 2019 resolves three main challenges associated with the automatized computational exploration of reaction mechanisms: 1) the management of multiple parallel calculations to automatically find a reaction path; 2) the monitoring of the entire computational process along with the extraction and plotting of relevant information from large amounts of data; and 3) the analysis and presentation of these data in a clear and informative way. The activation strain and canonical energy decomposition results that are generated, relate the characteristics of the reaction profile in terms of intrinsic properties (strain, interaction, orbital overlaps, orbital energies, populations) of the reactant species.
-
 
 Usage
 -----
@@ -27,7 +25,7 @@ To submit a job, create a directory and generate a input file and run the follow
 
 ``pyfrag job.in``
 
-Noted For each job a new directory and a new job name should be given. Don’t put more than one job in one directory, othervise it may cause clash.
+Noted for each job a new directory and a new job name should be given. Don’t put more than one job in one directory, othervise it may cause clash.
 
 if your want to know the latest information about your job, just run:
 
@@ -41,7 +39,7 @@ if your change the input file and want to submit it again, just run:
 Input example
 -------------
 
-For Example, the simple job input is as follow, which can be roughtly divided into four section: Job submit information, ADF parameter, PyFrag parameter and geometry parameters, as explained in the comment parts.
+A simple job input is as follow, which can be roughtly divided into four section: Job submit information, ADF parameter, PyFrag parameter and geometry parameters, as explained in the comment parts.
 More explation about PyFrag part can be found in the following site ::
 
    ''''
