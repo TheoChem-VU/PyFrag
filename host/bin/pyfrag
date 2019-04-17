@@ -1,0 +1,56 @@
+#! /bin/sh
+#----------------------------------------------------------
+#parse the command line for flags, should precede arguments
+#----------------------------------------------------------
+unset HELP
+unset EXECUTABLE
+#
+while [ ! -z "$1" ]
+do
+    case $1 in
+    -h)
+        HELP=1
+        shift;
+        ;;
+    -x)
+        EXECUTABLE=$2
+        shift;
+        shift;
+        ;;
+    *)
+        break;
+        ;;
+    esac
+done
+#
+#----------------------
+#print help information
+#----------------------
+if test ! -z "$HELP"
+then
+    echo "Usage: $0 [-h] [-s] [-x command]  [...]"
+    echo " "
+    echo "       -h          : print this information"
+    echo "       -x command  : start the executable named command"
+    echo "                   : command include adf, which use adf as engine"
+    echo "                   : gaussian, which use gaussian as engine"
+    echo "                   : orca, which use orca as engine"
+    echo "                   : turbomole, use turbomole as engine"
+    echo "                   : pyfragold, which use old pyfrag"
+    echo "                   : default command is adf itself"
+    echo "The example command is like as follow, in which job.in is job input"
+    echo "pyfrag job.in"
+    echo "or"
+    echo "pyfrag -x gaussian job.in"
+    exit 1
+fi
+
+
+
+if test -x "$HOSTPYFRAG/bin/$EXECUTABLE.sh";
+then
+    exec "$HOSTPYFRAG/bin/$EXECUTABLE.sh"  "$@"
+else
+    exec "$HOSTPYFRAG/bin/adf.sh"  "$@"
+fi
+

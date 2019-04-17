@@ -1,0 +1,13 @@
+#!/bin/bash
+#SBATCH -J frag_1
+#SBATCH -N 2
+#SBATCH -t 1:00:00
+#SBATCH --ntasks-per-node=24
+#SBATCH --partition=short
+#SBATCH --output=%job.stdout
+#SBATCH --error=%job.stdout
+
+export NSCM=24
+export SCM_TMPDIR=$TMPDIR
+#export SCM_DEBUG=yes
+cd $SCM_TMPDIR

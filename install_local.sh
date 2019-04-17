@@ -3,7 +3,7 @@
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 THIS_FILE=$(basename "$0")
 THIS_PATH="$THIS_DIR/$THIS_FILE"
-PREFIX=$HOME/bin
+PREFIX=$HOME
 
 
 USAGE_ADF="
@@ -27,20 +27,19 @@ if  ! [ -e "$ADFBIN" ] >/dev/null 2>&1; then
 fi
 
 
-
 USAGE_Python3="
 The easy way to install python3 is to download python3 package from
 https://www.python.org/downloads/release/python-368/
 "
 
-if  [ -e "python3 -h" ] >/dev/null 2>&1; then
+if  ! which python3 >/dev/null 2>&1; then
     printf "\\nWARNING: python3 does not appear to be installed or properly set up, you need resolve this problem to continue" >&2
     printf "%s \\n"  "$USAGE_Python3"  >&2
     exit 1
 fi
 
 
-if  [ -e "pip3 -h" ] >/dev/null 2>&1; then
+if  ! which pip3 >/dev/null 2>&1; then
     printf "\\nWARNING: Pip3 does not appear to be installed or properly set up, you need resolve this problem to continue" >&2
     exit 1
 fi
@@ -48,7 +47,7 @@ fi
 
 xcode-select --install
 
-
+pip3 install pandas
 pip3 install bokeh
 pip3 install opencv-python
 
@@ -88,7 +87,7 @@ printf "%s\\n" "$PREFIX"
 printf "\\n"
 printf "  - Press ENTER to confirm the location\\n"
 printf "  - Press CTRL-C to abort the installation\\n"
-printf "  - Or specify a different location below\\n"
+printf "  - Or specify a different location below, for example: /home/bin \\n"
 printf "\\n"
 printf "[%s] >>> " "$PREFIX"
 read -r user_prefix
@@ -105,24 +104,12 @@ if [ "$user_prefix" != "" ]; then
 fi
 
 
-if [ -e "$PREFIX" ]; then
-    printf "ERROR: File or directory already exists: '%s'\\n" "$PREFIX" >&2
-    printf "If you want to complish pyfrag installation, you need to remove this existing directory\\n" >&2
-    exit 1
-fi
-
-
-if ! mkdir -p "$PREFIX"; then
-    printf "ERROR: Could not create directory: '%s'\\n" "$PREFIX" >&2
-    exit 1
-fi
-
 PREFIX=$(cd "$PREFIX"; pwd)
 export PREFIX
 
 cd "$PREFIX"
 
-if ! curl --help >/dev/null 2>&1; then
+if ! which curl >/dev/null 2>&1; then
     printf "WARNING: curl does not appear to be installed, you need install it to continue\\n" >&2
     exit 1
 fi
@@ -134,7 +121,7 @@ PREZIP="$PREFIX/pyfrag.zip"
 
 unzip "$PREZIP"
 
-rm -f $PREZIP
+rm -rf $PREZIP
 
 mv "$PREFIX"/sunxb05-PyFrag* "$PREFIX"/pyfrag
 
@@ -142,13 +129,13 @@ mv "$PREFIX"/sunxb05-PyFrag* "$PREFIX"/pyfrag
 PYFRAG_RC="$PREFIX"/pyfrag/.pyfragrc
 CONFIG_FILE="$PREFIX"/pyfrag/utils/configure.py
 
-printf "Please give your remote host machine host name, like cartesius.surfsara.nl\\n"
+printf "Please give your host machine (supercomputer) host name, like cartesius.surfsara.nl\\n"
 read -r hostname
 
-printf "Please give your remote host machine user name, like xnt453\\n"
+printf "Please give your host machine (supercomputer) account name, like marcus001\\n"
 read -r username
 
-printf "Please give your remote host machine home directory, like /home/xnt453\\n"
+printf "Please give the home directory of your host machine (supercomputer) where you computation job will be saved, like /home/marcus001\\n"
 read -r hostdirectory
 
 cat <<EOF >> "$PYFRAG_RC"
@@ -164,52 +151,34 @@ HOSTNAME = "$hostname"
 # added by PyFrag installer
 EOF
 
+BASH_RC="$HOME"/.bashrc
+BASH_FILE="$HOME"/.profile
+BASH_PROFIEL="$HOME"/.bash_profile
 
-if True; then
-    BASH_RC="$HOME"/.bashrc
-    BASH_FILE="$HOME"/.profile
-    DEFAULT=no
-    printf "Do you wish the installer to initialize PyFrag\\n"
-    printf "in your %s ? [yes|no]\\n" "$BASH_RC"
-    printf "or in your %s ? [yes|no]\\n" "$BASH_FILE"
-    read -r ans
-    if [ "$ans" = "" ]; then
-        ans=$DEFAULT
-    fi
-    if [ "$ans" != "yes" ] && [ "$ans" != "Yes" ] && [ "$ans" != "YES" ] && \
-       [ "$ans" != "y" ]   && [ "$ans" != "Y" ]
-    then
-        printf "\\n"
-        printf "You may wish to edit your $BASH_RC to setup PyFrag:\\n"
-        printf "\\n"
-        printf "export PATH=\"$PREFIX/bin:\$PATH\"\\n"
-        printf "\\n"
-    else
-        if [ -f "$BASH_RC" ]; then
-            printf "\\n"
-            printf "Initializing PyFrag in %s\\n" "$BASH_RC"
-            printf "\\n"
-        elif [ -f "$BASH_FILE" ]; then
-            printf "\\n"
-            printf "Initializing PyFrag in %s\\n" "$BASH_FILE"
-            printf "\\n"
-        else
-            printf "\\n"
-            printf "Initializing PyFrag in newly created %s\\n" "$BASH_RC"
-        fi
-        cat <<EOF >> "$BASH_RC"
+if [ -f "$BASH_RC" ]; then
+    printf "\\n"
+    printf "Initializing PyFrag in %s\\n" "$BASH_RC"
+    printf "\\n"
+    BASHSET="$BASH_RC"
+elif [ -f "$BASH_FILE" ]; then
+    printf "\\n"
+    printf "Initializing PyFrag in %s\\n" "$BASH_FILE"
+    printf "\\n"
+    BASHSET="$BASH_FILE"
+else
+    printf "\\n"
+    printf "Initializing PyFrag in %s\\n" "$BASH_PROFIEL"
+    BASHSET="$BASH_PROFIEL"
+fi
+cat <<EOF >> "$BASHSET"
 # added by PyFrag installer
 export PYFRAGHOME="$PREFIX/pyfrag"
 export PATH="\$PYFRAGHOME/bin:\$PATH"
 # added by PyFrag installer
 EOF
-        printf "\\n"
-        printf "For this change to become active, you have to open a new terminal.\\n"
-        printf "\\n"
-    fi
-
-    printf "Thank you for installing PyFrag!\\n"
-fi # !BATCH
-
+printf "\\n"
+printf "For this change to become active, you have to open a new terminal.\\n"
+printf "\\n"
+printf "Thank you for installing PyFrag!\\n"
 
 exit 0

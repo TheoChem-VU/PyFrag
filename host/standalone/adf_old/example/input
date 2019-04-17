@@ -1,0 +1,68 @@
+INPUT_SPECS
+type = IRC
+output file = irc.amv
+fa1_name = pd_cc_ts
+frag1 = pd
+1.Pd
+2.H
+3.H
+4.P
+5.H
+6.H
+7.P
+8.H
+9.H
+end frag1
+frag2 = cc
+10.C
+11.C
+12.H
+13.H
+14.H
+15.H
+16.H
+17.H
+end frag2
+
+
+print strain frag1  -788.56
+print strain frag2  -933.5
+
+save tape21s
+END INPUT_SPECS
+# ==============================
+# The Molecule
+# ==============================
+
+"$ADFBIN/adf" <<eor
+ATOMS
+END
+
+
+BASIS
+type TZ2P
+core Small
+createoutput None
+END
+
+XC
+GGA OPBE
+END
+
+RELATIVISTIC Scalar ZORA
+
+SCF
+ITERATIONS 299
+CONVERGE 0.00001
+MIXING 0.20
+END
+
+NumericalQuality VeryGood
+
+NOPRINT LOGFILE
+
+END INPUT
+
+
+
+eor

@@ -42,6 +42,7 @@ then
     echo "                   : check, which check the latest jobs information"
     echo "                   : restart, which restart a job after it is stoped"
     echo "                   : summary, which summarize all job result after jobs finished"
+    echo "                   : consist, which consist monitor job and input change"
     echo "                   : default command is pyfrag itself"
     echo "The example command is like as follow, in which job.in is job input"
     echo "$0 job.in"

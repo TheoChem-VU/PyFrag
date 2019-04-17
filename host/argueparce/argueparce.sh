@@ -91,19 +91,19 @@ rm geometry.txt
 input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
-grep  -iA 200 'JOBSUB' $input | grep -iB 200 'JOBSUB END' | grep -iv 'JOBSUB' | grep -iv 'JOBSUB END' > jobsub.txt
-grep  -iA 200 'ADF' $input | grep -iB 200 'ADF END' | grep -iv 'ADF' | grep -iv 'ADF END' > adf.txt
-grep  -iA 200 'PyFrag' $input | grep -iB 200 'PyFrag END' | grep -iv 'PyFrag' | grep -iv 'PyFrag END' > pyfrag.txt
-grep  -iA 200 'Geometrycoor' $input | grep -B 200 'Geometrycoor END' | grep -iv 'Geometrycoor' | grep -iv 'Geometrycoor END' > coor.xyz
-grep  -iA 200 'R1 EXTRA' $input | grep -iB 200 'R1 EXTRA END' | grep -iv 'R1 EXTRA' | grep -iv 'R1 EXTRA END' > R1_EXTRA.txt
-grep  -iA 200 'R2 EXTRA' $input | grep -iB 200 'R2 EXTRA END' | grep -iv 'R2 EXTRA' | grep -iv 'R2 EXTRA END' > R2_EXTRA.txt
-grep  -iA 200 'RC EXTRA' $input | grep -iB 200 'RC EXTRA END' | grep -iv 'RC EXTRA' | grep -iv 'RC EXTRA END' > RC_EXTRA.txt
-grep  -iA 200 'TS EXTRA' $input | grep -iB 200 'TS EXTRA END' | grep -iv 'TS EXTRA' | grep -iv 'TS EXTRA END' > TS_EXTRA.txt
-grep  -iA 200 'P EXTRA' $input | grep -iB 200 'P EXTRA END' | grep -iv 'P EXTRA' | grep -iv 'P EXTRA END'     > P_EXTRA.txt
-grep  -iA 200 'IR EXTRA' $input | grep -iB 200 'IR EXTRA END' | grep -iv 'IR EXTRA' | grep -iv 'IR EXTRA END' > IRC_EXTRA.txt
-grep  -iA 200 'fragment1 EXTRA' $input | grep -iB 200 'fragment1 EXTRA END' | grep -iv 'fragment1 EXTRA' | grep -iv 'fragment1 EXTRA END' > fragment1_EXTRA.txt
-grep  -iA 200 'fragment2 EXTRA' $input | grep -iB 200 'fragment2 EXTRA END' | grep -iv 'fragment2 EXTRA' | grep -iv 'fragment2 EXTRA END' > fragment2_EXTRA.txt
-grep  -iA 200 'complex EXTRA' $input | grep -iB 200 'complex EXTRA END' | grep -iv 'complex EXTRA' | grep -iv 'complex EXTRA END' > complex_EXTRA.txt
+grep  -A 200 'JOBSUB' $input | grep -B 200 'JOBSUB END' | grep -v 'JOBSUB' | grep -v 'JOBSUB END' > jobsub.txt
+grep  -A 200 'ADF' $input | grep -B 200 'ADF END' | grep -v 'ADF' | grep -v 'ADF END' > adf.txt
+grep  -A 200 'PyFrag' $input | grep -B 200 'PyFrag END' | grep -v 'PyFrag' | grep -v 'PyFrag END' > pyfrag.txt
+grep  -A 200 'Geometrycoor' $input | grep -B 200 'Geometrycoor END' | grep -v 'Geometrycoor' | grep -v 'Geometrycoor END' > coor.xyz
+grep  -A 200 'R1 EXTRA' $input | grep -B 200 'R1 EXTRA END' | grep -v 'R1 EXTRA' | grep -v 'R1 EXTRA END' > R1_EXTRA.txt
+grep  -A 200 'R2 EXTRA' $input | grep -B 200 'R2 EXTRA END' | grep -v 'R2 EXTRA' | grep -v 'R2 EXTRA END' > R2_EXTRA.txt
+grep  -A 200 'RC EXTRA' $input | grep -B 200 'RC EXTRA END' | grep -v 'RC EXTRA' | grep -v 'RC EXTRA END' > RC_EXTRA.txt
+grep  -A 200 'TS EXTRA' $input | grep -B 200 'TS EXTRA END' | grep -v 'TS EXTRA' | grep -v 'TS EXTRA END' > TS_EXTRA.txt
+grep  -A 200 'P EXTRA' $input | grep -B 200 'P EXTRA END' | grep -v 'P EXTRA' | grep -v 'P EXTRA END'     > P_EXTRA.txt
+grep  -A 200 'IR EXTRA' $input | grep -B 200 'IR EXTRA END' | grep -v 'IR EXTRA' | grep -v 'IR EXTRA END' > IRC_EXTRA.txt
+grep  -A 200 'fragment1 EXTRA' $input | grep -B 200 'fragment1 EXTRA END' | grep -v 'fragment1 EXTRA' | grep -v 'fragment1 EXTRA END' > fragment1_EXTRA.txt
+grep  -A 200 'fragment2 EXTRA' $input | grep -B 200 'fragment2 EXTRA END' | grep -v 'fragment2 EXTRA' | grep -v 'fragment2 EXTRA END' > fragment2_EXTRA.txt
+grep  -A 200 'complex EXTRA' $input | grep -B 200 'complex EXTRA END' | grep -v 'complex EXTRA' | grep -v 'complex EXTRA END' > complex_EXTRA.txt
 
 
 submit="$QMWORKS/bin/python3 $HOSTPYFRAG/job.py \\"

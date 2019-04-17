@@ -23,13 +23,13 @@ done < "$pyfrag"
 function adfargue {
 adf=$*
 
-Mark=(scf xc basis)
+Mark=(scf xc basis BECKEGRID)
 SMark=(numericalquality relativistic charge symmetry)
 
 
 for item in ${Mark[*]}
 do
-  option=`grep  -A 20 "$item" $adf | grep -m 1 -B 20 'end' | grep -v 'end' | grep -v "$item"`
+  option=`grep  -iA 20 "$item" $adf | grep -m 1 -iB 20 'end' | grep -iv 'end' | grep -iv "$item"`
   optionarray=( $option )
   i=0
   j=1
@@ -43,9 +43,11 @@ done
 
 for sitem in ${SMark[*]}
 do
-  soption=`grep "$sitem" $adf`
-  soptionarray=( $soption )
-  echo $sitem"="${soptionarray[@]:1}
+  soption=`grep -i "$sitem" $adf`
+  if [ ! -z "$soption" ]; then
+    soptionarray=( $soption )
+    echo $sitem"="${soptionarray[@]:1}
+  fi
 done
 }
 
@@ -56,22 +58,30 @@ SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 grep  -A 200 'JOBSUB' $input | grep -B 200 'JOBSUB END' | grep -v 'JOBSUB' | grep -v 'JOBSUB END' > jobsub.txt
 grep  -A 200 'ADF' $input | grep -B 200 'ADF END' | grep -v 'ADF' | grep -v 'ADF END' > adf.txt
 grep  -A 200 'PyFrag' $input | grep -B 200 'PyFrag END' | grep -v 'PyFrag' | grep -v 'PyFrag END' > pyfrag.txt
-grep  -A 200 'Geometrycoor' $input | grep -B 200 'Geometrycoor END' | grep -v 'Geometrycoor' | grep -v 'Geometrycoor END' > coor.xyz
+grep  -A 200 'fragment1 EXTRA' $input | grep -B 200 'fragment1 EXTRA END' | grep -v 'fragment1 EXTRA' | grep -v 'fragment1 EXTRA END' > fragment1_EXTRA.txt
+grep  -A 200 'fragment2 EXTRA' $input | grep -B 200 'fragment2 EXTRA END' | grep -v 'fragment2 EXTRA' | grep -v 'fragment2 EXTRA END' > fragment2_EXTRA.txt
+grep  -A 200 'complex EXTRA' $input | grep -B 200 'complex EXTRA END' | grep -v 'complex EXTRA' | grep -v 'complex EXTRA END' > complex_EXTRA.txt
 
-#jobname=`grep '#SBATCH -J' $input |awk '{print $1}'`
-submit="$QMWORKS/bin/python3 $HOSTPYFRAG/job.py \\"
-subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile"
+
+submit="startpython \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
+subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile \\"
 
 
 jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub
-python3 $HOSTPYFRAG/argueparce/coorargue.py coor.xyz        >> ./sub
 pyfragargue pyfrag.txt                                      >> ./sub
 echo $subadfinputfile                                       >> ./sub
 adfargue  adf.txt                                           >> ./adfinputfile
 
-rm jobsub.txt adf.txt pyfrag.txt coor.xyz
-# rm -r result
-mkdir result
-touch ./result/rcgeometry.xyz
-cp $HOSTPYFRAG/argueparce/jobstate.txt  ./result
+extraOption=(fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt)
+
+for extraItem in ${extraOption[*]}
+do
+  if [ -s $extraItem ]; then
+    adfargue $extraItem                                     >> ./${extraItem%.txt}
+    subItem="--"${extraItem%.txt}" $SCRIPTPATH/${extraItem%.txt} \\"
+    echo $subItem                                           >> ./sub
+  fi
+done
+
+rm jobsub.txt adf.txt pyfrag.txt fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt
