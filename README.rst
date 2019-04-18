@@ -41,7 +41,8 @@ In order to see all the commands that can be used in this program, the user can 
 Input example
 -------------
 
-A simple job input is shown below. The input script can be roughly divided into four section: the required Slurm information, ADF parameters, pyfrag parameters, and geometry parameters. Additional information about the input file can be found in `input explanation`_ and `main specifications`_. ::
+A simple job input is shown below. The input script can be roughly divided into four section: the required Slurm information, ADF parameters, pyfrag parameters, and geometry parameters. Additional information about the input file can be found in `input explanation`_ and `main specifications`_ in the following webpages. ::
+
    JOBSUB
    #!/bin/bash
    #SBATCH -J frag_1
