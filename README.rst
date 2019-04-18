@@ -134,7 +134,7 @@ A simple job input is shown below. The input script can be roughly divided into 
 
 Result example
 --------------
-After the job has been submitted, a website like figure below will be launch that summarize all relevant information, including: a. the convergence information, b. the latest structure from the optimization in the form of movie, c. the latest energy and coordinates, and d. the activation strain analysis (if a job is finished). The user can decide if the trend of optimization is right or wrong, and if necessary, the job can be stopped. If the input file has been modified, the job will be resubmitted and the overall workflow will resume from where it stopped before.
+After the job has been submitted, a website like figure below will be launch that summarize all relevant information, including: a) the convergence information, b) the latest structure from the optimization in the form of movie, c) the latest energy and coordinates, and d) the activation strain analysis (if a job is finished). The user can decide if the trend of optimization is right or wrong, and if necessary, the job can be stopped. If the input file has been modified, the job will be resubmitted and the overall workflow will resume from where it stopped before.
 
 .. image:: jobresult.png
    :alt: result

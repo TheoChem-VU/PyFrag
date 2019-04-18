@@ -194,7 +194,7 @@ The user  might want to specify an additional input for the different sections o
 
 Result example
 --------------
-After the job has been submitted, a website will be launch that summarize all relevant information, including: the convergance information, the latest structure from the optimization in the form of movie, the latest energy and coordinates, and the activation strain analysis (if a job is finished). The user can decide if the trend of optimization is right or wrong, and if necessary, the job can be stopped. If the input file has been modified, the job will be resubmitted and the overall workflow will resume from where it stopped before.
+After the job has been submitted, a website will be launch that summarize all relevant information, including: a) the convergance information, b) the latest structure from the optimization in the form of movie, c) the latest energy and coordinates, and d) the activation strain analysis (if a job is finished). The user can decide if the trend of optimization is right or wrong, and if necessary, the job can be stopped. If the input file has been modified, the job will be resubmitted and the overall workflow will resume from where it stopped before.
 
 .. image:: jobresult.png
    :alt: result
