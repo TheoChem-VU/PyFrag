@@ -51,7 +51,7 @@ master_doc = 'index'
 # author = 'X. Sun'
 
 project = 'PyFrag'
-copyright = '2019, X. Sun, T. M. Soini, T. A. Hamlini, J. Poater and F. M. Bickelhaupt'
+copyright = '2019, X. Sun, T. M. Soini, J. Poater, T. A. Hamlin and F. M. Bickelhaupt'
 author = 'X. Sun, T. M. Soini, J. Poater, T. A. Hamlin and F. M. Bickelhaupt'
 
 # The version info for the project you're documenting, acts as replacement for

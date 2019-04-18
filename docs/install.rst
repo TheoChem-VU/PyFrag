@@ -11,7 +11,7 @@ To install the ASA module of PyFrag2019, the user must complete the following st
 
 ``bash install_alone.sh``
 
-The user can also download the module for either ADF, Gaussian, Orca, and Turbomole separately from PyFrag standalone and run it as a normal python code in your laptop or desktop. An input sample is provided in the example folder along with the source code file.
+The user can also download the module for either ADF, Gaussian, Orca, and Turbomole separately from PyFrag standalone_ and run it as a normal python code in your laptop or desktop. An input sample is provided in the example folder along with the source code file.
 
 
 2.2 The Complete PyFrag2019 Package
