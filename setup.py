@@ -13,7 +13,7 @@ setup(
     description='Automation of computations in quantum chemistry',
     license='Apache 2.0',
     url='https://github.com/sunxb05/PyFrag',
-    author=["Xiaobo Sun"],
+    author=["X. Sun, T. M. Soini, J. Poater, T. A. Hamlin and F. M. Bickelhaupt"],
     author_email='sunxb05@gmail.com',
     keywords='chemistry workflows simulation materials',
     long_description=readme(),

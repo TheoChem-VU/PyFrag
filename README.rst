@@ -11,7 +11,7 @@ See documentation_ for tutorials and documentation.
 
 Motivation
 ==========
-The PyFrag 2019 program is specially designed to facilitate the study of reaction mechanism in a more efficient and user-friendly way.The original `PyFrag 2008`_ workflow facilitated the characterization of reaction mechanisms in terms of the intrinsic properties of reactants, which has been commonly used for research in `Bickelhaupt Group`_. The new PyFrag 2019  program has automated and reduced the time-consuming and laborious task of setting up, running, analyzing, and visualizing computational data from reaction mechanism studies to a single job. PyFrag 2019 resolves three main challenges associated with the automatized computational exploration of reaction mechanisms: 1) the management of multiple parallel calculations to automatically find a reaction path; 2) the monitoring of the entire computational process along with the extraction and plotting of relevant information from large amounts of data; and 3) the analysis and presentation of these data in a clear and informative way. The activation strain and canonical energy decomposition results that are generated, relate the characteristics of the reaction profile in terms of intrinsic properties (strain, interaction, orbital overlaps, orbital energies, populations) of the reactant species.
+The PyFrag 2019 program is specially designed to facilitate the study of reaction mechanism in a more efficient and user-friendly way. The original `PyFrag 2008`_ workflow facilitated the characterization of reaction mechanisms in terms of the intrinsic properties, such as strain and interaction, of the reactants. This approach is routinely applied in the `Bickelhaupt Group`_ to understand numerous organic, inorganic, and biomolecular reactions/processes. The new PyFrag 2019  program has automated and reduced the time-consuming and laborious task of setting up, running, analyzing, and visualizing computational data from reaction mechanism studies to a single job. PyFrag 2019 resolves three main challenges associated with the automatized computational exploration of reaction mechanisms: 1) the management of multiple parallel calculations to automatically find a reaction path; 2) the monitoring of the entire computational process along with the extraction and plotting of relevant information from large amounts of data; and 3) the analysis and presentation of these data in a clear and informative way. The activation strain and canonical energy decomposition results that are generated, relate the characteristics of the reaction profile in terms of intrinsic properties (strain, interaction, orbital overlaps, orbital energies, populations) of the reactant species.
 
 
 Description
@@ -20,7 +20,7 @@ Description
 Usage
 ------------
 
-User can type pyfrag -h to see all the commands that can be used in this program, which will show: ::
+In order to see all the commands that can be used in this program, the user can type pyfrag -h, which will show: ::
 
    Usage: pyfrag [-h] [-s] [-x command]  [...]
    -h          : print this information
@@ -41,9 +41,8 @@ User can type pyfrag -h to see all the commands that can be used in this program
 Input example
 -------------
 
-For Example, the simple job input is as follow, which can be roughtly divided into four section: Slurm information, ADF parameter, pyfrag parameter and geometry parameters.
-More explation about input can be found in later chapter ::
-
+A simple job input is shown below. The input script can be roughly divided into four section: the required Slurm information, ADF parameters, pyfrag parameters, and geometry parameters. Additional information about the input file can be found in `input explanation`_ and `main specifications`_. ::
+   JOBSUB
    #!/bin/bash
    #SBATCH -J frag_1
    #SBATCH -N 1
@@ -128,14 +127,13 @@ More explation about input can be found in later chapter ::
    H      -1.97386865      -2.66955518      -0.87144525
    H      -1.12556673      -2.41201402       0.698583
 
-
    Geometrycoor END
 
 
 
 Result example
 --------------
-After a job is submited, a website that summarize all information which include the converge inforamtion, the latest structure in the form of movie, the latest energy and coordinate and the activation strain analysis (if a job is finished) will pop up. User can decide if the trend of optimization is right or wrong, if necessary, the job can be stoped. After the input is varied, job will be resubmited and resume from where it stoped before.
+After the job has been submitted, a website like figure below will be launch that summarize all relevant information, including: a. the convergence information, b. the latest structure from the optimization in the form of movie, c. the latest energy and coordinates, and d. the activation strain analysis (if a job is finished). The user can decide if the trend of optimization is right or wrong, and if necessary, the job can be stopped. If the input file has been modified, the job will be resubmitted and the overall workflow will resume from where it stopped before.
 
 .. image:: jobresult.png
    :alt: result
@@ -147,7 +145,8 @@ For installation, please read installation_.
 
 
 
-
+.. _input explanation: https://pyfragdocument.readthedocs.io/en/latest/interactive_tutorial.html
+.. _main specifications: https://pyfragdocument.readthedocs.io/en/latest/pyfragparameter.html
 .. _documentation: https://pyfragdocument.readthedocs.io/en/latest/includeme.html
 .. _PyFrag 2008:  http://www.few.vu.nl/~xsn800/Home.html
 .. _Bickelhaupt Group: http://www.few.vu.nl/~bickel/

@@ -157,7 +157,7 @@ else:
     # p3.legend.location = "top_left"
     # layout = column(main_row, series,gridplot([[p1,p2,p3]], plot_width=400, plot_height=400))
 
-    layout = column(main_row, series,gridplot([[p1,p2]], plot_width=400, plot_height=400))
+    layout = column(main_row, series, gridplot([[p1,p2]], plot_width=400, plot_height=400))
 
 # initialize
 update()

@@ -46,9 +46,13 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
+# project = 'PyFrag'
+# copyright = '2019, X. Sun'
+# author = 'X. Sun'
+
 project = 'PyFrag'
-copyright = '2019, X. Sun'
-author = 'X. Sun'
+copyright = '2019, X. Sun, T. M. Soini, T. A. Hamlini, J. Poater and F. M. Bickelhaupt'
+author = 'X. Sun, T. M. Soini, J. Poater, T. A. Hamlin and F. M. Bickelhaupt'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

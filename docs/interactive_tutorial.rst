@@ -4,7 +4,7 @@ Basic Usage Tutorial
 Usage
 -----
 
-User can type pyfrag -h to see all the commands that can be used in this program, which will show: ::
+The user can type pyfrag -h to see all the commands that can be used in this program, which will show: ::
 
    Usage: pyfrag [-h] [-s] [-x command]  [...]
    -h          : print this information
@@ -21,28 +21,27 @@ User can type pyfrag -h to see all the commands that can be used in this program
    or
    pyfrag -s -x summary job.in
 
-To submit a job, create a directory and generate a input file and run the following command to submit a job. Noted for each job a new directory and a new job name should be given. Don’t put more than one job in one directory, othervise it may cause clash.
+To submit a job, create a directory and generate a input file and run the following command to submit a job. Note for each job, a new directory and a new job name should be given. Note: The user should avoid running more than one job in a single directory.
 
 ``pyfrag job.in``
 
-if your want to know the latest information about your job, just run:
+To obtain the latest information about your job, the user can run:
 
 ``pyfrag -x summary job.in``
 
-if your change the input file and want to submit it again, just run:
+If a change in the input file is required, make the change and the resubmit the job using:
 
 ``pyfrag -x restart job.in``
 
 
-Input example
--------------
+3.2   Sample Input Example
+--------------------------
 
-A simple job input is as follow, which can be roughtly divided into four section: Job submit information, ADF parameter, PyFrag parameter and geometry parameters, as explained in the comment parts.
-More explation about PyFrag part can be found in the following site ::
+A simple job input is shown below. The input script can be roughly divided into four section: the required Slurm information, ADF parameters, pyfrag parameters, and geometry parameters. ::
 
    ''''
    JOBSUB section is for the information passed to the remote host machine
-   where the heavy computatonal job is done! It is written in the fashion of Slurm.
+   where the heavy computational job is done! It is written in the fashion of Slurm.
    ''''
    JOBSUB
 
@@ -147,7 +146,7 @@ More explation about PyFrag part can be found in the following site ::
 
    Geometrycoor END
 
-You might want additional input for different parts of the calculation. Here extra fragment1 and fragment2 indicate the single point calculations for fragment 1 and 2, respectively. Extra complex inserts statements for the fragment analysis calculation. Similarly, the R1 EXTRA, R2 EXTRA, RC EXTRA, TS EXTRA, P EXTRA, IR EXTRA insert statements for R1, R2, RC, TS, P, IRC calculation. These statements will be useful when the parameter set differ for different calculation, in which case the following statements arise ::
+The user  might want to specify an additional input for the different sections of the overall workflow. To specify additional information for say, fragment1 and fragment2 see the syntax shown below. Additional complex insert statements for the fragment analysis calculation can be added. Similarly, the R1 EXTRA, R2 EXTRA, RC EXTRA, TS EXTRA, P EXTRA, IRC EXTRA insert statements for R1, R2, RC, TS, P, IR calculation. ::
 
    fragment1 EXTRA
    charge 1
@@ -195,7 +194,7 @@ You might want additional input for different parts of the calculation. Here ext
 
 Result example
 --------------
-After a job is submited, a website that summarize all information which include a) the converge inforamtion, b)the latest structure in the form of movie, c) the latest energy and coordinate and d) the activation strain analysis (if a job is finished) will pop up. User can decide if the trend of optimization is right or wrong, if necessary, the job can be stoped. After the input is varied, job will be resubmited and resume from where it stoped before.
+After the job has been submitted, a website will be launch that summarize all relevant information, including: the convergance information, the latest structure from the optimization in the form of movie, the latest energy and coordinates, and the activation strain analysis (if a job is finished). The user can decide if the trend of optimization is right or wrong, and if necessary, the job can be stopped. If the input file has been modified, the job will be resubmitted and the overall workflow will resume from where it stopped before.
 
 .. image:: jobresult.png
    :alt: result

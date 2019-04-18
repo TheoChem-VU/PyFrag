@@ -69,11 +69,23 @@ To submit a job, create a directory and generate a input file and run the follow
 
 ``pyfrag job.in``
 
+For a quick test, if your installation_ is correct, run the following command to do an easy test:
+
+``cp -r $HOSTPYFRAG/adf_new/example ~/pyfrag_adf_test``
+
+Enter the directory and modify the submit information according to your cluster requirement and the path to the out file,
+
+``cd ~/pyfrag_adf_test``
+
+And run the job
+
+``pyfrag job.in``
+
 
 Gaussian
 --------
 
-The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using Gaussian is as follows:: ::
+The basic pyfrag input for activation strain analysis for Gaussian is as follow: ::
 
    INPUT_SPECS
    type = IRC
@@ -118,14 +130,28 @@ The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using Gaussi
    0 1
    END INPUT
 
-The first section between INPUT_SPECS and END INPUT_SPECS is used to define fragment and provide coordinate path. The second section between END INPUT_SPECS and END INPUT is used to do Gaussian parameter set up. To submit a job, create a directory and generate a input file and run the following command to submit a job::
+The first section between INPUT_SPECS and END INPUT_SPECS is used to define fragment and provide coordinate path.
+The second section between END INPUT_SPECS and END INPUT is used to do Gaussian parameter set up.
+To submit a job, create a directory and generate a input file and run the following command to submit a job:
 
 ``pyfrag -x gaussian job.in``
+
+For a quick test, if your installation_ is correct, run the following command to do an easy test:
+
+``cp -r $HOSTPYFRAG/gaussian/example ~/pyfrag_gaussian_test``
+
+Enter to the directory and modify the submit information in the sub file according to your cluster requirement,
+
+``cd ~/pyfrag_gaussian_test``
+
+And run the job
+
+``pyfrag -x gaussian input.com`
 
 
 Orca
 ----
-The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using Orca is as follows: ::
+The basic pyfrag input for activation strain analysis for Orca is as follow: ::
 
    INPUT_SPECS
    type = IRC
@@ -150,14 +176,28 @@ The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using Orca i
    * xyz 0 1
    END INPUT
 
-The first section between INPUT_SPECS and END INPUT_SPECS is used to define fragment and provide coordinate path. The second section between END INPUT_SPECS and END INPUT is used to do Orca parameter set up. To submit a job, create a directory and generate a input file and run the following command to submit a job:
+The first section between INPUT_SPECS and END INPUT_SPECS is used to define fragment and provide coordinate path.
+The second section between END INPUT_SPECS and END INPUT is used to do Orca parameter set up.
+To submit a job, create a directory and generate a input file and run the following command to submit a job:
 
 ``pyfrag -x orca job.in``
+
+For a quick test, if your installation_ is correct, run the following command to do an easy test:
+
+``cp -r $HOSTPYFRAG/orca/example ~/pyfrag_gaussian_test``
+
+Enter to the directory and modify the submit information in the sub file according to your cluster requirement,
+
+``cd ~/pyfrag_gaussian_test``
+
+And run the job
+
+``pyfrag -x gaussian input.com`
 
 
 Turbomole
 ---------
-The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using Turbomole is as follows: ::
+The basic pyfrag input for activation strain analysis for Turbomole is as follow: ::
 
    INPUT_SPECS
    type = IRC
@@ -185,7 +225,9 @@ The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using Turbom
    %end
    END INPUT
 
-The first section between INPUT_SPECS and END INPUT_SPECS is used to define fragment and provide coordinate path. The second section between END INPUT_SPECS and END INPUT is used to do Turbomole parameter set up. To submit a job, create a directory and generate a input file and run the following command to submit a job:
+The first section between INPUT_SPECS and END INPUT_SPECS is used to define fragment and provide coordinate path.
+The second section between END INPUT_SPECS and END INPUT is used to do Turbomole parameter set up.
+To submit a job, create a directory and generate a input file and run the following command to submit a job:
 
 ``pyfrag -x turbomole job.in``
 
