@@ -37,7 +37,7 @@ If a change in the input file is required, make the change and the resubmit the 
 3.2   Sample Input Example
 --------------------------
 
-A simple job input is shown below. The input script can be roughly divided into four section: the required submit information for a job scheduling system (Slurm in this example), ADF parameters, pyfrag parameters, and geometry parameters. ::
+A simple job input is provided below. The input script can be roughly divided into four section: the required submit information for a job scheduling system (Slurm in this example), ADF parameters, PyFrag 2019 parameters, and geometry parameters. ::
 
    ''''
    JOBSUB section is for the information passed to the remote host machine
@@ -194,7 +194,7 @@ The user  might want to specify an additional input for the different sections o
 
 Result example
 --------------
-After the job has been submitted, a website as shown in the figure below will be launched that summarizes all relevant information, including: a) the convergance information, b) the latest structure from the optimization in the form of movie, c) the latest energy and coordinates, and d) the activation strain analysis (if a job is finished). The user can decide if the trend of optimization is right or wrong, and if necessary, the job can be stopped. If the input file has been modified, the job will be resubmitted and the overall workflow will resume from where it stopped before.
+After the job has been submitted, a website as shown in the figure below will be launched. The website summarizes all relevant information, including: a) the convergence criteria, b) the latest structure from the optimization in the form of movie, c) the latest energy and coordinates, and d) the activation strain analysis (once the complete workflow has finished). The user can decide if the optimization process is correct or incorrect, and if necessary, can stop the  job. If the input file is then modified or updated, the job will be resubmitted and the overall workflow will resume from where it left off.
 
 .. image:: jobresult.png
    :alt: result

@@ -3,9 +3,9 @@ Installation
 
 2.1 Activation Strain Analysis (ASA) Module of PyFrag2019
 ---------------------------------------------------------
-The user may choose to only install the part of the program needed to perform the Activation Strain Analysis (ASA) based on Activation Strain Model (ASM). The ASA can be performed using a variety of quantum chemical software packages, including:  ADF_, Gaussian_, Orca_ and Turbomole_, given a series of coordinate from the potential energy surface is available.
+The user may choose to only install the part of the program needed to perform the Activation Strain Analysis (ASA) based on Activation Strain Model (ASM). The ASA can be performed using a variety of quantum chemical software packages, including:  ADF_, Gaussian_, Orca_ and Turbomole_, given a series of coordinate from the potential energy surface is provided.
 
-To install the ASA module of PyFrag2019, the user must complete the following step. Go to your host machine (supercomputer or cluster), open a terminal and run the following command on your terminal:
+To install the ASA module of PyFrag2019, the user must complete the following step. Go to your host machine (supercomputer or cluster), open a terminal and run the following command:
 
 ``curl -L -o install_alone.sh  https://raw.githubusercontent.com/sunxb05/PyFrag/master/install_alone.sh``
 
@@ -16,8 +16,8 @@ The user can also download the module for either ADF, Gaussian, Orca, and Turbom
 
 2.2 The Complete PyFrag2019 Package
 -----------------------------------
-The entire PyFrag2019 package is only compatible with ADF at the moment. For this, one part of the program is installed on the users’ local machine and the second part is installed on the users’ host machine (supercomputer or cluster) where the heavy computational jobs is running. The user must ensure to transport their public key to your host machine to allow the communication between your local and host machine. The following installation bash script (install_local.sh, install_host.sh) is was designed to make the installation process as simple as possible. However, for the advanced user, if a different configuration of the program is desired, please read the detailed comments in the installation bash script and set up the program accordingly.
-To install and test pyfrag, the user must perform the following three steps:
+The entire PyFrag2019 package is only compatible with ADF at the moment. . For optimal use of PyFrag 2019, one part of the program is installed on the users’ local machine and the second part is installed on the users’ host machine (supercomputer or cluster) where the heavy computational jobs is running. The user must ensure to transport their public key to your host machine to allow the communication between your local and host machine. The following installation bash script (install_local.sh, install_host.sh) is was designed to make the installation process as simple as possible. However, for the advanced user, if a different configuration of the program is desired, please read the detailed comments in the installation bash script and set up the program accordingly.
+To install and test PyFrag 2019, the user must perform the following three steps:
 
 
 1) Go to your local machine (your laptop or desktop), open a terminal window and run the following command on your terminal:
