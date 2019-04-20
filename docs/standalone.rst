@@ -6,7 +6,7 @@ The user may choose to only install the part of the program needed to perform th
 ADF
 ---
 
-The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using ADF is similar to the previous input example, except the coordinate section: ::
+The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using ADF is similar to the previous input example, except the coordinate section: ::
 
    JOBSUB
 
@@ -73,7 +73,7 @@ To submit a job, create a directory and generate a input file and run the follow
 Gaussian
 --------
 
-The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using Gaussian is as follows: ::
+The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using Gaussian is as follows: ::
 
    INPUT_SPECS
    type = IRC
@@ -125,7 +125,7 @@ The first section between INPUT_SPECS and END INPUT_SPECS is used to define frag
 
 Orca
 ----
-The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using Orca is as follows: ::
+The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using Orca is as follows: ::
 
    INPUT_SPECS
    type = IRC
@@ -157,7 +157,7 @@ The first section between INPUT_SPECS and END INPUT_SPECS is used to define frag
 
 Turbomole
 ---------
-The basic PyFrag2019 input for the Activation Strain Analysis (ASA) using Turbomole is as follows: ::
+The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using Turbomole is as follows: ::
 
    INPUT_SPECS
    type = IRC

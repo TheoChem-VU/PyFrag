@@ -5,8 +5,8 @@
    :align: center
 
 
-PyFrag
-#######
+PyFrag 2019
+###########
 See documentation_ for tutorials and documentation.
 
 Motivation
