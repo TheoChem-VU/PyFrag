@@ -1,4 +1,4 @@
-Copyright (c) 2019 X. Sun, T. M. Soini, J. Poater, T. A. Hamlin, and F. M. Bickelhaupt
+Copyright (c) 2019 X. Sun, T. M. Soini, J. Poater, T. A. Hamlin and F. M. Bickelhaupt
 
 PyFrag 2019 is an Open Source project supported by the Vrije Universiteit Amsterdam and Software for Chemistry & Materials BV (SCM). The terms of the [LGPL-3.0 license]* apply. As an exception to the LGPL-3.0 license, you agree to grant SCM a [BSD 3-Clause license]** to the contributions you commit on this Github or provide to SCM in another manner.
 

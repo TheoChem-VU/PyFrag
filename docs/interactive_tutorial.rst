@@ -37,7 +37,7 @@ If a change in the input file is required, make the change and the resubmit the 
 3.2   Sample Input Example
 --------------------------
 
-A simple job input is shown below. The input script can be roughly divided into four section: the required Slurm information, ADF parameters, pyfrag parameters, and geometry parameters. ::
+A simple job input is shown below. The input script can be roughly divided into four section: the required submit information for a job scheduling system (Slurm in this example), ADF parameters, pyfrag parameters, and geometry parameters. ::
 
    ''''
    JOBSUB section is for the information passed to the remote host machine
@@ -146,7 +146,7 @@ A simple job input is shown below. The input script can be roughly divided into 
 
    Geometrycoor END
 
-The user  might want to specify an additional input for the different sections of the overall workflow. To specify additional information for say, fragment1 and fragment2 see the syntax shown below. Additional complex insert statements for the fragment analysis calculation can be added. Similarly, the R1 EXTRA, R2 EXTRA, RC EXTRA, TS EXTRA, P EXTRA, IRC EXTRA insert statements for R1, R2, RC, TS, P, IR calculation. ::
+The user  might want to specify an additional input for the different sections of the overall workflow. To specify additional information for say, fragment1 and fragment2 see the syntax shown below. Additional complex insert statements for the fragment analysis calculation can be added. Similarly, the R1 EXTRA, R2 EXTRA, RC EXTRA, TS EXTRA, P EXTRA, IR EXTRA insert statements for R1, R2, RC, TS, P, IRC calculation. ::
 
    fragment1 EXTRA
    charge 1
@@ -194,7 +194,7 @@ The user  might want to specify an additional input for the different sections o
 
 Result example
 --------------
-After the job has been submitted, a website will be launch that summarize all relevant information, including: a) the convergance information, b) the latest structure from the optimization in the form of movie, c) the latest energy and coordinates, and d) the activation strain analysis (if a job is finished). The user can decide if the trend of optimization is right or wrong, and if necessary, the job can be stopped. If the input file has been modified, the job will be resubmitted and the overall workflow will resume from where it stopped before.
+After the job as shown has been submitted, a website  as shown in the figure below will be launched that summarizes all relevant information, including: a) the convergance information, b) the latest structure from the optimization in the form of movie, c) the latest energy and coordinates, and d) the activation strain analysis (if a job is finished). The user can decide if the trend of optimization is right or wrong, and if necessary, the job can be stopped. If the input file has been modified, the job will be resubmitted and the overall workflow will resume from where it stopped before.
 
 .. image:: jobresult.png
    :alt: result

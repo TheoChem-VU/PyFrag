@@ -242,11 +242,12 @@ def WriteTable(tableValues, fileName):
 def WriteDefaultTable(tableValues, fileName):
    energyfile  = open('pyfragdefault.txt', "w")
    headerlist_all  = sorted(tableValues[0])
+   headerlist_default  = ["#IRC","Elstat","EnergyTotal","Int","OI","Pauli","StrainTotal","bondlength","frag1Strain","frag2Strain"]
+   headerlist_real     = ["#IRC","Elstat","EnergyTotal","Int","OI","Pauli","StrainTotal","bondlength","frag1Strain","frag2Strain"]
    for item in headerlist_all:
       if item == "bondlength_1":
          headerlist_real = ["#IRC","Elstat","EnergyTotal","Int","OI","Pauli","StrainTotal","bondlength_1","frag1Strain","frag2Strain"]
-   headerlist  = ["#IRC","Elstat","EnergyTotal","Int","OI","Pauli","StrainTotal","bondlength","frag1Strain","frag2Strain"]
-   writeKey(energyfile, headerlist)
+   writeKey(energyfile, headerlist_default)
    for entry in tableValues:
       sortedEntry = [entry[i] for i in headerlist_real]
       writeKey(energyfile, sortedEntry)
