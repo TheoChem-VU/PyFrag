@@ -34,8 +34,8 @@ If a change in the input file is required, make the change and the resubmit the 
 ``pyfrag -x restart job.in``
 
 
-3.2   Sample Input Example
---------------------------
+Sample Input Example
+--------------------
 
 A simple job input is provided below. The input script can be roughly divided into four section: the required submit information for a job scheduling system (Slurm in this example), ADF parameters, PyFrag 2019 parameters, and geometry parameters. ::
 
