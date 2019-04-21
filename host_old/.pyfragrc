@@ -1,3 +1,0 @@
-export HOSTPYFRAG='/home/x2sun/bin/host'
-export QMWORKS='~/miniconda3/envs/qmworks/bin/python3'
-export USERNAME='x2sun'
