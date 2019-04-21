@@ -13,9 +13,11 @@ To install the ASA module of PyFrag 2019, the user must complete the following s
 
 To run a simple test, open a terminal window on your host machine, make a directory, enter into that directory and run the following command to download the job input file (job.in) and coordinate file (molecule.xyz):
 
-``curl -L -o job.in  https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/adf_new/example/job.in``
+``curl -L -o job.in  https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/
+adf_new/example/job.in``
 
-``curl -L -o job.in  https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/adf_new/example/molecule.xyz``
+``curl -L -o job.in  https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/
+adf_new/example/molecule.xyz``
 
 Change the ircpath and the submit information, such as the number of nodes and wall time, located in job.in using vim or any other text editor according to your situation, and run:
 
