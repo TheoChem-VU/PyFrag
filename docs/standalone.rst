@@ -1,7 +1,7 @@
 Simple Pyfrag Calculation
 =========================
 
-The user may choose to only install the part of the program needed to perform the Activation Strain Analysis (ASA) based on Activation Strain Model (ASM). The ASA can be performed using a variety of quantum chemical software packages, including: ADF, Gaussian, Orca, and Turbomole. The user must only provide a series of coordinate from the reaction path.
+The user may choose to only install the part of the program needed to perform the Activation Strain Analysis (ASA) based on Activation Strain Model (ASM). The ASA can be performed using a variety of quantum chemical software packages, including: ADF, Gaussian, Orca, and Turbomole. The user must only provide a series of coordinate from the reaction path. An input sample is provided in the standalone_ example folder for either ADF_, Gaussian_, Orca_ and Turbomole_.
 
 ADF
 ---
@@ -77,27 +77,27 @@ The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using Gauss
 
    INPUT_SPECS
    type = IRC
-   output file = /home/x2sun/pyfragnew/test/Ethylene-forward.amv
+   output file = Ethylene-forward.amv
 
    frag1 = C4H6
-   1.C
-   2.H
-   3.C
-   4.H
-   5.C
-   6.H
-   7.C
-   8.H
-   13.H
-   14.H
+   1
+   2
+   3
+   4
+   5
+   6
+   7
+   8
+   13
+   14
    end frag1
    frag2 = C2H4
-   9.C
-   10.C
-   11.H
-   12.H
-   15.H
-   16.H
+   9
+   10
+   11
+   12
+   15
+   16
    end frag2
 
    print bond 1 9 1.384
@@ -131,12 +131,12 @@ The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using Orca 
    type = IRC
    output file = irc.amv
    frag1 = H2
-   1.H
-   2.H
+   1
+   2
    end frag1
    frag2 = H2
-   3.H
-   4.H
+   3
+   4
    end frag2
 
    print bond 1 3 1.00
@@ -163,12 +163,12 @@ The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using Turbo
    type = IRC
    output file = irc.amv
    frag1 = pd
-   1.H
-   2.H
+   1
+   2
    end frag1
    frag2 = cc
-   3.H
-   4.H
+   3
+   4
    end frag2
 
    print bond 1 3 1.00
@@ -190,5 +190,9 @@ The first section between INPUT_SPECS and END INPUT_SPECS is used to define frag
 ``pyfrag -x turbomole job.in``
 
 
-
+.. _standalone: https://github.com/sunxb05/PyFrag/tree/master/host/standalone
 .. _installation: https://pyfragdocument.readthedocs.io/en/latest/install.html
+.. _Gaussian:   http://gaussian.com
+.. _ADF:       https://www.scm.com
+.. _Orca:      http://www.orcahome.de/orcanews.htm
+.. _Turbomole: http://www.turbomole.com
