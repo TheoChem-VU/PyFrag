@@ -5,6 +5,6 @@ export PYFRAGHOST="http://localhost/video"
 export JOBCHECK="20"       #time interval set to check if input file is changed
 export RESULTCHECK="20"       #time interval set to check if result is changed
 
-# information of host
+## information of host
 #export REMOTEBASE="/home/x2sun/pyfragtest_2"
 
