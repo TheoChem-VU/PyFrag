@@ -277,28 +277,36 @@ for key, val in list(inputKeys.items()):
       r1_mol = ircFrags['frag1']
       r1 =      adf(templates.geometry.overlay(settings_R1), r1_mol, job_name="r1")
       job_list.append(gather(r1))
-   elif key == 'r2path':
+for key, val in list(inputKeys.items()):
+   if key == 'r2path':
       ircFrags = GetFragmentList(val['r2path'], [inputKeys['r2fragment']])[0]
       r2_mol = ircFrags['frag1']
       r2 =      adf(templates.geometry.overlay(settings_R2), r2_mol, job_name="r2")
       job_list.append(gather(r2))
-   elif key == 'rcpath':
+for key, val in list(inputKeys.items()):
+   if key == 'rcpath':
       ircFrags = GetFragmentList(val['rcpath'], [inputKeys['rcfragment']])[0]
       rc_mol = ircFrags['frag1']
       rc =      adf(templates.geometry.overlay(settings_RC), rc_mol, job_name="rc")
       job_list.append(gather(rc))
-   elif key == 'ppath':
+for key, val in list(inputKeys.items()):
+   if key == 'ppath':
       ircFrags = GetFragmentList(val['ppath'], [inputKeys['pfragment']])[0]
       p_mol = ircFrags['frag1']
       p =      adf(templates.geometry.overlay(settings_P), p_mol, job_name="p")
       job_list.append(gather(p))
-   elif key == 'tspath':
+for key, val in list(inputKeys.items()):
+   if key == 'tspath':
       ircFrags = GetFragmentList(val['tspath'], [inputKeys['tsfragment']])[0]
       ts_mol = ircFrags['frag1']
       ts =      adf(templates.ts.overlay(settings_TS), ts_mol, job_name="ts")
       job_list.append(gather(ts))
       irc = adf(templates.irc.overlay(settings_IRC), ts.molecule, job_name="irc")
-      pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa), inputArgues = irc.kf.path , others =  vars(parser.parse_args()), job_name="pyfrag" )
+      realargue = dict((k,v) for k, v in vars(parser.parse_args()).items() if v is not None)
+      if 'strain' in realargue.keys():
+         pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa), inputArgues = irc.kf.path , others =  vars(parser.parse_args()), job_name="pyfrag" )
+      else:
+         pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa), inputArgues = irc.kf.path, inputArgues1 = r1.kf.path,inputArgues2 = r2.kf.path, others =  vars(parser.parse_args()), job_name="pyfrag" )
       job_list.append(gather(irc, pyfrag))
 # Finalize and draw workflow
 wf = gather(*job_list)

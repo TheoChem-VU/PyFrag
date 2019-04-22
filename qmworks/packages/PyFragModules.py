@@ -307,7 +307,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
       ircTag              = '.'+str(ircIndex+1).zfill(5)
       # for fragTag in ircFrags.keys():
 #      for fragTag in list(ircFrags.keys()):
-      for fragTag in ['frag1','frag2']:
+      for fragTag in ['frag1','frag2']:      
          success = True
          if fragTag == 'frag1':
             fragmentSettings = frag1Settings
@@ -320,8 +320,11 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
             #provide path of fragment t21 file to final fragment analysis calculation
             exec ("complexSettings.input.Fragments." + fragTag + "=" + '"' + jobFrag.results._kfpath() + '"')
             #get strain and total strain which is the energy difference between current and previous geometry.
-            outputData[fragTag + 'Strain'] = jobFrag.results.readkf('Energy', 'Bond Energy') - inputKeys['strain'][fragTag]
-            outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - inputKeys['strain'][fragTag]
+            if isinstance(inputKeys['strain'][fragTag], float):
+               outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - inputKeys['strain'][fragTag]
+            else:
+               print (KFFile(inputKeys['strain'][fragTag]).read('Energy', 'Bond Energy'))
+               outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - KFFile(inputKeys['strain'][fragTag]).read('Energy', 'Bond Energy')*627.51 
             outputData['StrainTotal'] += outputData[fragTag + 'Strain']
             #reorganize new complex from fragments by appending fragment label. Beware the atomic orders maybe changed
             for atom in ircFrags[fragTag]:
@@ -352,7 +355,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
                a = headerList.pop(headerList.index('#IRC'))
                b = headerList.pop(headerList.index('EnergyTotal'))
                headerList = [a, b] + headerList
-            valuesList = [str(outputdata[i]) for i in headerList] # TODO: add formatting
+            valuesList = [str(outputdata[i]) for i in headerList]  
             widthlist  = [max(len(str(valuesList[_])), len(str(headerList[_]))) for _ in range(len(valuesList))]
             PrintTable(headerList, widthlist, False)
             PrintTable(valuesList, widthlist, False)
@@ -373,8 +376,6 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
 
 class PyFragResult:
    def __init__(self, complexResult, inputKeys): # __init__(self, complexJob, inputKeys)
-      # TODO: use complexJob here instead of complexResult and read in class members only if
-      # 1. needed for output requested by user 2. complexJob.check passes
       self.complexResult        = complexResult
       #Pauli energy
       self.Pauli                = complexResult.readkf('Energy', 'Pauli Total')
@@ -540,11 +541,6 @@ class PyFragResult:
                      value.append(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]) - od['oriVal'])
                   else:
                      value.append(Units.convert(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]), 'bohr', 'angstrom') - od['oriVal'])
-                     print("==================atom0",atoms[0])
-                     print("==================atom1",atoms[1])
-                     print ("==================bondlength1", complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]))
-                     print ("==================bondlength2", Units.convert(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]), 'bohr', 'angstrom'))
-                     print ("==================bondleng", od['oriVal'])
             outputData[key] = value
 
          elif key == 'angle':
@@ -555,9 +551,14 @@ class PyFragResult:
       return GetOutputTable(outputData)
 
 class PyFragJob:
-   def __init__(self, fragment1Settings, fragment2Settings, complexSettings, inputArgues, others = None):
+   def __init__(self, fragment1Settings, fragment2Settings, complexSettings, inputArgues,inputArgues1 =None, inputArgues2 = None, others = None):
       others_1 = dict((k,v) for k, v in others.items() if v is not None)
-      others_1['irct21'] = [[inputArgues]]
+#      others_1['irct21'] = [[inputArgues]]
+      if 'strain' in others_1.keys():
+         others_1['irct21'] = [[inputArgues]]
+      else:
+         others_1['irct21'] = [[inputArgues]]
+         others_1['strain'] = [[inputArgues1],[inputArgues2]]
 
       self.inputArgues    = CollectInput(others_1)
       self.fragment1Settings  = fragment1Settings

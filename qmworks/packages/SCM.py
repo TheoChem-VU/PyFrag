@@ -27,7 +27,7 @@ class PyFrag(Package_pyfrag):
     def prerun(self):
         pass
 
-    def run_job(self, settings,  settings_2=None, settings_3=None, inputArgues=None, others = None, job_name='', **kwargs):
+    def run_job(self, settings,  settings_2=None, settings_3=None, inputArgues=None, inputArgues1=None, inputArgues2=None, others = None, job_name='', **kwargs):
         """
         Execute ADF job.
 
@@ -51,7 +51,7 @@ class PyFrag(Package_pyfrag):
         fragment1set.input = settings.specific.fragment1
         fragment2set.input = settings_2.specific.fragment2
         complexset.input  = settings_3.specific.complex
-        job = PyFragJob(fragment1set, fragment2set, complexset, inputArgues, others)
+        job = PyFragJob(fragment1set, fragment2set, complexset, inputArgues, inputArgues1, inputArgues2, others)
         result = job.run()
         return result
 
