@@ -51,13 +51,32 @@ fi
 
 function geotable {
 if  [ -e $RESULTDIR ]; then
-  for dname in r1geometry.xyz r2geometry.xyz rcgeometry.xyz tsgeometry.xyz pgeometry.xyz ircgeometry.xyz
+  for dname in r1geometry.xyz r2geometry.xyz rcgeometry.xyz pgeometry.xyz ircgeometry.xyz
   do
     fileName="${dname%geometry.xyz}"
     if  [ -f $RESULTDIR/$dname ]; then
           if [ -s $RESULTDIR/$dname ]; then
             cd $RESULTDIR
             python3 $PYFRAGHOME/server/geotable.py $RESULTDIR/$dname $RESULTDIR/"$fileName"converge.txt $PYFRAGVIDEO/$JOBNAME/csv2html/data/coor.csv
+          fi
+    fi
+  done
+fi
+}
+
+function geotable_ts {
+if  [ -e $RESULTDIR ]; then
+  for dname in tsgeometry.xyz
+  do
+    fileName="${dname%geometry.xyz}"
+    if  [ -f $RESULTDIR/$dname ]; then
+          if [ -s $RESULTDIR/$dname ]; then
+            cd $RESULTDIR
+            if [ -s $RESULTDIR/fre.txt ]; then
+              python3 $PYFRAGHOME/server/geotable_ts.py $RESULTDIR/$dname $RESULTDIR/"$fileName"converge.txt $RESULTDIR/fre.txt $PYFRAGVIDEO/$JOBNAME/csv2html/data/coor.csv
+            else
+              python3 $PYFRAGHOME/server/geotable.py $RESULTDIR/$dname $RESULTDIR/"$fileName"converge.txt $PYFRAGVIDEO/$JOBNAME/csv2html/data/coor.csv
+            fi
           fi
     fi
   done
@@ -84,6 +103,10 @@ webedit
 convergefig
 
 cp $PYFRAGHOME/data/video/csv2html/data/coor.csv $PYFRAGVIDEO/$JOBNAME/csv2html/data/coor.csv
+
+# with frequency
+geotable_ts
+
 #table for latest coordinate
 geotable
 

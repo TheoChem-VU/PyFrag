@@ -3,6 +3,7 @@
         "adf": {
             "basis": {"type": "SZ"},
             "xc": {"__block_replace": true, "lda": ""},
+            "analyticalfreq": {},
             "geometry": {"transitionstate":"mode=1",
                         "optim": "delocal",
                         "iterations": 200,

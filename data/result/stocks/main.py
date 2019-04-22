@@ -104,7 +104,7 @@ source_1_static = ColumnDataSource(data=dict(step=[], t1=[], t1_e=[], t1_e_=[], 
 
 
 
-ts1 = figure(title="Energy Change", plot_width=900, plot_height=600, tools=tools, active_drag="xbox_select")
+ts1 = figure(title="Energy Change", plot_width=500, plot_height=500, tools=tools, active_drag="xbox_select")
 
 
 t1 = "r1"
@@ -128,7 +128,7 @@ ts1.xaxis.axis_label = 'Steps'
 ts1.yaxis.axis_label = 'ΔE / kcal mol-1'
 # ts1.legend.location = "top_left"
 
-ts2 = figure(title="Energy Change", plot_width=900, plot_height=600, tools=tools, active_drag="xbox_select")
+ts2 = figure(title="Energy Change", plot_width=500, plot_height=500, tools=tools, active_drag="xbox_select")
 
 t1 = "rc"
 data_1 = get_data(t1)
@@ -168,7 +168,7 @@ source.on_change('selected', selection_change)
 
 widgets = column(ticker1, stats)
 main_row = row(widgets)
-series = column(ts1,ts2)
+series = row(ts1,ts2)
 
 current_path=os.path.abspath('.')
 pyfrag_sign=os.path.exists(os.path.join(current_path,'stocks/PYFRAG.csv'))
@@ -214,7 +214,7 @@ else:
     # p3.legend.location = "top_left"
     # layout = column(main_row, series,gridplot([[p1,p2,p3]], plot_width=400, plot_height=400))
 
-    layout = column(main_row, series, gridplot([[p1,p2]], plot_width=400, plot_height=400))
+    layout = column(main_row, series, gridplot([[p1,p2]], plot_width=500, plot_height=500))
 
 # initialize
 update()

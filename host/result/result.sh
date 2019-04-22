@@ -23,7 +23,7 @@ fi
 function result_pro {
 cycle=$*
 eners=`grep -En 'GEOMETRY CONV|current energy' $cycle |awk '{print $3}'`
-ener=`echo $eners |awk '{printf"%14.6f",-627.509541*$1}'`
+ener=`echo $eners |awk '{printf"%14.6f",627.509541*$1}'`
 
 enech_1=`grep 'energy change'            $cycle |awk '{print $3}'`
 enech_2=`grep 'energy change'            $cycle |awk '{print $4}'`
@@ -120,7 +120,13 @@ output=$*
 tac $output | grep ' Coordinates in Geometry Cycle' -m 1 -B 9999 | tac | grep -B 100 'CORORT' | grep -v 'CORORT' | grep -v ' Coordinates'| grep -v 'Atom'    >   geometry.xyz
 }
 
+function frescan {
+cycle=$*
+frequencies=`grep -A 10  ' List of All Frequencies:' $cycle | grep -v ' Intensities' | grep -v ' ==========='| grep -v '               Frequency       Dipole Strength        Absorption Intensity (degeneracy not counted)' | grep -v '                 cm-1           1e-40 esu2 cm2          km/mole'| grep -v '              ----------          ----------          ----------' | grep -v ' List of All Frequencies:'`
+negativefre=`echo $frequencies |awk '{printf $1}'`
+printf "%4.4f \n" $negativefre >  fre.txt
 
+}
 
 
 REMOTEDIR="$( cd "$(dirname "$1")" ; pwd -P )"
@@ -157,6 +163,12 @@ if  [ -e $latest ]; then
         cd $latest
     fi
   done
+fi
+
+if [ -e $latest/ts/ts.out ]; then
+  cd $latest/ts
+  frescan ts.out
+  cp fre.txt $RESULTDIR
 fi
 
 if [ -e "$REMOTEDIR"/pyfrag.txt ]; then

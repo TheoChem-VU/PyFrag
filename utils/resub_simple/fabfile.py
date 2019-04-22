@@ -17,6 +17,6 @@ env.hosts = [HOSTNAME]
 
 def deploy(JOBDIR, REMOTEDIR, JOBNAME):
     with cd(REMOTEDIR):
-       run('rm -rf 1 2 3 4 5 *out adfinputfile jobinfo.txt result sub')
+       run('rm -rf 1 2 3 4 5 *out adfinputfile jobinfo.txt fre.txt pyfrag.txt pyfragdefault.txt result sub')
        with lcd(JOBDIR):
-          local('bash $PYFRAGHOME/bin/resub.sh %s' % JOBNAME)
+          local('bash $PYFRAGHOME/bin/resub_simple.sh %s' % JOBNAME)

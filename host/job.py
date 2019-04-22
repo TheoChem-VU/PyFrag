@@ -297,12 +297,9 @@ for key, val in list(inputKeys.items()):
       ts_mol = ircFrags['frag1']
       ts =      adf(templates.ts.overlay(settings_TS), ts_mol, job_name="ts")
       job_list.append(gather(ts))
-
-
-irc = adf(templates.irc.overlay(settings_IRC), ts.molecule, job_name="irc")
-pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa), inputArgues = irc.kf.path , others =  vars(parser.parse_args()), job_name="pyfrag" )
-
-job_list.append(gather(irc, pyfrag))
+      irc = adf(templates.irc.overlay(settings_IRC), ts.molecule, job_name="irc")
+      pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa), inputArgues = irc.kf.path , others =  vars(parser.parse_args()), job_name="pyfrag" )
+      job_list.append(gather(irc, pyfrag))
 # Finalize and draw workflow
 wf = gather(*job_list)
 
