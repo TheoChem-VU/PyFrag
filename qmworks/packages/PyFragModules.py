@@ -307,7 +307,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
       ircTag              = '.'+str(ircIndex+1).zfill(5)
       # for fragTag in ircFrags.keys():
 #      for fragTag in list(ircFrags.keys()):
-      for fragTag in ['frag1','frag2']:      
+      for fragTag in ['frag1','frag2']:
          success = True
          if fragTag == 'frag1':
             fragmentSettings = frag1Settings
@@ -323,8 +323,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
             if isinstance(inputKeys['strain'][fragTag], float):
                outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - inputKeys['strain'][fragTag]
             else:
-               print (KFFile(inputKeys['strain'][fragTag]).read('Energy', 'Bond Energy'))
-               outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - KFFile(inputKeys['strain'][fragTag]).read('Energy', 'Bond Energy')*627.51 
+               outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - KFFile(inputKeys['strain'][fragTag]).read('Energy', 'Bond Energy')*627.51
             outputData['StrainTotal'] += outputData[fragTag + 'Strain']
             #reorganize new complex from fragments by appending fragment label. Beware the atomic orders maybe changed
             for atom in ircFrags[fragTag]:
@@ -355,7 +354,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
                a = headerList.pop(headerList.index('#IRC'))
                b = headerList.pop(headerList.index('EnergyTotal'))
                headerList = [a, b] + headerList
-            valuesList = [str(outputdata[i]) for i in headerList]  
+            valuesList = [str(outputdata[i]) for i in headerList]
             widthlist  = [max(len(str(valuesList[_])), len(str(headerList[_]))) for _ in range(len(valuesList))]
             PrintTable(headerList, widthlist, False)
             PrintTable(valuesList, widthlist, False)
