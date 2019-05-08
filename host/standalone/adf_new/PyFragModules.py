@@ -1,4 +1,5 @@
-from scm.plams import *
+#from scm.plams import *
+from plams import *
 def ReadIRCPath(f, tag, offset):
    # split all data into different block each of which represent one molecular structure in IRC
    if f.read(tag, 'PathStatus').strip() == 'DONE' or f.read(tag, 'PathStatus').strip() == 'EXEC':

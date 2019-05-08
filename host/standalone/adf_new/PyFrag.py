@@ -1,6 +1,7 @@
-from scm.plams import *
+#from scm.plams import *
+from plams import *
 import argparse as ag
-from  PyFragModules  import PyFragDriver, WriteTable
+from  PyFragModules  import PyFragDriver, WriteTable, WriteFailFiles
 """
 Pyfrag 3
 Authors: Xiaobo Sun; Thomas Soini
