@@ -16,7 +16,7 @@ To run a simple test, open a terminal window on your host machine, make a direct
 ``curl -L -o job.in``
 ``https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/adf_new/example/job.in``
 
-``curl -L -o molecule.xyz ``
+``curl -L -o molecule.xyz``
 ``https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/adf_new/example/molecule.xyz``
 
 Change the ircpath and the submit information, such as the number of nodes and wall time, located in job.in using vim or any other text editor according to your situation, and run:
