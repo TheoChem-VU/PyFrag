@@ -3,7 +3,7 @@ Installation
 
 Activation Strain Analysis (ASA) Module of PyFrag 2019
 ------------------------------------------------------
-The user may choose to only install the part of the program needed to perform the Activation Strain Analysis (ASA) based on Activation Strain Model (ASM). The ASA can be performed using a variety of quantum chemical software packages, including:  ADF_, Gaussian_, Orca_ and Turbomole_, given a series of coordinate from the potential energy surface is provided.
+The user may choose to only install the part of the program needed to perform the Activation Strain Analysis (ASA) based on Activation Strain Model (ASM). Note that Python3 is needed to run this program. The ASA can be performed using a variety of quantum chemical software packages, including:  ADF_, Gaussian_, Orca_ and Turbomole_, given a series of coordinate from the potential energy surface is provided.
 
 To install the ASA module of PyFrag 2019, the user must complete the following step. Go to your host machine (supercomputer or cluster), open a terminal and run the following command:
 
@@ -13,11 +13,11 @@ To install the ASA module of PyFrag 2019, the user must complete the following s
 
 To run a simple test, open a terminal window on your host machine, make a directory, enter into that directory and run the following command to download the job input file (job.in) and coordinate file (molecule.xyz):
 
-``curl -L -o job.in https://raw.githubusercontent.com/sunxb05/PyFrag/master/host``
-``/standalone/adf_new/example/job.in``
+``curl -L -o job.in``
+``https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/adf_new/example/job.in``
 
-``curl -L -o molecule.xyz https://raw.githubusercontent.com/sunxb05/PyFrag/master``
-``/host/standalone/adf_new/example/molecule.xyz``
+``curl -L -o molecule.xyz ``
+``https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/adf_new/example/molecule.xyz``
 
 Change the ircpath and the submit information, such as the number of nodes and wall time, located in job.in using vim or any other text editor according to your situation, and run:
 
