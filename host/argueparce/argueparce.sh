@@ -50,6 +50,23 @@ do
   fi
 done
 
+grep  -iA 20 "EPRINT" $adf | grep -m 1 -iB 20 'END' | grep -iv 'END' | grep -iv "EPRINT"  > eprint.txt
+
+
+if [ -s eprint.txt ]; then
+  eprint=eprint.txt
+  while read -r line
+  do
+      if [ "$line" != "" ]; then
+        option="$line"
+        optionarray=( $option )
+        echo "eprint."${optionarray[0]}"="${optionarray[@]:1}
+      fi
+  done < "$eprint"
+fi
+
+rm eprint.txt
+
 
 grep  -iA 20 "tsrc" $adf | grep -m 1 -iB 20 'end' | grep -iv 'end' | grep -iv "tsrc"  > tsrc.txt
 

@@ -27,6 +27,22 @@ Mark=(scf xc basis BECKEGRID)
 SMark=(numericalquality relativistic charge symmetry)
 
 
+grep  -iA 20 "EPRINT" $adf | grep -m 1 -iB 20 'END' | grep -iv 'END' | grep -iv "EPRINT"  > eprint.txt
+if [ -s eprint.txt ]; then
+  eprint=eprint.txt
+  while read -r line
+  do
+      if [ "$line" != "" ]; then
+        option="$line"
+        optionarray=( $option )
+        echo "eprint."${optionarray[0]}"="${optionarray[@]:1}
+      fi
+  done < "$eprint"
+fi
+
+rm eprint.txt
+
+
 for item in ${Mark[*]}
 do
   option=`grep  -iA 20 "$item" $adf | grep -m 1 -iB 20 'end' | grep -iv 'end' | grep -iv "$item"`
