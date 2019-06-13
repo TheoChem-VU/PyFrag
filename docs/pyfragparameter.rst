@@ -57,6 +57,7 @@ The following statement will print the overlap between orbital numbers orb1 on f
   for example:
 
   overlap frag1 HOMO frag2 LUMO
+  overlap frag1 HOMO-1 frag2 LUMO+3
   overlap S frag1 5 AA frag2 4
 
 The following statement will print the orbital energy for a fragment orbital per available irrep. The irrep symbol relates to the symmetry of the fragment. ::
@@ -67,14 +68,16 @@ The following statement will print the orbital energy for a fragment orbital per
   for example:
 
   orbitalenergy frag1 HOMO
+  orbitalenergy frag1 HOMO-2
   orbitalenergy AA frag2 5
 
 The following statement will print the gross Mulliken population for a fragment orbital. ::
 
-  opulation frag HOMO/LUMO
+  population frag HOMO/LUMO
   population irrep frag orb
 
   for example:
 
+  population frag1 HOMO
   population frag1 HOMO
   population AA frag2 5

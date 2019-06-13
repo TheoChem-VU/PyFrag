@@ -1,7 +1,7 @@
 #from plams import *
 from qmworks.plams import *
 import argparse as ag
-
+import re
 
 __all__ = ['PyFragJob']
 
@@ -451,19 +451,47 @@ class PyFragResult:
       fragType = str(self.complexResult.readkf('Geometry', 'fragmenttype')).split()
       return fragType.index(frag) + 1
 
+   # def GetOrbitalIndex(self, orbDescriptor):
+   #    # orbDescriptor = {'type' = "HOMO/LUMO/INDEX", 'frag'='#frag', 'irrep'='irrepname', 'index'=i}
+   #    fragOrbnum = self.GetFragNum(orbDescriptor['frag'])     #get fragment number
+   #    if orbDescriptor['type'] == 'HOMO':
+   #       index = max(xrange(len(self.orbEnergy)), key = lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] != 0 else -1.0E+100)
+   #    elif orbDescriptor['type'] == 'LUMO':
+   #       index = min(xrange(len(self.orbEnergy)), key = lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] == 0 else +1.0E+100)
+   #    elif orbDescriptor['type'] == 'INDEX':
+   #       for i in range(len(self.orbEnergy)):
+   #          if self.orbFragment[i] == fragOrbnum  and  self.fragIrrep[i] == orbDescriptor['irrep'] and self.fragOrb[i] == int(orbDescriptor['index']):
+   #             index = i
+   #             break
+   #    return index
+
+   def GetFrontIndex(self, orbSign):
+     #convert HOMO/LUMO/HOMO-1/LUMO+1/INDEX into dict {'holu': 'HOMO', 'num': -1}
+      for matchString in [r'HOMO(.*)', r'LUMO(.*)', r'INDEX']:
+         matchObj = re.match(matchString, orbSign)
+         if matchObj:
+            holu = re.sub(r'(.[0-9]+)',"", matchObj.group())
+            num = re.sub(r'([a-zA-Z]+)',"", matchObj.group())
+            if num:
+               return {'holu': holu, 'num': num}
+            else:
+               return {'holu': holu, 'num': 0}
+
    def GetOrbitalIndex(self, orbDescriptor):
       # orbDescriptor = {'type' = "HOMO/LUMO/INDEX", 'frag'='#frag', 'irrep'='irrepname', 'index'=i}
       fragOrbnum = self.GetFragNum(orbDescriptor['frag'])     #get fragment number
-      if orbDescriptor['type'] == 'HOMO':
-         index = max(xrange(len(self.orbEnergy)), key = lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] != 0 else -1.0E+100)
-      elif orbDescriptor['type'] == 'LUMO':
-         index = min(xrange(len(self.orbEnergy)), key = lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] == 0 else +1.0E+100)
-      elif orbDescriptor['type'] == 'INDEX':
+      orbIndex = 0
+      if self.GetFrontIndex(orbDescriptor['type'])['holu'] == 'HOMO':
+         orbIndex = sorted(range(len(self.orbEnergy)), key = lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] != 0 else -1.0E+100, reverse=True)[-int(self.GetFrontIndex(orbDescriptor['type'])['num'])]
+      elif self.GetFrontIndex(orbDescriptor['type'])['holu'] == 'LUMO':
+         orbIndex = sorted(range(len(self.orbEnergy)), key = lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] == 0 else +1.0E+100)[int(self.GetFrontIndex(orbDescriptor['type'])['num'])]
+      elif self.GetFrontIndex(orbDescriptor['type'])['holu'] == 'INDEX':
          for i in range(len(self.orbEnergy)):
             if self.orbFragment[i] == fragOrbnum  and  self.fragIrrep[i] == orbDescriptor['irrep'] and self.fragOrb[i] == int(orbDescriptor['index']):
-               index = i
+               orbIndex = i
                break
-      return index
+      print ("orbIndex",orbIndex)
+      return orbIndex
 
    def ReadOverlap(self, index_1, index_2):
       #orbital numbers according to the symmetry of the complex
