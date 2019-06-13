@@ -79,5 +79,5 @@ The following statement will print the gross Mulliken population for a fragment 
   for example:
 
   population frag1 HOMO
-  population frag1 HOMO
+  population frag2 HOMO-1
   population AA frag2 5
