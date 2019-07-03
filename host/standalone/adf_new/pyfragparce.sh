@@ -23,38 +23,25 @@ done < "$pyfrag"
 function adfargue {
 adf=$*
 
-Mark=(scf xc basis BECKEGRID)
+Mark=(scf xc basis BECKEGRID EPRINT)
 SMark=(numericalquality relativistic charge symmetry)
-
-
-grep  -iA 20 "EPRINT" $adf | grep -m 1 -iB 20 'END' | grep -iv 'END' | grep -iv "EPRINT"  > eprint.txt
-if [ -s eprint.txt ]; then
-  eprint=eprint.txt
-  while read -r line
-  do
-      if [ "$line" != "" ]; then
-        option="$line"
-        optionarray=( $option )
-        echo "eprint."${optionarray[0]}"="${optionarray[@]:1}
-      fi
-  done < "$eprint"
-fi
-
-rm eprint.txt
 
 
 for item in ${Mark[*]}
 do
-  option=`grep  -iA 20 "$item" $adf | grep -m 1 -iB 20 'end' | grep -iv 'end' | grep -iv "$item"`
-  optionarray=( $option )
-  i=0
-  j=1
-  while test "$j" -le "${#optionarray[@]}"
-  do
-    echo $item"."${optionarray[$i]}"="${optionarray[$j]}
-    i=`expr $i + 2`
-    j=`expr $j + 2`
-  done
+grep  -iA 20 "$item" $adf | grep -m 1 -iB 20 'end' | grep -iv 'end' | grep -iv "$item" > "$item".txt
+  if [ -s "$item".txt ]; then
+    argue="$item".txt
+    while read -r line
+    do
+      if [ "$line" != "" ]; then
+        option="$line"
+        optionarray=( $option )
+        echo "$item."${optionarray[0]}"="${optionarray[@]:1}
+      fi
+    done < "$argue"
+  fi
+rm "$item".txt
 done
 
 for sitem in ${SMark[*]}
@@ -79,7 +66,7 @@ grep  -A 200 'fragment2 EXTRA' $input | grep -B 200 'fragment2 EXTRA END' | grep
 grep  -A 200 'complex EXTRA' $input | grep -B 200 'complex EXTRA END' | grep -v 'complex EXTRA' | grep -v 'complex EXTRA END' > complex_EXTRA.txt
 
 
-submit="python3 \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
+submit="startpython \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
 subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile \\"
 
 
