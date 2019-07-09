@@ -33,6 +33,7 @@ then
     echo "       -h          : print this information"
     echo "       -x command  : start the executable named command"
     echo "                   : command include adf, which use adf as engine"
+    echo "                   : open, which use adf as engine but do open shell EDA"
     echo "                   : gaussian, which use gaussian as engine"
     echo "                   : orca, which use orca as engine"
     echo "                   : turbomole, use turbomole as engine"
