@@ -56,7 +56,7 @@ do
     fi
   fi
 done
-
+}
 
 input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
