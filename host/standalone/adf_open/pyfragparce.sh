@@ -108,7 +108,7 @@ grep  -A 200 'fragment1 open EXTRA' $input | grep -B 200 'fragment1 open EXTRA E
 grep  -A 200 'fragment2 open EXTRA' $input | grep -B 200 'fragment2 open EXTRA END' | grep -v 'fragment2 open EXTRA' | grep -v 'fragment2 open EXTRA END' > fragment2_open_EXTRA.txt
 grep  -A 200 'complex open EXTRA' $input | grep -B 200 'complex open EXTRA END' | grep -v 'complex open EXTRA' | grep -v 'complex open EXTRA END' > complex_open_EXTRA.txt
 
-submit="python3 \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
+submit="python3 \$HOSTPYFRAG/standalone/adf_open/PyFrag.py \\"
 subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile \\"
 
 

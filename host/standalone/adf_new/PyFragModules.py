@@ -106,8 +106,9 @@ def writeKey(file, value, pform=r'%7.3f', ljustwidth=16):
 def WriteTable(tableValues, fileName):
    energyfile  = open('pyfrag'+fileName+'.txt', "w")
    headerlist  = sorted(tableValues[0])
-   print ("headerlist======",headerlist)
-   print ("tablevalue======",tableValues)
+   #order the print list
+   headerlist_select  = [e for e in headerlist_all if e not in ("#IRC","bondlength","EnergyTotal","Int","Elstat","Pauli","OI","Disp","StrainTotal","frag1Strain","frag2Strain")]
+   headerlist         = ["#IRC","bondlength","EnergyTotal","Int","Elstat","Pauli","OI","Disp","StrainTotal","frag1Strain","frag2Strain"] + headerlist_select
    writeKey(energyfile, headerlist)
    for entry in tableValues:
       sortedEntry = [entry[i] for i in headerlist]
@@ -258,6 +259,8 @@ class PyFragResult:
       self.OI                   = complexResult.readkf('Energy', 'Orb.Int. Total')
       #energy of total complex which is the sum of Pauli, Elstat and OI
       self.Int                  = complexResult.readkf('Energy', 'Bond Energy')
+      #Dispersion Energy
+      self.Disp                  = complexResult.readkf('Energy', 'Dispersion Energy')
 
       for key in list(inputKeys.keys()):
          if key == 'overlap' or key == 'population' or key == 'orbitalenergy' or key == 'irrepOI':
@@ -396,6 +399,7 @@ class PyFragResult:
       outputData['Elstat']  = Units.convert(self.Elstat, 'hartree', 'kcal/mol')
       outputData['OI']      = Units.convert(self.OI, 'hartree', 'kcal/mol')
       outputData['Int']     = Units.convert(self.Int, 'hartree', 'kcal/mol')
+      outputData['Disp']     = Units.convert(self.Disp, 'hartree', 'kcal/mol')
       outputData['EnergyTotal']  = Units.convert(self.Int, 'hartree', 'kcal/mol') + outputData['StrainTotal']
       #collect user defined data
       for key, val in list(inputKeys.items()):
