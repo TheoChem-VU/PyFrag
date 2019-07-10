@@ -69,7 +69,7 @@ grep  -A 200 'fragment2 EXTRA' $input | grep -B 200 'fragment2 EXTRA END' | grep
 grep  -A 200 'complex EXTRA' $input | grep -B 200 'complex EXTRA END' | grep -v 'complex EXTRA' | grep -v 'complex EXTRA END' > complex_EXTRA.txt
 
 
-submit="startpython \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
+submit="python3 \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
 subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile \\"
 
 
