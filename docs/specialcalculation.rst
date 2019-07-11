@@ -165,9 +165,9 @@ In order to perform a successful open shell fragment analysis, additional inform
 
 
 The fragment calculations used to provide the TAPE21 for the overall complex calculation
- must be done, for technical reasons, in the restricted mode. The proper spins are then
- specified in the calculation of the overall molecule using the FragOccupations key.
- Noted a proper decomposition of an electron-pair bond energy requires specifying
+must be done, for technical reasons, in the restricted mode. The proper spins are then
+specified in the calculation of the overall molecule using the FragOccupations key.
+Noted a proper decomposition of an electron-pair bond energy requires specifying
 opposite spins for the unpaired electrons of the respective radical fragments,
 which can be done with the input key FragOccupations. For the convenience of the analysis,
 it is suggested to specify the electronic configuration according to the symmtry of the molecule.
@@ -210,7 +210,6 @@ fragment radical using the following block: ::
 
 After the calculation, all results will be summarized in two text files. One file with the name started with pyfrag1
 include all terms obtained from the above open shell ASA.
-
 
 The second file with the name started with pyfrag2 include the correction energy terms from the correction procedure later.
 
