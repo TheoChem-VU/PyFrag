@@ -1,5 +1,5 @@
-Special Pyfrag Calculations
-===========================
+Special Pyfrag Calculation
+==========================
 
 Besides the above simple calculations, it is more complicated to perform an open shell Activation Strain Analysis (ASA) using PyFrag 2019 for the technical reasons. For more information please check the example_ consisting of an analysis of the C-C single bond between two CP radicals in the four-atomic molecule PCCP.
 
@@ -120,7 +120,6 @@ To submit a job, create a directory and generate a input file and run the follow
 ``pyfrag -x open job.in``
 
 
-
 In order to perform a successful open shell fragment analysis, additional information should be provided in the following input blocks: ::
 
    fragment1 EXTRA
@@ -163,6 +162,7 @@ In order to perform a successful open shell fragment analysis, additional inform
 
    END
    complex EXTRA END
+
 
 The fragment calculations used to provide the TAPE21 for the overall complex calculation
  must be done, for technical reasons, in the restricted mode. The proper spins are then
