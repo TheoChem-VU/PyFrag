@@ -16,6 +16,7 @@ Contents:
    interactive_tutorial
    pyfragparameter
    standalone
+   specialcalculation
    Further_reading
    documentation
    app
