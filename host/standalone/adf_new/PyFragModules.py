@@ -105,19 +105,16 @@ def writeKey(file, value, pform=r'%7.3f', ljustwidth=16):
 
 def WriteTable(tableValues, fileName):
    energyfile  = open('pyfrag'+fileName+'.txt', "w")
-   headerlist  = sorted(tableValues[0])
-   #order the print list
-   headerlist_select  = [e for e in headerlist_all if e not in ("#IRC","bondlength","EnergyTotal","Int","Elstat","Pauli","OI","Disp","StrainTotal","frag1Strain","frag2Strain")]
-   headerlist         = ["#IRC","bondlength","EnergyTotal","Int","Elstat","Pauli","OI","Disp","StrainTotal","frag1Strain","frag2Strain"] + headerlist_select
-   writeKey(energyfile, headerlist)
-   for entry in tableValues:
-      sortedEntry = [entry[i] for i in headerlist]
-      writeKey(energyfile, sortedEntry)
-   energyfile.close()
-
-def WriteDefaultTable(tableValues, fileName):
-   energyfile  = open('pyfragdefault'+fileName+'.txt', "w")
-   headerlist  = ["#IRC","Elstat","EnergyTotal","Int","OI","Pauli","StrainTotal","bondlength","frag1Strain","frag2Strain"]
+   headerlist_all  = sorted(tableValues[0])
+   # check if bondlength exist
+   bondlist  = [e for e in headerlist_all if e in ("bondlength")]
+   if len(bondlist) == 1:
+      #order the print list
+      headerlist_select  = [e for e in headerlist_all if e not in ("#IRC","bondlength","EnergyTotal","Int","Elstat","Pauli","OI","Disp","StrainTotal","frag1Strain","frag2Strain")]
+      headerlist         = ["#IRC","bondlength","EnergyTotal","Int","Elstat","Pauli","OI","Disp","StrainTotal","frag1Strain","frag2Strain"] + headerlist_select
+   else:
+      headerlist_select  = [e for e in headerlist_all if e not in ("#IRC","bondlength_1","EnergyTotal","Int","Elstat","Pauli","OI","Disp","StrainTotal","frag1Strain","frag2Strain")]
+      headerlist         = ["#IRC","bondlength_1","EnergyTotal","Int","Elstat","Pauli","OI","Disp","StrainTotal","frag1Strain","frag2Strain"] + headerlist_select
    writeKey(energyfile, headerlist)
    for entry in tableValues:
       sortedEntry = [entry[i] for i in headerlist]
@@ -351,7 +348,6 @@ class PyFragResult:
             if self.orbFragment[i] == fragOrbnum  and  self.fragIrrep[i] == orbDescriptor['irrep'] and self.fragOrb[i] == int(orbDescriptor['index']):
                orbIndex = i
                break
-      print ("orbIndex",orbIndex)
       return orbIndex
 
    def ReadOverlap(self, index_1, index_2):

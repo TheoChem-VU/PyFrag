@@ -237,4 +237,3 @@ class PyFragResult:
                value.append(Units.convert((complexMolecule[int(atoms[0])].angle(complexMolecule[int(atoms[1])], complexMolecule[int(atoms[2])])), 'rad', 'deg') - od['oriVal'])
             outputData[key] = value
       return GetOutputTable(outputData)
-
