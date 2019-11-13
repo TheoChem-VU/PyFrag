@@ -142,7 +142,6 @@ for key, val in vars(parser.parse_args()).items():
          adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
          inputKeys[key] = ['settings_Fa.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
 
-
       elif key == 'restartjob':
          inputKeys['jobstate'] = val[0][0]
 

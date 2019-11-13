@@ -37,8 +37,8 @@ def ReadLTt21(fileName):
    f              = KFFile(fileName)
    nAtoms, sAtoms = GetAtom(f)
    tmpList        = f.read('LT', 'xyz')
-   matrixLT       = [tmpList[i:i+3*nAtoms] for i in range(0, tmpList, 3*nAtoms)]
-   return [[[s, x, y, z] for s, x, y, z in zip(sAtoms, xyzBlock[0::3], xyzBlock[1::3], xyzBlock[2::3])] for xyzBlock in tmpList]
+   matrixLT       = [tmpList[i:i+3*nAtoms] for i in range(0, len(tmpList), 3*nAtoms)]
+   return [[[s, x, y, z] for s, x, y, z in zip(sAtoms, xyzBlock[0::3], xyzBlock[1::3], xyzBlock[2::3])] for xyzBlock in matrixLT]
 
 
 def ParseIRCFile(ircCoordFile):
