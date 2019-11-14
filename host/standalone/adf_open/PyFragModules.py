@@ -256,6 +256,10 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings, frag1
             complexMolecule_open.add_atom(atom)
          ircFrags_open.pop(fragTag_open)
 
+      for coorKey, coorVal in list(inputKeys['coordFile'].items()):
+         if coorKey != 'ircpath':
+            exec ('complexSettings_open.input.UNITS.length="Bohr"')
+
       jobComplex = ADFJob(molecule=complexMolecule_open, settings=complexSettings_open, name=complexMolecule_open.get_formula()+ "open"+ircTag)
       jobComplex.run()
       if jobComplex.check():
