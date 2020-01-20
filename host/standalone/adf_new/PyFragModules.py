@@ -189,7 +189,9 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
 
          jobFrag = ADFJob(molecule=ircFrags[fragTag], settings=fragmentSettings, name=fragTag+ircTag)
          jobFrag.run()
-         if jobFrag.check():
+         # disable the result check because ADF print a lot of error message
+         # if jobFrag.check():
+         if True:
             #provide path of fragment t21 file to final fragment analysis calculation
             if inputKeys['jobstate'] is not None:
                exec ("complexSettings.input.Fragments." + fragTag + "=" + '"' +  inputKeys['jobstate'] + "/" + fragTag + ircTag + "/" + fragTag + ircTag + ".t21" + '"')
@@ -210,7 +212,9 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
       if success:
          jobComplex = ADFJob(molecule=complexMolecule, settings=complexSettings, name=complexMolecule.get_formula()+ircTag)
          jobComplex.run()
-         if jobComplex.check():
+         # disable the result check because ADF print a lot of error message
+         if True:
+         # if jobComplex.check():
             successCases.append(ircIndex)
             #collect all data and put it in a list
             outputData['#IRC'] = str(ircIndex+1)

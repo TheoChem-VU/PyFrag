@@ -214,7 +214,8 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings, frag1
 
       jobComplex = ADFJob(molecule=complexMolecule, settings=complexSettings, name=complexMolecule.get_formula()+ircTag)
       jobComplex.run()
-      if jobComplex.check():
+      # if jobComplex.check():
+      if True:
          successCases.append(ircIndex)
          #collect all data and put it in a list
          outputData['#IRC'] = str(ircIndex+1)
@@ -262,7 +263,8 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings, frag1
 
       jobComplex = ADFJob(molecule=complexMolecule_open, settings=complexSettings_open, name=complexMolecule_open.get_formula()+ "open"+ircTag)
       jobComplex.run()
-      if jobComplex.check():
+      if True:
+      # if jobComplex.check():
          #collect all data that need to be printed
          # outputData_open['EnergyTotal'] = Units.convert(jobComplex.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - inputKeys['straintotal']['straintotal']
          outputData_open['EnergyTotal'] = Units.convert(jobComplex.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - inputKeys['strain']['frag1'] - inputKeys['strain']['frag2']
