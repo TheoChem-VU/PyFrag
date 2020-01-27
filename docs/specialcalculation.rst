@@ -214,6 +214,35 @@ include all terms obtained from the above open shell ASA.
 The second file with the name started with pyfrag2 include the correction energy terms from the correction procedure later.
 
 
+Open Shell ASA Orbital Energy
+-----------------------------
+
+Because the above open shell Activation Strain Analysis will not give the correct orbital energy of fragment,
+thus, in order to extract the correct orbital energy, the following small calculation can be performed: ::
+
+
+   PyFrag
+
+   ircpath /Users/xiaobo/Desktop/test/plams.0001
+   fragment  frag1open
+   orbitalenergy  HOMO
+   orbitalenergy  HOMO-1
+   orbitalenergy  LUMO
+   orbitalenergy  LUMO+1
+   orbitalenergy  AA 5
+
+   PyFrag END
+
+The ircpath refer to the plams directory that contains all the open shell calculation results.
+Besides, the fragment term specifies from which (fragment1open or fragment1open) orbital energy will be extracted.
+Noted only one fragment informatin can be readed for one calculation.
+
+
+To submit a job, create a directory and generate a input file and run the following command to run a job:
+
+``pyfrag -x openorb job.in``
+
+
 Single Points
 -------------
 

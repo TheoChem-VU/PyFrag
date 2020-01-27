@@ -386,7 +386,7 @@ class PyFragResult:
             if self.orbFragment[i] == fragOrbnum  and  self.fragIrrep[i] == orbDescriptor['irrep'] and self.fragOrb[i] == int(orbDescriptor['index']):
                orbIndex = i
                break
-      print ("orbIndex",orbIndex)
+
       return orbIndex
 
    def ReadOverlap(self, index_1, index_2):
