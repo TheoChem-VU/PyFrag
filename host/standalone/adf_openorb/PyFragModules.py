@@ -76,12 +76,11 @@ class PyFragResult:
       self.irrepType            = str(complexResult.read('Symmetry', 'symlab')).split()
 
       #energy for each orbital
-      self.orbEnergy            = sum([complexResult.read(self.irrepType[i], 'eps_A')  for i in range(len(self.irrepType))], []) + \
-                                  sum([complexResult.read(self.irrepType[i], 'eps_B')  for i in range(len(self.irrepType))], [])
-
+      self.orbEnergy            = sum([ConvertList(complexResult.read(self.irrepType[i], 'eps_A'))  for i in range(len(self.irrepType))], []) + \
+                                  sum([ConvertList(complexResult.read(self.irrepType[i], 'eps_B'))  for i in range(len(self.irrepType))], [])
       #occupation of each orbitals which is either 0 or 1
-      self.orbOccupation        = sum([complexResult.read(self.irrepType[i], 'froc_A')  for i in range(len(self.irrepType))], []) + \
-                                  sum([complexResult.read(self.irrepType[i], 'froc_B')  for i in range(len(self.irrepType))], [])
+      self.orbOccupation        = sum([ConvertList(complexResult.read(self.irrepType[i], 'froc_A'))  for i in range(len(self.irrepType))], []) + \
+                                  sum([ConvertList(complexResult.read(self.irrepType[i], 'froc_B'))  for i in range(len(self.irrepType))], [])
 
       # expand the orb nubber according to irrepType(0,1,2,3,4,    0,1,2,3,4)
       self.irrepOrblist         = [num+1  for i in range(len(self.irrepOrbNumber)) for num in range(self.irrepOrbNumber[i])] + \
