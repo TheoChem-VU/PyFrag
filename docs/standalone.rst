@@ -69,6 +69,27 @@ To submit a job, create a directory and generate a input file and run the follow
 
 ``pyfrag job.in``
 
+If more terms needed to be printed, user can simply re-run the job as long as the plams directory exists.
+During the process, PyFrag just extracts the new information from the previous result without actually doing new calculation.
+In order to do that, the path to the plams directory should be specified in the job file in the PyFrag section, such as: ::
+
+   PyFrag
+
+   restartjob /path/to/plams/directory
+
+   ircpath /home/x2sun/pyfragnew/test/molecule.xyz
+   fragment  2
+   fragment  1 3 4 5 6
+   strain    0
+   strain   -554.09
+   bondlength 1 6  1.09
+
+   PyFrag END
+
+To submit a job, create a directory and generate a input file and run the following command to submit a job:
+
+``pyfrag job.in``
+
 
 Gaussian
 --------

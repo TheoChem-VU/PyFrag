@@ -395,10 +395,10 @@ class PyFragResult:
 
    def GetOutputData(self, complexMolecule, outputData, inputKeys):
       #collect default energy parts for activation strain analysis
-      outputData['Pauli']   = Units.convert(self.Pauli, 'hartree', 'kcal/mol')
-      outputData['Elstat']  = Units.convert(self.Elstat, 'hartree', 'kcal/mol')
-      outputData['OI']      = Units.convert(self.OI, 'hartree', 'kcal/mol')
-      outputData['Int']     = Units.convert(self.Int, 'hartree', 'kcal/mol')
+      outputData['Pauli']    = Units.convert(self.Pauli, 'hartree', 'kcal/mol')
+      outputData['Elstat']   = Units.convert(self.Elstat, 'hartree', 'kcal/mol')
+      outputData['OI']       = Units.convert(self.OI, 'hartree', 'kcal/mol')
+      outputData['Int']      = Units.convert(self.Int, 'hartree', 'kcal/mol')
       outputData['Disp']     = Units.convert(self.Disp, 'hartree', 'kcal/mol')
       outputData['EnergyTotal']  = Units.convert(self.Int, 'hartree', 'kcal/mol') + outputData['StrainTotal']
       #collect user defined data
