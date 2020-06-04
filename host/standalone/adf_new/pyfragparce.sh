@@ -61,22 +61,23 @@ done
 input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
-grep  -A 200 'JOBSUB' $input | grep -B 200 'JOBSUB END' | grep -v 'JOBSUB' | grep -v 'JOBSUB END' > jobsub.txt
-grep  -A 200 'ADF' $input | grep -B 200 'ADF END' | grep -v 'ADF' | grep -v 'ADF END' > adf.txt
-grep  -A 200 'PyFrag' $input | grep -B 200 'PyFrag END' | grep -v 'PyFrag' | grep -v 'PyFrag END' > pyfrag.txt
-grep  -A 200 'fragment1 EXTRA' $input | grep -B 200 'fragment1 EXTRA END' | grep -v 'fragment1 EXTRA' | grep -v 'fragment1 EXTRA END' > fragment1_EXTRA.txt
-grep  -A 200 'fragment2 EXTRA' $input | grep -B 200 'fragment2 EXTRA END' | grep -v 'fragment2 EXTRA' | grep -v 'fragment2 EXTRA END' > fragment2_EXTRA.txt
-grep  -A 200 'complex EXTRA' $input | grep -B 200 'complex EXTRA END' | grep -v 'complex EXTRA' | grep -v 'complex EXTRA END' > complex_EXTRA.txt
+grep  -xA 200 'JOBSUB' $input          | grep -xB 200 'JOBSUB END'          | grep -xv 'JOBSUB'          | grep -xv 'JOBSUB END'          > jobsub.txt
+grep  -xA 200 'ADF' $input             | grep -xB 200 'ADF END'             | grep -xv 'ADF'             | grep -xv 'ADF END'             > adf.txt
+grep  -xA 200 'PyFrag' $input          | grep -xB 200 'PyFrag END'          | grep -xv 'PyFrag'          | grep -xv 'PyFrag END'          > pyfrag.txt
+grep  -xA 200 'fragment1 EXTRA' $input | grep -xB 200 'fragment1 EXTRA END' | grep -xv 'fragment1 EXTRA' | grep -xv 'fragment1 EXTRA END' > fragment1_EXTRA.txt
+grep  -xA 200 'fragment2 EXTRA' $input | grep -xB 200 'fragment2 EXTRA END' | grep -xv 'fragment2 EXTRA' | grep -xv 'fragment2 EXTRA END' > fragment2_EXTRA.txt
+grep  -xA 200 'complex EXTRA' $input   | grep -xB 200 'complex EXTRA END'   | grep -xv 'complex EXTRA'   | grep -xv 'complex EXTRA END'   > complex_EXTRA.txt
 
 
 submit="python3 \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
 subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile \\"
 
-
+echo ""                                                      > ./sub
 jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub
 pyfragargue pyfrag.txt                                      >> ./sub
 echo $subadfinputfile                                       >> ./sub
+echo ""                                                      > ./adfinputfile
 adfargue  adf.txt                                           >> ./adfinputfile
 
 extraOption=(fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt)
@@ -84,6 +85,7 @@ extraOption=(fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt)
 for extraItem in ${extraOption[*]}
 do
   if [ -s $extraItem ]; then
+    echo ""                                                  > ./${extraItem%.txt}
     adfargue $extraItem                                     >> ./${extraItem%.txt}
     subItem="--"${extraItem%.txt}" $SCRIPTPATH/${extraItem%.txt} \\"
     echo $subItem                                           >> ./sub
