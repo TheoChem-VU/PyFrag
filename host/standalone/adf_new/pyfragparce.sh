@@ -72,12 +72,12 @@ grep  -xA 200 'complex EXTRA' $input   | grep -xB 200 'complex EXTRA END'   | gr
 submit="python3 \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
 subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile \\"
 
-echo ""                                                      > ./sub
+echo -n ""                                                   > ./sub
 jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub
 pyfragargue pyfrag.txt                                      >> ./sub
 echo $subadfinputfile                                       >> ./sub
-echo ""                                                      > ./adfinputfile
+echo -n ""                                                   > ./adfinputfile
 adfargue  adf.txt                                           >> ./adfinputfile
 
 extraOption=(fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt)
@@ -85,7 +85,7 @@ extraOption=(fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt)
 for extraItem in ${extraOption[*]}
 do
   if [ -s $extraItem ]; then
-    echo ""                                                  > ./${extraItem%.txt}
+    echo -n ""                                               > ./${extraItem%.txt}
     adfargue $extraItem                                     >> ./${extraItem%.txt}
     subItem="--"${extraItem%.txt}" $SCRIPTPATH/${extraItem%.txt} \\"
     echo $subItem                                           >> ./sub
