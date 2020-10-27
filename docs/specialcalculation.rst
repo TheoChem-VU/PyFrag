@@ -214,6 +214,132 @@ include all terms obtained from the above open shell ASA.
 The second file with the name started with pyfrag2 include the correction energy terms from the correction procedure later.
 
 
+Ne Open Shell ASA (Since ADF 2019)
+----------------------------------
+
+Since ADF 2019, new method to do open-shell fragment analysis has been included. For details, please refer to the ADF_ website.
+
+Based on this method, a new module to do the activation strain analysis has been developed by Xiaobo Sun and Eva Blokker. The specification for the print options is similar with the previous one, except to has to specify the spin state of orbital, such as 1_A, which means spin-A orbital 1. All the following options are acceptable: ::
+
+   overlap frag1 HOMO frag2 HOMO
+   overlap A1 frag1 3_B S frag2 1_B
+
+   orbitalenergy frag1 HOMO-2
+   orbitalenergy frag1 HOMO-1
+   orbitalenergy frag1 LUMO
+   orbitalenergy frag2 LUMO
+   orbitalenergy A1 frag1 3_A
+
+   population frag1 HOMO
+   population frag2 HOMO
+   population frag2 LUMO
+   population A1 frag1 3_A
+   population S frag2 1_B
+
+
+The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using ADF 2019 to perform a new open shell Activation Strain Analysis is as follow: ::
+
+
+   JOBSUB
+   #!/bin/bash
+   #SBATCH --nodes=1
+   #SBATCH --ntasks-per-node=24
+   #SBATCH --partition=short
+   #SBATCH --time=00:55:00
+   #SBATCH --job-name=FH3CCH3
+   #SBATCH --output=FH3CCH3.out
+   #SBATCH --error=FH3CCH3.err
+   JOBSUB END
+
+   ADF
+   XC
+     GGA BP86
+   END
+
+   BASIS
+     TYPE TZ2P
+     CORE None
+   END
+
+   NUMERICALQUALITY Excellent
+
+   Relativistic Scalar ZORA
+
+   SCF
+     Iterations 300
+   END
+
+   SYMMETRY AUTO
+   ADF END
+
+
+   PyFrag
+   ircpath /home/x2sun/methane.amv
+   fragment  1 2 3
+   fragment  4
+   strain    0
+   strain    0
+   bondlength 1 4
+
+   overlap frag1 HOMO frag2 HOMO
+   population frag1 HOMO
+   population frag2 HOMO
+   orbitalenergy frag1 HOMO-3
+   orbitalenergy frag1 HOMO-2
+   orbitalenergy frag1 HOMO-1
+   orbitalenergy frag1 LUMO
+   orbitalenergy frag2 LUMO
+   population frag2 LUMO
+   overlap A1 frag1 3_B S frag2 1_B
+   population A1 frag1 3_A
+   population S frag2 1_B
+   orbitalenergy A1 frag1 3_A
+
+   PyFrag END
+
+   fragment1 EXTRA
+
+   IrrepOccupations
+   A1 3//2
+   B1 1//0
+   B2 1//1
+   End
+   Unrestricted
+   Charge 0 2
+
+   fragment1 EXTRA END
+
+   fragment2 EXTRA
+
+   IrrepOccupations
+   S 0//1
+   End
+
+   Unrestricted
+   Charge 0 -1
+
+   fragment2 EXTRA END
+
+   complex EXTRA
+   UnrestrictedFragments
+   Unrestricted
+   charge 0 1
+   complex EXTRA END
+
+The molecule is methane: ::
+
+   C      0.000000      0.000000      0.000000
+   H      0.541956      0.938695      0.000000
+   H      0.541956     -0.938695      0.000000
+   H     -1.000000      0.000000      0.000000
+
+
+To submit a job, create a directory and generate a input file and run the following command to submit a job:
+
+``pyfrag -x newopen job.in``
+
+
+
 Open Shell ASA Orbital Energy
 -----------------------------
 
@@ -301,3 +427,4 @@ Note that the fragment definations are not needed. This functionality provide an
 
 
 .. _example: https://www.scm.com/doc/ADF/Examples/PCCP_Unr_BondEnergy.html?highlight=open+shell+fragment
+.. _ADF: https://www.scm.com/doc/ADF/Examples/EDA_Unr_CH3I.html#example-eda-unr-ch3i
