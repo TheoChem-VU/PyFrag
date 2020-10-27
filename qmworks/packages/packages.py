@@ -320,7 +320,7 @@ class Package_pyfrag:
         display="Running {self.pkg_name} {job_name}...",
         store=True, confirm=True)
 
-    def __call__(self, settings, settings_2 = None, settings_3 = None, inputArgues=None, inputArgues1=None,inputArgues2=None,job_name='', **kwargs):
+    def __call__(self, settings, settings_2 = None, settings_3 = None, ircArgue=None, irc_1Argue=None, inputArgues1=None,inputArgues2=None,job_name='', **kwargs):
         """
         This function performs a job with the package specified by
         self.pkg_name
@@ -343,7 +343,7 @@ class Package_pyfrag:
         ComplexSettings  = self.generic2specific(settings_3)
 
 
-        result = self.run_job(Fragment1Settings,Fragment2Settings, ComplexSettings, inputArgues, inputArgues1, inputArgues2,  **kwargs)
+        result = self.run_job(Fragment1Settings,Fragment2Settings, ComplexSettings, ircArgue, irc_1Argue, inputArgues1, inputArgues2,  **kwargs)
         return result
 
         self.postrun()

@@ -23,13 +23,13 @@ done < "$pyfrag"
 function adfargue {
 adf=$*
 
-Mark=(scf xc basis BECKEGRID EPRINT OCCUPATIONS ZLMFIT)
-SMark=(numericalquality relativistic charge symmetry unrestricted)
+Mark=(scf xc basis BECKEGRID EPRINT ZLMFIT IrrepOccupations)
+SMark=(numericalquality relativistic charge symmetry unrestricted UnrestrictedFragments)
 
 
 for item in ${Mark[*]}
 do
-grep  -iA 20 "$item" $adf | grep -m 1 -iB 20 'end' | grep -iv 'end' | grep -ixv "$item" > "$item".txt
+grep  -iA 20 "$item" $adf | grep -m 1 -iB 20 'end' | grep -iv 'end' | grep -iv "$item" > "$item".txt
   if [ -s "$item".txt ]; then
     argue="$item".txt
     while read -r line
@@ -61,23 +61,22 @@ done
 input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
-grep  -xA 200 'JOBSUB' $input          | grep -xB 200 'JOBSUB END'          | grep -xv 'JOBSUB'          | grep -xv 'JOBSUB END'          > jobsub.txt
-grep  -xA 200 'ADF' $input             | grep -xB 200 'ADF END'             | grep -xv 'ADF'             | grep -xv 'ADF END'             > adf.txt
-grep  -xA 200 'PyFrag' $input          | grep -xB 200 'PyFrag END'          | grep -xv 'PyFrag'          | grep -xv 'PyFrag END'          > pyfrag.txt
-grep  -xA 200 'fragment1 EXTRA' $input | grep -xB 200 'fragment1 EXTRA END' | grep -xv 'fragment1 EXTRA' | grep -xv 'fragment1 EXTRA END' > fragment1_EXTRA.txt
-grep  -xA 200 'fragment2 EXTRA' $input | grep -xB 200 'fragment2 EXTRA END' | grep -xv 'fragment2 EXTRA' | grep -xv 'fragment2 EXTRA END' > fragment2_EXTRA.txt
-grep  -xA 200 'complex EXTRA' $input   | grep -xB 200 'complex EXTRA END'   | grep -xv 'complex EXTRA'   | grep -xv 'complex EXTRA END'   > complex_EXTRA.txt
+grep  -A 200 'JOBSUB' $input | grep -B 200 'JOBSUB END' | grep -v 'JOBSUB' | grep -v 'JOBSUB END' > jobsub.txt
+grep  -A 200 'ADF' $input | grep -B 200 'ADF END' | grep -v 'ADF' | grep -v 'ADF END' > adf.txt
+grep  -A 200 'PyFrag' $input | grep -B 200 'PyFrag END' | grep -v 'PyFrag' | grep -v 'PyFrag END' > pyfrag.txt
+grep  -A 200 'fragment1 EXTRA' $input | grep -B 200 'fragment1 EXTRA END' | grep -v 'fragment1 EXTRA' | grep -v 'fragment1 EXTRA END' > fragment1_EXTRA.txt
+grep  -A 200 'fragment2 EXTRA' $input | grep -B 200 'fragment2 EXTRA END' | grep -v 'fragment2 EXTRA' | grep -v 'fragment2 EXTRA END' > fragment2_EXTRA.txt
+grep  -A 200 'complex EXTRA' $input | grep -B 200 'complex EXTRA END' | grep -v 'complex EXTRA' | grep -v 'complex EXTRA END' > complex_EXTRA.txt
 
 
-submit="python3 \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
+submit="python3 \$HOSTPYFRAG/standalone/adf_newopen/PyFrag.py \\"
 subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile \\"
 
-echo -n ""                                                   > ./sub
+
 jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub
 pyfragargue pyfrag.txt                                      >> ./sub
 echo $subadfinputfile                                       >> ./sub
-echo -n ""                                                   > ./adfinputfile
 adfargue  adf.txt                                           >> ./adfinputfile
 
 extraOption=(fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt)
@@ -85,7 +84,6 @@ extraOption=(fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt)
 for extraItem in ${extraOption[*]}
 do
   if [ -s $extraItem ]; then
-    echo -n ""                                               > ./${extraItem%.txt}
     adfargue $extraItem                                     >> ./${extraItem%.txt}
     subItem="--"${extraItem%.txt}" $SCRIPTPATH/${extraItem%.txt} \\"
     echo $subItem                                           >> ./sub

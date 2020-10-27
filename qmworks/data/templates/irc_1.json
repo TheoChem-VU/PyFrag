@@ -2,10 +2,10 @@
     "specific": {
         "adf": {
           "basis": {"type": "TZ2P"},
-            "scf": {
-                "converge": 1e-6,
-                "iterations": 100},
-            "geometry": {"IRC": "POINTS=2 STEP=0.5"} },
+          "geometry": {
+                       "iterations": 300,
+                       "converge": 0.00001,
+                       "IRC": "POINTS=20 STEP=1"} },
         "dftb": {
             "task": {"runtype": "GO"},
             "dftb": {"resourcesdir": "QUASINANO2015"} },

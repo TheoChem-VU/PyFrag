@@ -1,5 +1,5 @@
 
-__all__ = ['freq', 'geometry', 'singlepoint', 'ts', 'get_template', 'fa', 'frag1', 'frag2', 'irc']
+__all__ = ['freq', 'geometry', 'singlepoint', 'ts', 'get_template', 'fa', 'frag1', 'frag2', 'irc','irc_1']
 
 # ================> Python Standard  and third-party <==========
 
@@ -38,6 +38,7 @@ geometry = get_template('geometry.json')
 ts = get_template('ts.json')
 freq = get_template('freq.json')
 irc  = get_template('irc.json')
+irc_1  = get_template('irc_1.json')
 fa   = get_template('complex.json')
 frag1 = get_template('fragment1.json')
 frag2 = get_template('fragment2.json')

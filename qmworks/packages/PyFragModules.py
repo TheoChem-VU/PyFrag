@@ -323,7 +323,10 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
             if isinstance(inputKeys['strain'][fragTag], float):
                outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - inputKeys['strain'][fragTag]
             else:
-               outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - KFFile(inputKeys['strain'][fragTag]).read('Energy', 'Bond Energy')*627.51
+               strain_energy=KFFile(inputKeys['strain'][fragTag]).read('Energy', 'Bond Energy')
+               if strain_energy==None:
+                  strain_energy = 0.0
+               outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - strain_energy*627.51
             outputData['StrainTotal'] += outputData[fragTag + 'Strain']
             #reorganize new complex from fragments by appending fragment label. Beware the atomic orders maybe changed
             for atom in ircFrags[fragTag]:
@@ -451,20 +454,6 @@ class PyFragResult:
       fragType = str(self.complexResult.readkf('Geometry', 'fragmenttype')).split()
       return fragType.index(frag) + 1
 
-   # def GetOrbitalIndex(self, orbDescriptor):
-   #    # orbDescriptor = {'type' = "HOMO/LUMO/INDEX", 'frag'='#frag', 'irrep'='irrepname', 'index'=i}
-   #    fragOrbnum = self.GetFragNum(orbDescriptor['frag'])     #get fragment number
-   #    if orbDescriptor['type'] == 'HOMO':
-   #       index = max(xrange(len(self.orbEnergy)), key = lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] != 0 else -1.0E+100)
-   #    elif orbDescriptor['type'] == 'LUMO':
-   #       index = min(xrange(len(self.orbEnergy)), key = lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] == 0 else +1.0E+100)
-   #    elif orbDescriptor['type'] == 'INDEX':
-   #       for i in range(len(self.orbEnergy)):
-   #          if self.orbFragment[i] == fragOrbnum  and  self.fragIrrep[i] == orbDescriptor['irrep'] and self.fragOrb[i] == int(orbDescriptor['index']):
-   #             index = i
-   #             break
-   #    return index
-
    def GetFrontIndex(self, orbSign):
      #convert HOMO/LUMO/HOMO-1/LUMO+1/INDEX into dict {'holu': 'HOMO', 'num': -1}
       for matchString in [r'HOMO(.*)', r'LUMO(.*)', r'INDEX']:
@@ -490,7 +479,6 @@ class PyFragResult:
             if self.orbFragment[i] == fragOrbnum  and  self.fragIrrep[i] == orbDescriptor['irrep'] and self.fragOrb[i] == int(orbDescriptor['index']):
                orbIndex = i
                break
-      print ("orbIndex",orbIndex)
       return orbIndex
 
    def ReadOverlap(self, index_1, index_2):
@@ -578,13 +566,19 @@ class PyFragResult:
       return GetOutputTable(outputData)
 
 class PyFragJob:
-   def __init__(self, fragment1Settings, fragment2Settings, complexSettings, inputArgues,inputArgues1 =None, inputArgues2 = None, others = None):
+   def __init__(self, fragment1Settings, fragment2Settings, complexSettings, ircArgue, irc_1Argue, inputArgues1 = None, inputArgues2 = None, others = None):
       others_1 = dict((k,v) for k, v in others.items() if v is not None)
-#      others_1['irct21'] = [[inputArgues]]
+
+      # if 'strain' in others_1.keys():
+      #    others_1['irct21'] = [[inputArgues]]
+      # else:
+      #    others_1['irct21'] = [[inputArgues]]
+      #    others_1['strain'] = [[inputArgues1],[inputArgues2]]
+
       if 'strain' in others_1.keys():
-         others_1['irct21'] = [[inputArgues]]
+         others_1['irct21'] = [[ircArgue],[irc_1Argue]]
       else:
-         others_1['irct21'] = [[inputArgues]]
+         others_1['irct21'] = [[ircArgue],[irc_1Argue]]
          others_1['strain'] = [[inputArgues1],[inputArgues2]]
 
       self.inputArgues    = CollectInput(others_1)
@@ -596,6 +590,4 @@ class PyFragJob:
       tableValue, fileName, failStructures = PyFragDriver(self.inputArgues, self.fragment1Settings, self.fragment2Settings, self.complexSettings)
       WriteTable(tableValue, fileName)
       WriteDefaultTable(tableValue, fileName)
-
-
 

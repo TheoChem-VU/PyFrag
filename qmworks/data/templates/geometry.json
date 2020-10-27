@@ -3,7 +3,7 @@
         "adf": {
         	"basis": {"type": "SZ"},
             "xc": {"__block_replace": true, "lda": ""},
-            "geometry": {"optim": "delocal",
+            "geometry": {"optim": "Cartesian",
                          "iterations": 100,
                          "converge": 0.00001} },
         "dftb": {

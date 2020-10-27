@@ -11,7 +11,7 @@ from .molkit import (apply_reaction_smarts, apply_template, gen_coords_rdmol,
                      modify_atom,
                      to_rdmol, from_rdmol, from_sequence, from_smiles,
                      write_molblock)
-from .templates import (freq, geometry, get_template, singlepoint, ts, irc, fa, frag1, frag2)
+from .templates import (freq, geometry, get_template, singlepoint, ts, irc, irc_1 ,fa, frag1, frag2)
 from .settings import Settings
 from .utils import (chunksOf, concat, concatMap, dict2Setting,
                     settings2Dict, zipWith, zipWith3)
@@ -33,4 +33,4 @@ __all__ = ['AtomBasisData', 'AtomBasisKey', 'AtomXYZ', 'CGF', 'InfoMO',
            'run', 'select_max',
            'from_sequence', 'settings2Dict', 'singlepoint', 'from_smiles',
            'ts', 'turbomole2hdf5', 'write_molblock', 'zipWith', 'zipWith3',
-           'pyfrag', 'irc', 'fa', 'frag1', 'frag2', 'Package_pyfrag']
+           'pyfrag', 'irc', 'irc_1', 'fa', 'frag1', 'frag2', 'Package_pyfrag']

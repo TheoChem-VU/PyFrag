@@ -4,7 +4,7 @@
             "analyticalfreq": {},
             "basis": {
                 "core": "None",
-                "type": "DZP"
+                "type": "TZ2P"
                 },
             "xc": {"__block_replace": true, "lda": ""}
             },

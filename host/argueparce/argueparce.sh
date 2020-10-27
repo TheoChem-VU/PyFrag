@@ -96,7 +96,12 @@ if [ -s geometry.txt ]; then
       if [ "$line" != "" ]; then
         option="$line"
         optionarray=( $option )
-        echo "geometry."${optionarray[0]}"="${optionarray[@]:1}
+        length=${#optionarray[@]}
+        if [ ${length} == 3 ]; then
+          echo "geometry."${optionarray[0]}"."${optionarray[1]}"="${optionarray[@]:2}
+        else
+          echo "geometry."${optionarray[0]}"="${optionarray[@]:1}
+        fi
       fi
   done < "$geometry"
 fi
@@ -118,6 +123,7 @@ grep  -A 200 'RC EXTRA' $input | grep -B 200 'RC EXTRA END' | grep -v 'RC EXTRA'
 grep  -A 200 'TS EXTRA' $input | grep -B 200 'TS EXTRA END' | grep -v 'TS EXTRA' | grep -v 'TS EXTRA END' > TS_EXTRA.txt
 grep  -A 200 'P EXTRA' $input | grep -B 200 'P EXTRA END' | grep -v 'P EXTRA' | grep -v 'P EXTRA END'     > P_EXTRA.txt
 grep  -A 200 'IR EXTRA' $input | grep -B 200 'IR EXTRA END' | grep -v 'IR EXTRA' | grep -v 'IR EXTRA END' > IRC_EXTRA.txt
+grep  -A 200 'IR_1 EXTRA' $input | grep -B 200 'IR_1 EXTRA END' | grep -v 'IR_1 EXTRA' | grep -v 'IR_1 EXTRA END' > IRC_1_EXTRA.txt
 grep  -A 200 'fragment1 EXTRA' $input | grep -B 200 'fragment1 EXTRA END' | grep -v 'fragment1 EXTRA' | grep -v 'fragment1 EXTRA END' > fragment1_EXTRA.txt
 grep  -A 200 'fragment2 EXTRA' $input | grep -B 200 'fragment2 EXTRA END' | grep -v 'fragment2 EXTRA' | grep -v 'fragment2 EXTRA END' > fragment2_EXTRA.txt
 grep  -A 200 'complex EXTRA' $input | grep -B 200 'complex EXTRA END' | grep -v 'complex EXTRA' | grep -v 'complex EXTRA END' > complex_EXTRA.txt
@@ -134,7 +140,7 @@ pyfragargue pyfrag.txt                                      >> ./sub
 echo $subadfinputfile                                       >> ./sub
 adfargue  adf.txt                                           >> ./adfinputfile
 
-extraOption=(R1_EXTRA.txt R2_EXTRA.txt RC_EXTRA.txt TS_EXTRA.txt P_EXTRA.txt IRC_EXTRA.txt fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt)
+extraOption=(R1_EXTRA.txt R2_EXTRA.txt RC_EXTRA.txt TS_EXTRA.txt P_EXTRA.txt IRC_EXTRA.txt IRC_1_EXTRA.txt fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt)
 
 for extraItem in ${extraOption[*]}
 do
@@ -145,7 +151,7 @@ do
   fi
 done
 
-rm jobsub.txt adf.txt pyfrag.txt coor.xyz R1_EXTRA.txt R2_EXTRA.txt RC_EXTRA.txt TS_EXTRA.txt P_EXTRA.txt IRC_EXTRA.txt fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt
+rm jobsub.txt adf.txt pyfrag.txt coor.xyz R1_EXTRA.txt R2_EXTRA.txt RC_EXTRA.txt TS_EXTRA.txt P_EXTRA.txt IRC_EXTRA.txt IRC_1_EXTRA.txt fragment1_EXTRA.txt fragment2_EXTRA.txt complex_EXTRA.txt
 mkdir result
 touch ./result/rcgeometry.xyz
 cp $HOSTPYFRAG/argueparce/jobstate.txt  ./result

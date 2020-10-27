@@ -27,7 +27,7 @@ class PyFrag(Package_pyfrag):
     def prerun(self):
         pass
 
-    def run_job(self, settings,  settings_2=None, settings_3=None, inputArgues=None, inputArgues1=None, inputArgues2=None, others = None, job_name='', **kwargs):
+    def run_job(self, settings,  settings_2=None, settings_3=None, ircArgue=None, irc_1Argue=None, inputArgues1=None, inputArgues2=None, others = None, job_name='', **kwargs):
         """
         Execute ADF job.
 
@@ -46,12 +46,12 @@ class PyFrag(Package_pyfrag):
 
 
         fragment1set = Settings()
-        fragment2set = Settings() 
+        fragment2set = Settings()
         complexset  = Settings()
         fragment1set.input = settings.specific.fragment1
         fragment2set.input = settings_2.specific.fragment2
         complexset.input  = settings_3.specific.complex
-        job = PyFragJob(fragment1set, fragment2set, complexset, inputArgues, inputArgues1, inputArgues2, others)
+        job = PyFragJob(fragment1set, fragment2set, complexset, ircArgue, irc_1Argue, inputArgues1, inputArgues2, others)
         result = job.run()
         return result
 
@@ -146,7 +146,7 @@ class ADF(Package):
         pass
 
     @staticmethod
-    def run_job(settings, mol, job_name='ADFjob'):
+    def run_job(settings, mol, job_name='ADFjob', ts_path=None):
         """
         Execute ADF job.
 
@@ -163,6 +163,8 @@ class ADF(Package):
         :returns: :class:`~qmworks.packages.SCM.ADF_Result`
         """
         adf_settings = Settings()
+        if ts_path is not None:
+            exec('settings.specific.adf.RESTART.File="'+ts_path+'"')
         adf_settings.input = settings.specific.adf
         job = plams.ADFJob(name=job_name, molecule=mol,
                            settings=adf_settings)

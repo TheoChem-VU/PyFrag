@@ -40,6 +40,7 @@ parser.add_argument("--RC_EXTRA", type=str, nargs='*',action='append', help='a f
 parser.add_argument("--TS_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
 parser.add_argument("--P_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
 parser.add_argument("--IRC_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--IRC_1_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
 parser.add_argument("--fragment1_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
 parser.add_argument("--fragment2_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
 parser.add_argument("--complex_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
@@ -148,11 +149,6 @@ for key, val in vars(parser.parse_args()).items():
                inputValue.append(({'angleDef': [term[0], term[1], term[2]], 'oriVal': term[3]}))
          inputKeys[key] = inputValue
 
-
-      # elif key == 'adfinput':
-      #    adfinputList   = [(term.split('=')) for term in val[0]]
-      #    inputKeys[key] = ['settings.specific.adf.'+adfkey+'="'+keyval+'"' for adfkey, keyval in adfinputList]
-
       elif key == 'adfinputfile':
          f = open(val[0][0])
          adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
@@ -163,10 +159,11 @@ for key, val in vars(parser.parse_args()).items():
          adfTS = ['settings_TS.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
          adfP = ['settings_P.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
          adfIRC = ['settings_IRC.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+         adfIRC_1 = ['settings_IRC_1.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
          adfFrag1 = ['settings_Frag1.specific.fragment1.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
          adfFrag2 = ['settings_Frag2.specific.fragment2.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
          adfComplex = ['settings_Fa.specific.complex.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         inputKeys[key] = adfGeneral + adfR1 + adfR2 + adfRC + adfTS + adfIRC + adfP + adfFrag1 + adfFrag2 + adfComplex
+         inputKeys[key] = adfGeneral + adfR1 + adfR2 + adfRC + adfTS + adfIRC + adfIRC_1 + adfP + adfFrag1 + adfFrag2 + adfComplex
 
       elif key == 'R1_EXTRA':
          f = open(val[0][0])
@@ -198,6 +195,11 @@ for key, val in vars(parser.parse_args()).items():
          adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
          inputKeys[key] = ['settings_IRC.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
 
+      elif key == 'IRC_1_EXTRA':
+         f = open(val[0][0])
+         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         inputKeys[key] = ['settings_IRC_1.specific.adf.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+
       elif key == 'fragment1_EXTRA':
          f = open(val[0][0])
          adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
@@ -223,6 +225,7 @@ settings_RC    = Settings()
 settings_TS    = Settings()
 settings_P     = Settings()
 settings_IRC   = Settings()
+settings_IRC_1 = Settings()
 settings_Frag1 = Settings()
 settings_Frag2 = Settings()
 settings_Fa    = Settings()
@@ -254,6 +257,10 @@ for key, val in list(inputKeys.items()):
 for key, val in list(inputKeys.items()):
    if key == 'IRC_EXTRA':
       for option in inputKeys['IRC_EXTRA']:
+         exec(option)
+for key, val in list(inputKeys.items()):
+   if key == 'IRC_1_EXTRA':
+      for option in inputKeys['IRC_1_EXTRA']:
          exec(option)
 for key, val in list(inputKeys.items()):
    if key == 'fragment1_EXTRA':
@@ -301,13 +308,15 @@ for key, val in list(inputKeys.items()):
       ts_mol = ircFrags['frag1']
       ts =      adf(templates.ts.overlay(settings_TS), ts_mol, job_name="ts")
       job_list.append(gather(ts))
-      irc = adf(templates.irc.overlay(settings_IRC), ts.molecule, job_name="irc")
+      irc   = adf(templates.irc.overlay(settings_IRC), ts.molecule, job_name="irc", ts_path=ts.kf.path)
+      irc_1 = adf(templates.irc.overlay(settings_IRC_1), ts.molecule, job_name="irc_1", ts_path=ts.kf.path)
+
       realargue = dict((k,v) for k, v in vars(parser.parse_args()).items() if v is not None)
       if 'strain' in realargue.keys():
-         pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa), inputArgues = irc.kf.path , others =  vars(parser.parse_args()), job_name="pyfrag" )
+         pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa), ircArgue = irc.kf.path, irc_1Argue = irc_1.kf.path, others =  vars(parser.parse_args()), job_name="pyfrag" )
       else:
-         pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa), inputArgues = irc.kf.path, inputArgues1 = r1.kf.path,inputArgues2 = r2.kf.path, others =  vars(parser.parse_args()), job_name="pyfrag" )
-      job_list.append(gather(irc, pyfrag))
+         pyfrag = pyfrag(templates.frag1.overlay(settings_Frag1), settings_2 = templates.frag2.overlay(settings_Frag2), settings_3 = templates.fa.overlay(settings_Fa),ircArgue = irc.kf.path, irc_1Argue = irc_1.kf.path, inputArgues1 = r1.kf.path,inputArgues2 = r2.kf.path, others = vars(parser.parse_args()), job_name="pyfrag" )
+      job_list.append(gather(irc, irc_1, pyfrag))
 # Finalize and draw workflow
 wf = gather(*job_list)
 

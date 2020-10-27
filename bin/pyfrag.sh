@@ -10,7 +10,6 @@ VIDEODIR=$PYFRAGVIDEO/"${JOBNAME%.*}"
 JOBSTATE=$JOBDIR/result/jobstate.txt
 REMOTEDIR=$REMOTEBASE/"${JOBNAME%.*}"
 
-
 #set up result dir
 #Each job should be given a unique name, because the result will be stored in the new directory named by the job name.
 random=$(( $RANDOM % 20000 + 5000 ))
@@ -29,8 +28,6 @@ fi
 
 mkdir $VIDEODIR
 cp  -r $PYFRAGHOME/data/video/csv2html $VIDEODIR
-
-
 
 #save all information about job for future check
 
