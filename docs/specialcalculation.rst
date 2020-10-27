@@ -214,8 +214,8 @@ include all terms obtained from the above open shell ASA.
 The second file with the name started with pyfrag2 include the correction energy terms from the correction procedure later.
 
 
-Ne Open Shell ASA (Since ADF 2019)
-----------------------------------
+New Open Shell ASA (Since ADF 2019)
+-----------------------------------
 
 Since ADF 2019, new method to do open-shell fragment analysis has been included. For details, please refer to the ADF_ website.
 
