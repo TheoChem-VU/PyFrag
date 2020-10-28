@@ -243,95 +243,86 @@ The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using ADF 2
    JOBSUB
    #!/bin/bash
    #SBATCH --nodes=1
-   #SBATCH --ntasks-per-node=24
-   #SBATCH --partition=short
-   #SBATCH --time=00:55:00
-   #SBATCH --job-name=FH3CCH3
-   #SBATCH --output=FH3CCH3.out
-   #SBATCH --error=FH3CCH3.err
+   #SBATCH --ntasks-per-node=16
+   #SBATCH --partition=tc
+   #SBATCH --time=24:00:00
+   #SBATCH --job-name=methane
+   #SBATCH --output=methane.out
+   #SBATCH --error=methane.err
+   module load adf/2019.301
    JOBSUB END
 
    ADF
    XC
-     GGA BP86
+     GGA BLYP
+     DISPERSION Grimme3 BJDAMP
    END
+
+   NumericalQuality Excellent
 
    BASIS
      TYPE TZ2P
      CORE None
    END
 
-   NUMERICALQUALITY Excellent
-
-   Relativistic Scalar ZORA
-
    SCF
-     Iterations 300
+     ITERATIONS 300
    END
 
    SYMMETRY AUTO
+   CHARGE 0
    ADF END
-
 
    PyFrag
    ircpath /home/x2sun/methane.amv
-   fragment  1 2 3
-   fragment  4
+   fragment  1 2 3 4
+   fragment  5
    strain    0
    strain    0
-   bondlength 1 4
-
-   overlap frag1 HOMO frag2 HOMO
+   bondlength 1 5
+   overlap A1 frag1 3_A S frag2 1_A
+   overlap A1 frag1 3_B S frag2 1_B
+   overlap A1 frag1 2_B S frag2 1_B
    population frag1 HOMO
    population frag2 HOMO
-   orbitalenergy frag1 HOMO-3
-   orbitalenergy frag1 HOMO-2
-   orbitalenergy frag1 HOMO-1
-   orbitalenergy frag1 LUMO
-   orbitalenergy frag2 LUMO
-   population frag2 LUMO
-   overlap A1 frag1 3_B S frag2 1_B
-   population A1 frag1 3_A
-   population S frag2 1_B
-   orbitalenergy A1 frag1 3_A
-
    PyFrag END
 
+
    fragment1 EXTRA
+   SYMMETRY C(3V)
+   CHARGE 0 1
+   unrestricted
 
-   IrrepOccupations
+   OCCUPATIONS
+   E1 2//2
    A1 3//2
-   B1 1//0
-   B2 1//1
-   End
-   Unrestricted
-   Charge 0 2
-
+   END
    fragment1 EXTRA END
 
+
    fragment2 EXTRA
-
-   IrrepOccupations
-   S 0//1
-   End
-
+   SYMMETRY AUTO
+   CHARGE 0 -1
    Unrestricted
-   Charge 0 -1
 
+   OCCUPATIONS
+   S 0//1
+   END
    fragment2 EXTRA END
+
 
    complex EXTRA
    UnrestrictedFragments
-   Unrestricted
-   charge 0 1
+   unrestricted
    complex EXTRA END
 
 The molecule is methane: ::
 
-   C      0.000000      0.000000      0.000000
-   H      0.541956      0.938695      0.000000
-   H      0.541956     -0.938695      0.000000
-   H     -1.000000      0.000000      0.000000
+   C      -0.88533700      -1.60854000       0.00000000
+   H      -0.50220300      -2.11092900       0.89352900
+   H      -0.50220300      -2.11092900      -0.89352900
+   H      -1.97897100      -1.64799500       0.00000000
+   H      -0.55799500      -0.56431300       0.00000000
 
 
 To submit a job, create a directory and generate a input file and run the following command to submit a job:
