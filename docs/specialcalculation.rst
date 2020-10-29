@@ -293,7 +293,7 @@ The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using ADF 2
    CHARGE 0 1
    unrestricted
 
-   OCCUPATIONS
+   IrrepOccupations
    E1 2//2
    A1 3//2
    END
@@ -305,7 +305,7 @@ The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using ADF 2
    CHARGE 0 -1
    Unrestricted
 
-   OCCUPATIONS
+   IrrepOccupations
    S 0//1
    END
    fragment2 EXTRA END
