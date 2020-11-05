@@ -1,6 +1,4 @@
 from __future__ import unicode_literals
-from six import add_metaclass
-
 import os
 import functools
 import threading
@@ -50,8 +48,8 @@ class _MetaRunner(type):
         dct['call'] = _limit(dct['call'])
         return type.__new__(meta, name, bases, dct)
 
-@add_metaclass(_MetaRunner)
 class JobRunner(object):
+    __metaclass__ = _MetaRunner
     """Class representing local job runner.
 
     The goal of |JobRunner| is to take care of two important things -- parallelization and runscript execution:

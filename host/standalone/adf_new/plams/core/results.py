@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-from six import add_metaclass
 
 import copy
 import functools
@@ -136,8 +135,8 @@ class _MetaResults(type):
 #===================================================================================================
 #===================================================================================================
 
-@add_metaclass(_MetaResults)
 class Results(object):
+    __metaclass__ = _MetaResults
     """General concrete class for job results.
 
     ``job`` attribute stores a reference to associated job. ``files`` attribute is a list with contents of the job folder. ``_rename_map`` is a class attribute with the dictionary storing the default renaming scheme.
