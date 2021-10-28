@@ -155,9 +155,13 @@ init(folder=inputKeys['filename'])
 
 
 settings       = Settings()
+settings.input.ams.Task = 'SinglePoint'
 settings_Frag1 = Settings()
+settings_Frag1.input.ams.Task = 'SinglePoint'
 settings_Frag2 = Settings()
+settings_Frag2.input.ams.Task = 'SinglePoint'
 settings_Fa    = Settings()
+settings_Fa.input.ams.Task = 'SinglePoint'
 
 
 for key, val in list(inputKeys.items()):

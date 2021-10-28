@@ -173,7 +173,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
 
    for ircIndex, ircFrags in enumerate(GetIRCFragmentList(ircStructures, inputKeys['fragment'])):
       outputData = {}
-      outputData['StrainTotal']  = 0
+      outputData['StrainTotal'] = 0
       complexMolecule     = Molecule()      #each molecule is a subject of plams class Molecule()
       ircTag              = '.'+str(ircIndex+1).zfill(5)
       # for fragTag in ircFrags.keys():
@@ -259,7 +259,7 @@ class PyFragResult:
       #energy of total complex which is the sum of Pauli, Elstat and OI
       self.Int                  = complexResult.readkf('Energy', 'Bond Energy')
       #Dispersion Energy
-      self.Disp                  = complexResult.readkf('Energy', 'Dispersion Energy')
+      self.Disp                 = complexResult.readkf('Energy', 'Dispersion Energy')
 
       for key in list(inputKeys.keys()):
          if key == 'overlap' or key == 'population' or key == 'orbitalenergy' or key == 'irrepOI':
@@ -348,7 +348,7 @@ class PyFragResult:
       for matchString in [r'(.*)_A', r'(.*)_B']:
          matchObj = re.match(matchString, orbSign)
          if matchObj:
-            spin = re.sub(r'([0-9]_)',"", matchObj.group())
+            spin = re.sub(r'([0-9]+_)',"", matchObj.group())
             num  = re.sub(r'(_[a-zA-Z]+)',"", matchObj.group())
             return {'spin': spin, 'num': num}
 
@@ -499,4 +499,3 @@ class PyFragResult:
                value.append(Units.convert((complexMolecule[atoms[0]].angle(complexMolecule[atoms[1]], complexMolecule[atoms[2]])), 'rad', 'deg') - od['oriVal'])
             outputData[key] = value
       return GetOutputTable(outputData)
-

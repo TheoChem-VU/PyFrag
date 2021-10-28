@@ -177,13 +177,13 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings, frag1
    for ircIndex, ircFrags in enumerate(GetIRCFragmentList(ircStructures, inputKeys['fragment'])):
       outputData = {}
       outputData_open = {}
-      outputData['StrainTotal']  = 0
+      outputData['StrainTotal']      = 0
       outputData_open['StrainTotal'] = 0
       outputData_open['straintotal'] = 0
       ircFrags_open = copy.deepcopy(ircFrags)
       complexMolecule          = Molecule()      #each molecule is a subject of plams class Molecule()
       complexMolecule_open     = Molecule()
-      ircTag              = '.'+str(ircIndex+1).zfill(5)
+      ircTag                   = '.'+str(ircIndex+1).zfill(5)
       # for fragTag in ircFrags.keys():
       for fragTag in sorted(list(ircFrags.keys())):
          if fragTag == 'frag1':
@@ -202,10 +202,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings, frag1
             exec ("complexSettings.input.Fragments." + fragTag + "=" + '"' +  inputKeys['jobstate'] + "/" + fragTag + ircTag + "/" + fragTag + ircTag + ".t21" + '"')
          else:
             exec ("complexSettings.input.Fragments." + fragTag + "=" + '"' + jobFrag.results._kfpath() + '"')
-         #get strain and total strain which is the energy difference between current and previous geometry.
-         # outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - inputKeys['strain'][fragTag]
-         # outputData['StrainTotal'] += outputData[fragTag + 'Strain']
-         #reorganize new complex from fragments by appending fragment label. Beware the atomic orders maybe changed
+
          for atom in ircFrags[fragTag]:
             atom.fragment = fragTag
             complexMolecule.add_atom(atom)
@@ -295,7 +292,7 @@ class PyFragResult:
       #energy of total complex which is the sum of Pauli, Elstat and OI
       self.Int                  = complexResult.readkf('Energy', 'Bond Energy')
       #Dispersion Energy
-      self.Disp                  = complexResult.readkf('Energy', 'Dispersion Energy')
+      self.Disp                 = complexResult.readkf('Energy', 'Dispersion Energy')
 
       for key in list(inputKeys.keys()):
          if key == 'overlap' or key == 'population' or key == 'orbitalenergy' or key == 'irrepOI':
@@ -310,7 +307,7 @@ class PyFragResult:
             #occupation of each orbitals which is either 0 or 2
             self.orbOccupation        = complexResult.readkf('SFOs', 'occupation')
             #number of orbitals for each symmetry for complex
-            self.irrepOrbNumber          = complexResult.readkf('Symmetry', 'norb')
+            self.irrepOrbNumber       = complexResult.readkf('Symmetry', 'norb')
             #irrep label for symmetry of complex
             self.irrepType            = str(complexResult.readkf('Symmetry', 'symlab')).split()
             self.coreOrbNumber        = complexResult.readkf('Symmetry', 'ncbs')
@@ -434,8 +431,8 @@ class PyFragResult:
       outputData['Elstat']  = Units.convert(self.Elstat, 'hartree', 'kcal/mol')
       outputData['OI']      = Units.convert(self.OI, 'hartree', 'kcal/mol')
       outputData['Int']     = Units.convert(self.Int, 'hartree', 'kcal/mol')
-      outputData['Disp']     = Units.convert(self.Disp, 'hartree', 'kcal/mol')
-      outputData['EnergyTotal']  = Units.convert(self.Int, 'hartree', 'kcal/mol') + outputData['StrainTotal']
+      outputData['Disp']    = Units.convert(self.Disp, 'hartree', 'kcal/mol')
+      outputData['EnergyTotal'] = Units.convert(self.Int, 'hartree', 'kcal/mol') + outputData['StrainTotal']
       #collect user defined data
       for key, val in list(inputKeys.items()):
          value = []
@@ -475,4 +472,3 @@ class PyFragResult:
                value.append(Units.convert((complexMolecule[atoms[0]].angle(complexMolecule[atoms[1]], complexMolecule[atoms[2]])), 'rad', 'deg') - od['oriVal'])
             outputData[key] = value
       return GetOutputTable(outputData)
-

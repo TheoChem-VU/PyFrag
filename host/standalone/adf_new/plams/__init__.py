@@ -1,19 +1,23 @@
-from .core.basejob import *
-from .core.basemol import *
-from .core.common import *
-from .core.errors import *
-from .core.jobrunner import *
-from .core.jobmanager import *
-from .core.results import *
-from .core.settings import *
+def __autoimport(path, folders):
+    import os
+    from os.path import join as opj
+    is_module = lambda x: x.endswith('.py') and not x.startswith('__init__')
 
-from .tools.kftools import *
-from .tools.pdbtools import *
-from .tools.numdiff import *
-from .tools.utils import *
+    ret = []
+    for folder in folders:
+        for dirpath, dirnames, filenames in os.walk(opj(path,folder)):
+            modules = [os.path.splitext(f)[0] for f in filter(is_module, filenames)]
+            relpath = os.path.relpath(dirpath, path).split(os.sep)
+            for module in modules:
+                imp = '.'.join(relpath + [module])
+                tmp = __import__(imp, globals=globals(), fromlist=['*'], level=1)
+                if hasattr(tmp, '__all__'):
+                    ret += tmp.__all__
+                    for name in tmp.__all__:
+                        globals()[name] = vars(tmp)[name]
+    return ret
 
-from .interfaces.adfsuite import *
-from .interfaces.cp2k import *
-from .interfaces.dirac import *
-from .interfaces.gamess import *
-from .interfaces.orca import *
+
+__all__ = __autoimport(__path__[0], ['core', 'mol', 'interfaces', 'tools', 'recipes','trajectories'])
+
+__version__ = 1.4

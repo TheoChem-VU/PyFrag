@@ -127,7 +127,7 @@ for key, val in vars(parser.parse_args()).items():
 
       elif key == 'adfinputfile':
          f = open(val[0][0])
-         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
+         adfinputLine = [(line.split('=',1)) for line in f.readlines()]
          adfGeneral = ['settings.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
          adfFrag1 = ['settings_Frag1.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
          adfFrag2 = ['settings_Frag2.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]

@@ -9,6 +9,12 @@ PyFrag 2019
 ###########
 See documentation_ for tutorials and documentation.
 
+
+NOTICE(October 28 2021)
+=======================
+Since ADF2019, the ADF has been reconfigured and renamed as AMS2020 and AMS2021. Accordingly the format of input has also changed a lot. PyFrag has now been updated as well to be compatible with these changes. Old users can delete old version and reinstall the new version. If user still chooses ADF2019 or older version of ADF as the computational engine, one can use the command ``pyfrag -x adfold job.in`` to invoke PyFrag.
+
+
 Motivation
 ==========
 The PyFrag 2019 program was specially designed to facilitate the analysis of reaction mechanism in a more efficient and user-friendly way. The original `PyFrag 2008`_ workflow facilitated the characterization of reaction mechanisms in terms of the intrinsic properties, such as strain and interaction, of the reactants. This approach is routinely applied in the `Bickelhaupt Group`_ to understand numerous organic, inorganic, and biomolecular reactions/processes. The new PyFrag 2019  program has automated and reduced the time-consuming and laborious task of setting up, running, analyzing, and visualizing computational data from reaction mechanism studies to a single job. PyFrag 2019 resolves three main challenges associated with the automatized computational exploration of reaction mechanisms: 1) the management of multiple parallel calculations to automatically find a reaction path; 2) the monitoring of the entire computational process along with the extraction and plotting of relevant information from large amounts of data; and 3) the analysis and presentation of these data in a clear and informative way. The activation strain and canonical energy decomposition results that are generated, relate the characteristics of the reaction profile in terms of intrinsic properties (strain, interaction, orbital overlaps, orbital energies, populations) of the reactant species.
@@ -18,7 +24,7 @@ Description
 ===========
 
 Usage
-------------
+-----
 
 In order to see all the commands that can be used in this program, the user can type pyfrag -h, which will show: ::
 

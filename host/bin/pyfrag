@@ -39,7 +39,7 @@ then
     echo "                   : gaussian, which use gaussian as engine"
     echo "                   : orca, which use orca as engine"
     echo "                   : turbomole, use turbomole as engine"
-    echo "                   : pyfragold, which use old pyfrag"
+    echo "                   : adfold, which use ADF before 2020"
     echo "                   : default command is adf itself"
     echo "The example command is like as follow, in which job.in is job input"
     echo "pyfrag job.in"
