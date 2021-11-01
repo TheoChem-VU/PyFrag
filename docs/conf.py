@@ -110,8 +110,7 @@ html_sidebars = {
         'about.html',
         'navigation.html',
         'relations.html',  # needs 'show_related': True theme option to display
-        'searchbox.html',
-        'donate.html',
+        'searchbox.html'
     ]
 }
 
@@ -146,7 +145,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'PyFrag.tex', 'PyFrag Documentation',
+    (master_doc,  'PyFrag Documentation',
      'X. Sun', 'manual'),
 ]
 
