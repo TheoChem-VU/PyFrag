@@ -60,5 +60,5 @@ PREZIP="$HOME/pyfrag.zip"
 unzip "$PREZIP"
 rm -rf $PREZIP
 mv "$HOME"/sunxb05-PyFrag*/host $HOME/pyfrag
-chmod -x $HOME/pyfrag/bin/*
+chmod +x $HOME/pyfrag/bin/*
 rm -r "$HOME"/sunxb05-PyFrag*
