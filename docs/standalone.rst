@@ -139,7 +139,87 @@ The basic PyFrag 2019 input for the Activation Strain Analysis (ASA) using Gauss
    0 1
    END INPUT
 
-The first section between INPUT_SPECS and END INPUT_SPECS is used to define fragment and provide coordinate path. The second section between END INPUT_SPECS and END INPUT is used to do Gaussian parameter set up. To submit a job, create a directory and generate a input file and run the following command to submit a job:
+
+The first section between INPUT_SPECS and END INPUT_SPECS is used to define fragment and provide coordinate path. The second section between END INPUT_SPECS and END INPUT is used to do Gaussian parameter set up.
+
+User can also specify different parameters for fragment 1, fragment 2 and tatol complex in the extra section such as between EXTRA frag1 and END EXTRA frag1 using input example as below: ::
+
+   INPUT_SPECS
+   type = IRC
+   output file = Ethylene-forward.amv
+   fa1_name = complex
+   frag1 = C4H6
+   1.C
+   2.H
+   3.C
+   4.H
+   5.C
+   6.H
+   7.C
+   8.H
+   13.H
+   14.H
+   end frag1
+   frag2 = C2H4
+   9.C
+   10.C
+   11.H
+   12.H
+   15.H
+   16.H
+   end frag2   
+
+   print bond 1 9 1.384
+   print strain frag1  1000
+   print strain frag2  2000   
+
+   END INPUT_SPECS   
+
+   END INPUT   
+   
+
+   EXTRA frag1
+   "g09" <<eor 
+
+   %nprocs=16
+   %mem=14000mb
+   #OPBE/6-31G* -1   
+
+   Comments    
+
+   0 1
+   END EXTRA frag1   
+   
+
+   EXTRA frag2
+   "g09" <<eor 
+
+   %nprocs=16
+   %mem=14000mb
+   #OPBE/6-31G* 0 
+
+   Comments 
+
+   0 1
+   END EXTRA frag2   
+   
+
+   EXTRA fa 
+
+   "g09" <<eor 
+
+   %nprocs=16
+   %mem=14000mb
+   #OPBE/6-31G* -1   
+
+   Comments 
+
+   0 1
+   END EXTRA fa
+
+
+
+To submit a job, create a directory and generate a input file and run the following command to submit a job:
 
 ``pyfrag -x gaussian job.in``
 

@@ -194,17 +194,19 @@ def new_adf(adfscript, dir, name, name_t21, atoms_block, extra, fragments = Fals
         fragments = False: Here, a new fragment block can be passed into the adfscript for fragment analysis"""
 
         # finding and changing the eor statement at beginning and end of adfscript.
+        if extra: adfscript = extra
         eor = re.findall(r'<<\s*[^\s>]+', adfscript)[0]
         eor = re.sub(r'[<\s]*', '', eor)
         new_adfscript = re.compile(r'ATOMS.*?END', re.DOTALL|re.IGNORECASE).sub('', adfscript)
         new_adfscript = re.sub(r'<<.*', '<<eor> '+ shelljoin(dir,name +'.out'), new_adfscript)
         new_adfscript = re.sub(r'[^<a-zA-Z0-9]'+eor, '\neor\n', new_adfscript)
-        new_adfscript = re.compile(r'end input', re.IGNORECASE).sub(atoms_block + '\n'+extra+'\neor\n', new_adfscript)
+        if extra: new_adfscript = new_adfscript + 'END INPUT'
+        new_adfscript = re.compile(r'END INPUT', re.IGNORECASE).sub(atoms_block + '\n'+'\neor\n', new_adfscript)
 
         for i in range(10):
             new_adfscript = re.sub(r'\n\n\n', '\n\n', new_adfscript)
         starting = """
- ====================== Starting ADF with inputscript: =========================
+ ====================== Starting Gaussian with inputscript: =========================
 
 """
         sys.stdout.write(starting)
@@ -341,16 +343,13 @@ import os, string, re, math, sys, tarfile, shutil, tempfile, time
 # Description / Header
 header = """
  ===============================================================================
- *  Pyfrag 2019.02                                                             *
+ *  Pyfrag 2019                                                                *
  *  Streamlining your reaction path analysis!                                  *
  *                                                                             *
- *  Author: Willem-Jan van Zeist                                               *
- *
+ *  Author: Xiaobo Sun                                                         *
+ *  For more information, please read                                          *
+ *  https://pyfragdocument.readthedocs.io/en/latest/standalone.html            *
  *                                                                             *
- *  Find the manual at http://www.few.vu.nl/~wolters/pyfrag/                   *
- *  For some examples on how to use PyFrag, see the examples directory.        *
- *                                                                             *
- *  E-mail for PyFrag: LP.Wolters@vu.nl                                        *
  ===============================================================================
 """
 sys.stdout.write(header)
@@ -433,12 +432,10 @@ if pp.StrainFrag1.args is not None and pp.StrainFrag2.args is not None:
     pp.add("StrainTotal", unit='kcal/mol')
     pp.add("EnergyTotal", unit='kcal/mol')
 
-print_comment_out('Read print statements')
-
 # Extra, if not present, they will be set as empty string and always passed on to the adfscript
-extra_frag1 = get_input_block(specs, r'EXTRA\s*frag1', r'END\s*EXTRA\s*frag1')
-extra_frag2 = get_input_block(specs, r'EXTRA\s*frag2', r'END\s*EXTRA\s*frag2')
-extra_fa = get_input_block(specs, r'EXTRA\s*fa1?', r'END\s*EXTRA\s*fa')
+extra_frag1 = get_input_block(adfscript, r'EXTRA\s*frag1', r'END\s*EXTRA\s*frag1')
+extra_frag2 = get_input_block(adfscript, r'EXTRA\s*frag2', r'END\s*EXTRA\s*frag2')
+extra_fa = get_input_block(adfscript, r'EXTRA\s*fa1?', r'END\s*EXTRA\s*fa')
 
 # Reads specified names for fragments and fa-files
 name_frag1 = get_input_line(specs, r'\s*frag1\s*=(.*)', default='frag1')
@@ -570,7 +567,7 @@ pp.Point.pwidth = len("Point") + 2
 if pp.Point.pwidth < len(str(number_of_loops)) + 2: pp.Point.pwidth = len(str(number_of_loops)) + 2
 
 print_comment_out('PyFrag Initilization done')
-print_comment_out('Starting to run the ADF jobs')
+print_comment_out('Starting to run the Gaussian jobs')
 
 # giant loop for both sp and irc/lt, for the latter it makes the fragment inputfiles
 for i in calc_points:
