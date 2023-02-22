@@ -23,7 +23,9 @@ if [ -f "$BASH_RC" ]; then
 cat <<EOF >> "$BASH_RC"
 # added by PyFrag installer
 export PATH="$HOME/miniconda/bin:\$PATH"
-export HOSTPYFRAG="$HOME/pyfrag"
+export HOST
+
+PYFRAG="$HOME/pyfrag"
 export PATH="\$HOSTPYFRAG/bin:\$PATH"
 export QMWORKS="$HOME/miniconda/envs/qmworks"
 export USERNAME="$USER"
@@ -71,12 +73,12 @@ conda install h5py==2.6.0 || exit 1
 conda install -c rdkit rdkit==2018.03.4.0  || exit 1
 
 
-pip install --no-cache-dir git+https://github.com/sunxb05/PyFrag@master#egg=qmworks-0.0.1    || exit 1
+pip install --no-cache-dir git+https://github.com/TheoChem-VU/PyFrag@master#egg=qmworks-0.0.1    || exit 1
 
 
-curl -L -o pyfrag.zip  https://github.com/sunxb05/PyFrag/zipball/master/
+curl -L -o pyfrag.zip  https://github.com/TheoChem-VU/PyFrag/zipball/master/
 PREZIP="$HOME/pyfrag.zip"
 unzip "$PREZIP"
 rm -rf $PREZIP
-mv "$HOME"/sunxb05-PyFrag*/host $HOME/pyfrag
-rm -r "$HOME"/sunxb05-PyFrag*
+mv "$HOME"/TheoChem-VU-PyFrag*/host $HOME/pyfrag
+rm -r "$HOME"/TheoChem-VU-PyFrag*
