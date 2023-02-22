@@ -55,10 +55,10 @@ source "$HOME"/.bash_profile
 fi
 
 
-curl -L -o pyfrag.zip  https://github.com/sunxb05/PyFrag/zipball/master/
+curl -L -o pyfrag.zip  https://github.com/TheoChem-VU/PyFrag/zipball/master/
 PREZIP="$HOME/pyfrag.zip"
 unzip "$PREZIP"
 rm -rf $PREZIP
-mv "$HOME"/sunxb05-PyFrag*/host $HOME/pyfrag
+mv "$HOME"/TheoChem-VU-PyFrag*/host $HOME/pyfrag
 chmod +x $HOME/pyfrag/bin/*
-rm -r "$HOME"/sunxb05-PyFrag*
+rm -r "$HOME"/TheoChem-VU-PyFrag*
