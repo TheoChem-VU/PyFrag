@@ -112,7 +112,7 @@ if ! which curl >/dev/null 2>&1; then
     exit 1
 fi
 
-curl -L -o pyfrag.zip  https://github.com/sunxb05/PyFrag/zipball/master/
+curl -L -o pyfrag.zip  https://github.com/TheoChem-VU/PyFrag/zipball/master/
 
 
 PREZIP="$PREFIX/pyfrag.zip"
@@ -121,7 +121,7 @@ unzip "$PREZIP"
 
 rm -rf $PREZIP
 
-mv "$PREFIX"/sunxb05-PyFrag* "$PREFIX"/pyfrag
+mv "$PREFIX"/TheoChem-VU-PyFrag* "$PREFIX"/pyfrag
 
 
 PYFRAG_RC="$PREFIX"/pyfrag/.pyfragrc
