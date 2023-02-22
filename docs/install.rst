@@ -7,17 +7,17 @@ The user may choose to only install the part of the program needed to perform th
 
 To install the ASA module of PyFrag 2019, the user must complete the following step. Go to your host machine (supercomputer or cluster), open a terminal and run the following command:
 
-``curl -L -o install_alone.sh https://raw.githubusercontent.com/sunxb05/PyFrag/master/install_alone.sh``
+``curl -L -o install_alone.sh https://raw.githubusercontent.com/TheoChem-VU/PyFrag/master/install_alone.sh``
 
 ``bash install_alone.sh``
 
 To run a simple test, open a terminal window on your host machine, make a directory, enter into that directory and run the following command to download the job input file (job.in) and coordinate file (molecule.xyz):
 
 ``curl -L -o job.in``
-``https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/adf_new/example/job.in``
+``https://raw.githubusercontent.com/TheoChem-VU/PyFrag/master/host/standalone/adf_new/example/job.in``
 
 ``curl -L -o molecule.xyz``
-``https://raw.githubusercontent.com/sunxb05/PyFrag/master/host/standalone/adf_new/example/molecule.xyz``
+``https://raw.githubusercontent.com/TheoChem-VU/PyFrag/master/host/standalone/adf_new/example/molecule.xyz``
 
 Change the ircpath and the submit information, such as the number of nodes and wall time, located in job.in using vim or any other text editor according to your situation, and run:
 
@@ -36,20 +36,20 @@ To install and test PyFrag 2019, the user must perform the following three steps
 
 ``xcode-select --install``
 
-``curl -L -o install_local.sh https://raw.githubusercontent.com/sunxb05/PyFrag/master/install_local.sh``
+``curl -L -o install_local.sh https://raw.githubusercontent.com/TheoChem-VU/PyFrag/master/install_local.sh``
 
 ``bash install_local.sh``
 
 
 2) Go to your host machine (supercomputer or cluster), open a terminal window and run the following command:
 
-``curl -L -o install_host.sh https://raw.githubusercontent.com/sunxb05/PyFrag/master/install_host.sh``
+``curl -L -o install_host.sh https://raw.githubusercontent.com/TheoChem-VU/PyFrag/master/install_host.sh``
 
 ``bash install_host.sh``
 
 3)  Open a terminal window on your local machine, make a directory, enter into that directory and run the following command:
 
-``curl -L -o job.in https://raw.githubusercontent.com/sunxb05/PyFrag/master/example/job.in``
+``curl -L -o job.in https://raw.githubusercontent.com/TheoChem-VU/PyFrag/master/example/job.in``
 
 Change the submit information, such as the number of nodes and wall time, located in job.in using vim or any other text editor, and run:
 
@@ -61,7 +61,7 @@ To obtain the latest information about your job, the user can run:
 
 
 .. _PyFrag 2008: http://www.few.vu.nl/~xsn800/Home.html
-.. _standalone: https://github.com/sunxb05/PyFrag/tree/master/host/standalone
+.. _standalone: https://github.com/TheoChem-VU/PyFrag/tree/master/host/standalone
 .. _PyFrag 2019: https://sunxb05.github.io/pyfrag/
 .. _Gaussian:   http://gaussian.com
 .. _ADF:       https://www.scm.com
