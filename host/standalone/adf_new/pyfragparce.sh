@@ -23,8 +23,8 @@ done < "$pyfrag"
 function adfargue {
 adf=$*
 
-Mark=(scf xc basis BECKEGRID EPRINT OCCUPATIONS ZLMFIT Properties)
-SMark=(numericalquality relativistic symmetry unrestricted)
+Mark=(scf xc basis BeckeGrid EPRINT OCCUPATIONS ZLMFIT Properties REMOVEFRAGORBITALS)
+SMark=(numericalquality relativistic symmetry unrestricted STOFIT Print REMOVEALLFRAGVIRTUALS)
 
 
 for item in ${Mark[*]}
