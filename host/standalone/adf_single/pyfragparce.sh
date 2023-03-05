@@ -61,9 +61,9 @@ done
 input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
-grep  -A 200 'JOBSUB' $input | grep -B 200 'JOBSUB END' | grep -v 'JOBSUB' | grep -v 'JOBSUB END' > jobsub.txt
-grep  -A 200 'ADF' $input | grep -B 200 'ADF END' | grep -v 'ADF' | grep -v 'ADF END' > adf.txt
-grep  -A 200 'PyFrag' $input | grep -B 200 'PyFrag END' | grep -v 'PyFrag' | grep -v 'PyFrag END' > pyfrag.txt
+sed -n '/^JOBSUB$/,/^JOBSUB END$/{//!p;}' $input > jobsub.txt
+sed -n '/^ADF$/,/^ADF END$/{//!p;}' $input > adf.txt
+sed -n '/^PyFrag$/,/^PyFrag END$/{//!p;}' $input > pyfrag.txt
 
 submit="python3 \$HOSTPYFRAG/standalone/adf_single/PyFrag.py \\"
 subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile \\"

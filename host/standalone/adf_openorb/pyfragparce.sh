@@ -12,7 +12,7 @@ done < "$pyfrag"
 input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
-grep  -A 200 'PyFrag' $input | grep -B 200 'PyFrag END' | grep -v 'PyFrag' | grep -v 'PyFrag END' > pyfrag.txt
+sed -n '/^PyFrag$/,/^PyFrag END$/{//!p;}' $input > pyfrag.txt
 
 submit="python3 \$HOSTPYFRAG/standalone/adf_openorb/PyFrag.py \\"
 

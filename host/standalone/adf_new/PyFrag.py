@@ -1,10 +1,12 @@
-#from scm.plams import *
-from plams import *
+from scm.plams import *
+import os
+import shutil
+# from plams import *
 import argparse as ag
-from  PyFragModules  import PyFragDriver, WriteTable, WriteFailFiles
+from  PyFragModules  import PyFragDriver, WriteTable, WriteFailFiles, HandleRestart
 """
 Pyfrag 3
-Authors: Xiaobo Sun; Thomas Soini
+Authors: Xiaobo Sun; Thomas Soini; Siebe Lekanne Deprez
 
 This program has the following functionalities:
 1: Reads in a series of Linear Transit or IRC structures (coordinate files or t21).
@@ -14,7 +16,7 @@ This program has the following functionalities:
 4: The program will generate a text file containing the decomposition energies plus other, user defined, values such as the strain energy.
 
 Example use:
-startpython PyFrag.py  --ircpath structuresIRC_CH3N.irc --fragment 1 3 4 --fragment 2 5 --strain 0 --strain 0 --adfinput basis.type=DZ
+amspython PyFrag.py  --ircpath structuresIRC_CH3N.irc --fragment 1 3 4 --fragment 2 5 --strain 0 --strain 0 --adfinput basis.type=DZ
 
 For the earlier version (PyFrag 2.0) please see http://www.few.vu.nl/~wolters/pyfrag/
 """
@@ -43,6 +45,7 @@ parser.add_argument("--name", type=str, action='append', nargs='*', help='provid
 inputKeys = {'jobstate':None, 'filename':None}
 for key, val in vars(parser.parse_args()).items():
    if val != None:
+      # print(f"Key = {key} \nValue = {val}") # for debugging
       inputValue = []
       if key == 'overlap':
          for term in val:
@@ -111,39 +114,13 @@ for key, val in vars(parser.parse_args()).items():
                inputValue.append(({'angleDef': [term[0], term[1], term[2]], 'oriVal': term[3]}))
          inputKeys[key] = inputValue
 
-      # elif key == 'adfinput':
-      #    adfinputList   = [(term.split('=')) for term in val[0]]
-      #    adfComplex     = ['sett.input.'+adfkey+'="'+keyval+'"' for adfkey, keyval in adfinputList]
-      #    adfFrag1       = ['sett1.input.'+adfkey+'="'+keyval+'"' for adfkey, keyval in adfinputList]
-      #    adfFrag2       = ['sett2.input.'+adfkey+'="'+keyval+'"' for adfkey, keyval in adfinputList]
-      #    inputKeys[key] = adfComplex + adfFrag1 + adfFrag2
-
-      elif key == 'adfinputfile':
-         f = open(val[0][0])
-         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
-         adfGeneral = ['settings.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         adfFrag1 = ['settings_Frag1.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         adfFrag2 = ['settings_Frag2.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         adfComplex = ['settings_Fa.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         inputKeys[key] = adfGeneral + adfFrag1 + adfFrag2 + adfComplex
-
-      elif key == 'fragment1_EXTRA':
-         f = open(val[0][0])
-         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
-         inputKeys[key] = ['settings_Frag1.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-
-      elif key == 'fragment2_EXTRA':
-         f = open(val[0][0])
-         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
-         inputKeys[key] = ['settings_Frag2.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-
-      elif key == 'complex_EXTRA':
-         f = open(val[0][0])
-         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
-         inputKeys[key] = ['settings_Fa.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
+      elif (key == 'adfinputfile' or key == 'fragment1_EXTRA' or key == 'fragment2_EXTRA' or key == 'complex_EXTRA'):
+         inputKeys[key] = val[0][0]
 
       elif key == 'restartjob':
-         inputKeys['jobstate'] = val[0][0]
+         # val[0][0] is the restart directory which may be changed with a .0x extension by the HandleRestart function
+         # function is imported from the PyFragModules.py module
+         inputKeys['jobstate'] = HandleRestart(val[0][0]) 
 
       elif key == 'name':
          inputKeys['filename'] = val[0][0]
@@ -152,41 +129,31 @@ for key, val in vars(parser.parse_args()).items():
          inputKeys[key] = [term for term in val]
 
 init(folder=inputKeys['filename'])
+workdir_path = config.default_jobmanager.workdir
 
+settings_general = AMSJob.from_inputfile(inputKeys['adfinputfile']).settings
+settings_Frag1   = settings_general.copy() # copy is necessary to avoid linking errors when changing settings
+settings_Frag2   = settings_general.copy()
+settings_Complex = settings_general.copy()
 
-settings       = Settings()
-settings.input.ams.Task = 'SinglePoint'
-settings_Frag1 = Settings()
-settings_Frag1.input.ams.Task = 'SinglePoint'
-settings_Frag2 = Settings()
-settings_Frag2.input.ams.Task = 'SinglePoint'
-settings_Fa    = Settings()
-settings_Fa.input.ams.Task = 'SinglePoint'
+for extra_input, extra_input_path in inputKeys.items():
+   if extra_input == 'fragment1_EXTRA':
+      settings_Frag1 += AMSJob.from_inputfile(extra_input_path).settings
+   if extra_input == 'fragment2_EXTRA':
+      settings_Frag2 += AMSJob.from_inputfile(extra_input_path).settings
+   if extra_input == 'complex_EXTRA':
+      settings_Complex += AMSJob.from_inputfile(extra_input_path).settings
 
-
-for key, val in list(inputKeys.items()):
-   if key == 'adfinputfile':
-      for option in inputKeys['adfinputfile']:
-         exec(option)
-for key, val in list(inputKeys.items()):
-   if key == 'fragment1_EXTRA':
-      for option in inputKeys['fragment1_EXTRA']:
-         exec(option)
-for key, val in list(inputKeys.items()):
-   if key == 'fragment2_EXTRA':
-      for option in inputKeys['fragment2_EXTRA']:
-         exec(option)
-for key, val in list(inputKeys.items()):
-   if key == 'complex_EXTRA':
-      for option in inputKeys['complex_EXTRA']:
-         exec(option)
-
-tableValue, fileName, failStructures = PyFragDriver(inputKeys, settings_Frag1, settings_Frag2, settings_Fa)
+tableValue, fileName, failStructures = PyFragDriver(inputKeys, settings_Frag1, settings_Frag2, settings_Complex)
 
 WriteTable(tableValue, fileName)
 if failStructures is not None:
    WriteFailFiles(failStructures, fileName)
 
-
+# Remove extra files
+[os.remove(os.path.join(workdir_path.rsplit('/', 1)[0], filename)) for filename in ["fragment1_EXTRA", "fragment2_EXTRA", "complex_EXTRA", "sub", "adfinputfile"]] 
+# Remove the restart directory if it exists. Note: this is a quite dangerous operation
+if inputKeys['jobstate'] is not None:
+    shutil.rmtree(inputKeys['jobstate'])
 finish()
 

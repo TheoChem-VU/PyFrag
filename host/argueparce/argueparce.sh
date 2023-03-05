@@ -113,20 +113,20 @@ rm geometry.txt
 input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
-grep  -A 200 'JOBSUB' $input | grep -B 200 'JOBSUB END' | grep -v 'JOBSUB' | grep -v 'JOBSUB END' > jobsub.txt
-grep  -A 200 'ADF' $input | grep -B 200 'ADF END' | grep -v 'ADF' | grep -v 'ADF END' > adf.txt
-grep  -A 200 'PyFrag' $input | grep -B 200 'PyFrag END' | grep -v 'PyFrag' | grep -v 'PyFrag END' > pyfrag.txt
-grep  -A 200 'Geometrycoor' $input | grep -B 200 'Geometrycoor END' | grep -v 'Geometrycoor' | grep -v 'Geometrycoor END' > coor.xyz
-grep  -A 200 'R1 EXTRA' $input | grep -B 200 'R1 EXTRA END' | grep -v 'R1 EXTRA' | grep -v 'R1 EXTRA END' > R1_EXTRA.txt
-grep  -A 200 'R2 EXTRA' $input | grep -B 200 'R2 EXTRA END' | grep -v 'R2 EXTRA' | grep -v 'R2 EXTRA END' > R2_EXTRA.txt
-grep  -A 200 'RC EXTRA' $input | grep -B 200 'RC EXTRA END' | grep -v 'RC EXTRA' | grep -v 'RC EXTRA END' > RC_EXTRA.txt
-grep  -A 200 'TS EXTRA' $input | grep -B 200 'TS EXTRA END' | grep -v 'TS EXTRA' | grep -v 'TS EXTRA END' > TS_EXTRA.txt
-grep  -A 200 'P EXTRA' $input | grep -B 200 'P EXTRA END' | grep -v 'P EXTRA' | grep -v 'P EXTRA END'     > P_EXTRA.txt
-grep  -A 200 'IR EXTRA' $input | grep -B 200 'IR EXTRA END' | grep -v 'IR EXTRA' | grep -v 'IR EXTRA END' > IRC_EXTRA.txt
-grep  -A 200 'IR_1 EXTRA' $input | grep -B 200 'IR_1 EXTRA END' | grep -v 'IR_1 EXTRA' | grep -v 'IR_1 EXTRA END' > IRC_1_EXTRA.txt
-grep  -A 200 'fragment1 EXTRA' $input | grep -B 200 'fragment1 EXTRA END' | grep -v 'fragment1 EXTRA' | grep -v 'fragment1 EXTRA END' > fragment1_EXTRA.txt
-grep  -A 200 'fragment2 EXTRA' $input | grep -B 200 'fragment2 EXTRA END' | grep -v 'fragment2 EXTRA' | grep -v 'fragment2 EXTRA END' > fragment2_EXTRA.txt
-grep  -A 200 'complex EXTRA' $input | grep -B 200 'complex EXTRA END' | grep -v 'complex EXTRA' | grep -v 'complex EXTRA END' > complex_EXTRA.txt
+sed -n '/^JOBSUB$/,/^JOBSUB END$/{//!p;}' $input > jobsub.txt
+sed -n '/^ADF$/,/^ADF END$/{//!p;}' $input > adf.txt
+sed -n '/^PyFrag$/,/^PyFrag END$/{//!p;}' $input > pyfrag.txt
+sed -n '/^Geometrycoor$/,/^Geometrycoor END$/{//!p;}' $input > coor.xyz
+sed -n '/^R1 EXTRA$/,/^R1 EXTRA END$/{//!p;}' $input > R1_EXTRA.txt
+sed -n '/^R2 EXTRA$/,/^R2 EXTRA END$/{//!p;}' $input > R2_EXTRA.txt
+sed -n '/^RC EXTRA$/,/^RC EXTRA END$/{//!p;}' $input > RC_EXTRA.txt
+sed -n '/^TS EXTRA$/,/^TS EXTRA END$/{//!p;}' $input > TS_EXTRA.txt
+sed -n '/^P EXTRA$/,/^P EXTRA END$/{//!p;}' $input > P_EXTRA.txt
+sed -n '/^IR EXTRA$/,/^IR EXTRA END$/{//!p;}' $input > IRC_EXTRA.txt
+sed -n '/^IR_1 EXTRA$/,/^IR_1 EXTRA END$/{//!p;}' $input > IRC_1_EXTRA.txt
+sed -n '/^fragment1 EXTRA$/,/^fragment1 EXTRA END$/{//!p;}' $input > fragment1_EXTRA.txt
+sed -n '/^fragment2 EXTRA$/,/^fragment2 EXTRA END$/{//!p;}' $input > fragment2_EXTRA.txt
+sed -n '/^complex EXTRA$/,/^complex EXTRA END$/{//!p;}' $input > complex_EXTRA.txt
 
 
 submit="$QMWORKS/bin/python3 $HOSTPYFRAG/job.py \\"

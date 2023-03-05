@@ -1,6 +1,29 @@
-#from scm.plams import *
+from scm.plams import *
 import re
-from plams import *
+import os
+# from plams import *
+
+def HandleRestart(foldername):
+   """
+   Copied mostly from the plams routine on restarting jobs
+   https://github.com/SCM-NV/PLAMS/blob/master/scripts/plams 
+   Input:
+      foldername (str): the foldername to restart from
+   """
+   if os.path.isdir(foldername):
+      foldername = foldername.rstrip('/')
+      if os.listdir(foldername):
+            restart_backup = f"{foldername}.res"
+            n = 1
+            while os.path.exists(restart_backup):
+               n += 1
+               restart_backup = f"{foldername}.res{str(n)}"
+            os.rename(foldername, restart_backup)
+            print(f'RESTART: Moving {foldername} to {restart_backup} and restarting from it')
+   else:
+      print('RESTART: The folder specified for restart does not exist.')
+   return restart_backup
+
 def ReadIRCPath(f, tag, offset):
    # split all data into different block each of which represent one molecular structure in IRC
    if f.read(tag, 'PathStatus').strip() == 'DONE' or f.read(tag, 'PathStatus').strip() == 'EXEC':
@@ -39,7 +62,6 @@ def ReadLTt21(fileName):
    tmpList        = f.read('LT', 'xyz')
    matrixLT       = [tmpList[i:i+3*nAtoms] for i in range(0, len(tmpList), 3*nAtoms)]
    return [[[s, x, y, z] for s, x, y, z in zip(sAtoms, xyzBlock[0::3], xyzBlock[1::3], xyzBlock[2::3])] for xyzBlock in matrixLT]
-
 
 def ParseIRCFile(ircCoordFile):
    # read xyz file like amv file exported from adfinput
@@ -91,7 +113,7 @@ def GetOutputTable(data):
          outputTable[key] = val
    return outputTable
 
-def writeKey(file, value, pform=r'%7.3f', ljustwidth=16):
+def writeKey(file, value, pform=r'%7.5f', ljustwidth=16):
    # write all data into a file.Keep 7 digits and 5 decimals and the width of each entry is 16
    for val in value:
       if val is None:
@@ -104,7 +126,7 @@ def writeKey(file, value, pform=r'%7.3f', ljustwidth=16):
    file.write('\n')
 
 def WriteTable(tableValues, fileName):
-   energyfile  = open('pyfrag'+fileName+'.txt', "w")
+   energyfile  = open(f"pyfrag_{fileName}.txt", "w")
    headerlist_all  = sorted(tableValues[0])
    # check if bondlength exist
    bondlist  = [e for e in headerlist_all if e in ("bondlength")]
@@ -121,9 +143,8 @@ def WriteTable(tableValues, fileName):
       writeKey(energyfile, sortedEntry)
    energyfile.close()
 
-
 def WriteFailFiles(failStructures, fileName):
-   structureFile = open('pyfragfailed'+fileName+'.xyz', "w")
+   structureFile = open(f"pyfragfailed_{fileName}.xyz", "w")
    for structure in failStructures:
       keys = list(structure.keys())
       structureFile.write(' '+keys[0]+' ')
@@ -144,11 +165,23 @@ def PrintTable(cellList, widthlist, bar):
       print ('  '+str(entry).ljust(widthlist[i])+'  ')
    print ('')
    if bar: print (line)
+   
+def CleanUpCalculationFolder(job : AMSJob):
+   """
+   Removes unnecessary files from the calculation folder
+   See https://www.scm.com/doc/plams/components/results.html#scm.plams.core.results.Results._clean for more info
+   """
+   r = job.results
+   if r.ok():
+      mol = r.get_main_molecule()
+      r._clean(["-", "$JN.err", "$JN.run", "CreateAtoms.out", "t12.rel", "output.xyz"])
+      for atom in set(mol.atoms):
+         r._clean(["-",f"t21.*.{atom.symbol}"])
+      job.pickle() # this will update the .dill file which is used to restart the job and extract results when using plams
 
 def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
    #main pyfrag driver used for fragment and complex calculation.
    #read coordinates from IRC or LT t21 file. Other choice is xyz file generated from other tools.
-#   print (complexSettings, '\n', frag1Settings, '\n', frag2Settings)
    if inputKeys['jobstate'] is not None:
       load_all(inputKeys['jobstate'])
 
@@ -164,7 +197,6 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
          exec ('complexSettings.input.UNITS.length="Bohr"')
       else:
          ircStructures = ParseIRCFile(val)
-
 
    resultsTable   = []
    failCases      = []
@@ -192,12 +224,14 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
 
             outputData[fragTag + 'Strain'] = jobFrag1.results.get_energy(unit='kcal/mol') - inputKeys['strain'][fragTag]
             outputData['StrainTotal'] += outputData[fragTag + 'Strain']
+            CleanUpCalculationFolder(jobFrag1)
          else:
             jobFrag2 = AMSJob(molecule=ircFrags[fragTag], settings=fragmentSettings, name=fragTag+ircTag)
             jobFrag2.run()
             frag2Molecule = ircFrags[fragTag]
             outputData[fragTag + 'Strain'] = jobFrag2.results.get_energy(unit='kcal/mol') - inputKeys['strain'][fragTag]
             outputData['StrainTotal'] += outputData[fragTag + 'Strain']
+            CleanUpCalculationFolder(jobFrag2)
 
          # disable the result check because ADF print a lot of error message
          # if jobFrag.check():
@@ -207,7 +241,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
             failCases.append(ircIndex)
             success = False
             break
-      if success:
+      if success: # succes if always true, needs to be fixed
 
          for at in frag1Molecule:
              at.properties.suffix = 'adf.f=frag1'
@@ -243,6 +277,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
             PrintTable(headerList, widthlist, False)
             PrintTable(valuesList, widthlist, False)
             resultsTable.append(outputLine)
+            CleanUpCalculationFolder(jobComplex)
          else:
             success = False
       if not success:
@@ -254,7 +289,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
             resultsTable.append(outputLine)
    if len(resultsTable) == 0:
       raise RuntimeError("Calculations for all points failed, please check your input settings")
-   return resultsTable,  str(complexMolecule.get_formula()), failStructures # return this as result only (only construct it here but use it outside)
+   return resultsTable,  inputKeys['filename'], failStructures # return this as result only (only construct it here but use it outside)
 
 
 class PyFragResult:
@@ -285,7 +320,7 @@ class PyFragResult:
             #occupation of each orbitals which is either 0 or 2
             self.orbOccupation        = complexResult.readrkf('SFOs', 'occupation', file='adf')
             #number of orbitals for each symmetry for complex
-            self.irrepOrbNumber          = complexResult.readrkf('Symmetry', 'norb', file='adf')
+            self.irrepOrbNumber       = complexResult.readrkf('Symmetry', 'norb', file='adf')
             #irrep label for symmetry of complex
             self.irrepType            = str(complexResult.readrkf('Symmetry', 'symlab', file='adf')).split()
             self.coreOrbNumber        = complexResult.readrkf('Symmetry', 'ncbs', file='adf')
