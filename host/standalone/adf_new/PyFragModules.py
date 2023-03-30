@@ -21,6 +21,7 @@ def HandleRestart(foldername):
             os.rename(foldername, restart_backup)
             print(f'RESTART: Moving {foldername} to {restart_backup} and restarting from it')
    else:
+      restart_backup = None
       print('RESTART: The folder specified for restart does not exist.')
    return restart_backup
 
@@ -305,7 +306,7 @@ class PyFragResult:
       #energy of total complex which is the sum of Pauli, Elstat and OI
       self.Int                  = complexResult.readrkf('Energy', 'Bond Energy', file='adf')
       #Dispersion Energy
-      self.Disp                  = complexResult.readrkf('Energy', 'Dispersion Energy', file='adf')
+      self.Disp                 = complexResult.readrkf('Energy', 'Dispersion Energy', file='adf')
 
       for key in list(inputKeys.keys()):
          if key == 'overlap' or key == 'population' or key == 'orbitalenergy' or key == 'irrepOI':
