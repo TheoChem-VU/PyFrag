@@ -45,26 +45,31 @@ SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
 sed -n '/^JOBSUB$/,/^JOBSUB END$/{//!p;}' $input > jobsub.txt
 sed -n '/^AMS$/,/^AMS END$/{//!p;}' $input > adfinputfile
+sed -n '/^ADF$/,/^ADF END$/{//!p;}' $input > old_adfinputfile
 sed -n '/^PyFrag$/,/^PyFrag END$/{//!p;}' $input > pyfrag.txt
 sed -n '/^fragment1 EXTRA$/,/^fragment1 EXTRA END$/{//!p;}' $input > fragment1_EXTRA
 sed -n '/^fragment2 EXTRA$/,/^fragment2 EXTRA END$/{//!p;}' $input > fragment2_EXTRA
 sed -n '/^complex EXTRA$/,/^complex EXTRA END$/{//!p;}' $input > complex_EXTRA
 
 submit="amspython \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
-subadfinputfile="--adfinputfile "$SCRIPTPATH/"adfinputfile \\"
 
 jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub
 pyfragargue pyfrag.txt                                      >> ./sub
-echo $subadfinputfile                                       >> ./sub
 
-extraOption=(fragment1_EXTRA fragment2_EXTRA complex_EXTRA)
 
-for extraItem in ${extraOption[*]}
+
+# Checks whether the old of new ADF input file is used, given by old_adfinputfile and adfinputfile, respectively 
+Options=(fragment1_EXTRA fragment2_EXTRA complex_EXTRA adfinputfile old_adfinputfile)
+
+
+for item in ${Options[*]}
 do
-  if [ -s $extraItem ]; then
-    subItem="--"${extraItem}" $SCRIPTPATH/${extraItem} \\"
+  if [ -s $item ]; then
+    subItem="--"${item}" $SCRIPTPATH/${item} \\"
     echo $subItem                                           >> ./sub
+  else
+    rm $item
   fi
 done
 
