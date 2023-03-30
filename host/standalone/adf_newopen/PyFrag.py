@@ -1,7 +1,8 @@
-#from scm.plams import *
-from plams import *
+from scm.plams import *
+import os
+import shutil
 import argparse as ag
-from  PyFragModules  import PyFragDriver, WriteTable, WriteFailFiles
+from  PyFragModules  import PyFragDriver, WriteTable, WriteFailFiles, HandleRestart
 """
 Pyfrag 3
 Authors: Xiaobo Sun; Thomas Soini
@@ -34,7 +35,8 @@ parser.add_argument("--population", type=str, nargs='*',action='append', help='p
 parser.add_argument("--overlap", type=str, nargs='*',action='append', help='print overlap between two fragment orbitals')
 parser.add_argument("--orbitalenergy", type=str, nargs='*',action='append', help='print orbital energy')
 # parser.add_argument("--adfinput", type=str, nargs='*',action='append', help='adfinput parameter set')
-parser.add_argument("--adfinputfile", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
+parser.add_argument("--adfinputfile", type=str, nargs='*',action='append', help='a file containing adfinput parameters set of ADF after 2019')
+parser.add_argument("--old_adfinputfile", type=str, nargs='*',action='append', help='a file containing adfinput parameters set of ADF prior to 2019')
 parser.add_argument("--fragment1_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
 parser.add_argument("--fragment2_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
 parser.add_argument("--complex_EXTRA", type=str, nargs='*',action='append', help='a file containing adfinput parameters set')
@@ -110,41 +112,14 @@ for key, val in vars(parser.parse_args()).items():
             else:
                inputValue.append(({'angleDef': [term[0], term[1], term[2]], 'oriVal': term[3]}))
          inputKeys[key] = inputValue
-
-      # elif key == 'adfinput':
-      #    adfinputList   = [(term.split('=')) for term in val[0]]
-      #    adfComplex     = ['sett.input.'+adfkey+'="'+keyval+'"' for adfkey, keyval in adfinputList]
-      #    adfFrag1       = ['sett1.input.'+adfkey+'="'+keyval+'"' for adfkey, keyval in adfinputList]
-      #    adfFrag2       = ['sett2.input.'+adfkey+'="'+keyval+'"' for adfkey, keyval in adfinputList]
-      #    inputKeys[key] = adfComplex + adfFrag1 + adfFrag2
-
-      elif key == 'adfinputfile':
-         f = open(val[0][0])
-         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
-         adfGeneral = ['settings.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         adfFrag1 = ['settings_Frag1.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         adfFrag2 = ['settings_Frag2.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         adfComplex = ['settings_Fa.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-         inputKeys[key] = adfGeneral + adfFrag1 + adfFrag2 + adfComplex
-
-      elif key == 'fragment1_EXTRA':
-         f = open(val[0][0])
-         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
-         inputKeys[key] = ['settings_Frag1.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-
-      elif key == 'fragment2_EXTRA':
-         f = open(val[0][0])
-         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
-         inputKeys[key] = ['settings_Frag2.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-
-      elif key == 'complex_EXTRA':
-         f = open(val[0][0])
-         adfinputLine   = [(line.split('=',1)) for line in f.readlines()]
-         inputKeys[key] = ['settings_Fa.input.'+adfkey+'="'+keyval.strip('\n')+'"' for adfkey, keyval in adfinputLine]
-
-
+         
+      elif (key == 'adfinputfile' or key == 'old_adfinputfile' or key == 'fragment1_EXTRA' or key == 'fragment2_EXTRA' or key == 'complex_EXTRA'):
+         inputKeys[key] = val[0][0]   
+         
       elif key == 'restartjob':
-         inputKeys['jobstate'] = val[0][0]
+         # val[0][0] is the restart directory which may be changed with a .0x extension by the HandleRestart function
+         # function is imported from the PyFragModules.py module
+         inputKeys['jobstate'] = HandleRestart(val[0][0]) 
 
       elif key == 'name':
          inputKeys['filename'] = val[0][0]
@@ -153,37 +128,54 @@ for key, val in vars(parser.parse_args()).items():
          inputKeys[key] = [term for term in val]
 
 init(folder=inputKeys['filename'])
+workdir_path = config.default_jobmanager.workdir
 
+# This (ugly) block of code is necessary to check if the user has provided an AMS input file or an old ADF input file
+old_ADF_input = False
+if "adfinputfile" in inputKeys.keys():
+   settings_general = AMSJob.from_inputfile(inputKeys['adfinputfile']).settings
+elif "old_adfinputfile" in inputKeys.keys():
+   print("Detecting an old ADF inputfile (prior to 2019).\nAttempting to convert the input to settings WHICH MAY NOT BE SUCCESFUL...")
+   sys.path.append("/".join(__file__.rsplit("/")[:-3]))  # path to the adf_to_ams_input_converter.py file
+   from adf_to_ams_input_converter import main_converter
+   settings_general = main_converter((inputKeys['old_adfinputfile']))
+   old_ADF_input = True
 
-settings       = Settings()
-settings_Frag1 = Settings()
-settings_Frag2 = Settings()
-settings_Fa    = Settings()
+settings_Frag1   = settings_general.copy() # copy is necessary to avoid linking errors when changing settings
+settings_Frag2   = settings_general.copy()
+settings_Complex = settings_general.copy()
 
+for extra_input, extra_input_path in inputKeys.items():
+   if extra_input == 'fragment1_EXTRA':
+      if old_ADF_input:
+         settings_Frag1 += main_converter(extra_input_path)
+      else:
+         settings_Frag1 += AMSJob.from_inputfile(extra_input_path).settings
+   if extra_input == 'fragment2_EXTRA':
+      if old_ADF_input:
+         settings_Frag2 += main_converter(extra_input_path)
+      else:
+         settings_Frag2 += AMSJob.from_inputfile(extra_input_path).settings
+   if extra_input == 'complex_EXTRA':
+      if old_ADF_input:
+         settings_Complex += main_converter(extra_input_path)
+      else:
+         settings_Complex += AMSJob.from_inputfile(extra_input_path).settings
 
-for key, val in list(inputKeys.items()):
-   if key == 'adfinputfile':
-      for option in inputKeys['adfinputfile']:
-         exec(option)
-for key, val in list(inputKeys.items()):
-   if key == 'fragment1_EXTRA':
-      for option in inputKeys['fragment1_EXTRA']:
-         exec(option)
-for key, val in list(inputKeys.items()):
-   if key == 'fragment2_EXTRA':
-      for option in inputKeys['fragment2_EXTRA']:
-         exec(option)
-for key, val in list(inputKeys.items()):
-   if key == 'complex_EXTRA':
-      for option in inputKeys['complex_EXTRA']:
-         exec(option)
-
-tableValue, fileName, failStructures = PyFragDriver(inputKeys, settings_Frag1, settings_Frag2, settings_Fa)
+tableValue, fileName, failStructures = PyFragDriver(inputKeys, settings_Frag1, settings_Frag2, settings_Complex)
 
 WriteTable(tableValue, fileName)
 if failStructures is not None:
    WriteFailFiles(failStructures, fileName)
 
+# Remove extra files
+[os.remove(os.path.join(workdir_path.rsplit('/', 1)[0], filename)) 
+   for filename in ["sub", "adfinputfile", "old_adfinputfile", "complex_EXTRA", "fragment1_EXTRA", "fragment2_EXTRA"]
+   if os.path.exists(os.path.join(workdir_path.rsplit('/', 1)[0], filename)) 
+] 
 
+# Remove the restart directory if it exists. Note: this is a quite dangerous operation
+if inputKeys['jobstate'] is not None:
+    shutil.rmtree(inputKeys['jobstate'])
 finish()
 

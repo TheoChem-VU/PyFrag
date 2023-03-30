@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+__all__ = ['PlamsError', 'FileError', 'ResultsError', 'JobError', 'PTError', 'UnitsError', 'MoleculeError']
 
 class PlamsError(Exception):
     """General PLAMS error."""

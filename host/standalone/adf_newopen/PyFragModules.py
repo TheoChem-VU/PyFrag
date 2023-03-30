@@ -1,6 +1,29 @@
-#from scm.plams import *
+from scm.plams import *
 import re
-from plams import *
+import os
+
+def HandleRestart(foldername):
+   """
+   Copied mostly from the plams routine on restarting jobs
+   https://github.com/SCM-NV/PLAMS/blob/master/scripts/plams 
+   Input:
+      foldername (str): the foldername to restart from
+   """
+   if os.path.isdir(foldername):
+      foldername = foldername.rstrip('/')
+      if os.listdir(foldername):
+            restart_backup = f"{foldername}.res"
+            n = 1
+            while os.path.exists(restart_backup):
+               n += 1
+               restart_backup = f"{foldername}.res{str(n)}"
+            os.rename(foldername, restart_backup)
+            print(f'RESTART: Moving {foldername} to {restart_backup} and restarting from it')
+   else:
+      restart_backup = None
+      print('RESTART: The folder specified for restart does not exist.')
+   return restart_backup
+
 def ReadIRCPath(f, tag, offset):
    # split all data into different block each of which represent one molecular structure in IRC
    if f.read(tag, 'PathStatus').strip() == 'DONE' or f.read(tag, 'PathStatus').strip() == 'EXEC':
@@ -9,24 +32,24 @@ def ReadIRCPath(f, tag, offset):
       return [tmpList[i:i+offset] for i in range(0, nEntry, offset)]
    return []
 
-def GetAtom(kf):
+def GetAtom(rkf):
    # preparations: get geometry info, atomic symbols in the right order
-   nAtoms = kf.read('Geometry', 'nr of atoms')
-   aAtoms = kf.read('Geometry', 'fragment and atomtype index')[nAtoms:]
-   xAtoms = str(kf.read('Geometry', 'atomtype')).split()
-   oAtoms = kf.read('Geometry', 'atom order index')[nAtoms:]
+   nAtoms = rkf.read('Geometry', 'nr of atoms')
+   aAtoms = rkf.read('Geometry', 'fragment and atomtype index')[nAtoms:]
+   xAtoms = str(rkf.read('Geometry', 'atomtype')).split()
+   oAtoms = rkf.read('Geometry', 'atom order index')[nAtoms:]
    sAtoms = [xAtoms[order-1] for numb, order in sorted(zip(oAtoms, aAtoms))]
    #sAtoms = [xAtoms[aAtoms[order-1]-1] for order in f.read('Geometry', 'atom order index')[nAtoms:]]
    return nAtoms, sAtoms
 
 def ReadIRCt21(fileName, fileName2=None):
-   f              = KFFile(fileName)
+   f              = RKFFile(fileName)
    nAtoms, sAtoms = GetAtom(f)
    bwdIRC         = ReadIRCPath(f, 'IRC_Backward', 3*nAtoms)
    #append forward and backward coordinates
-   if (len(bwdIRC) == 0) and (fileName2 != None): bwdIRC = ReadIRCPath(KFFile(fileName2), 'IRC_Backward', 3*nAtoms)
+   if (len(bwdIRC) == 0) and (fileName2 != None): bwdIRC = ReadIRCPath(RKFFile(fileName2), 'IRC_Backward', 3*nAtoms)
    fwdIRC = ReadIRCPath(f, 'IRC_Forward', 3*nAtoms)
-   if (len(fwdIRC) == 0) and (fileName2 != None): fwdIRC = ReadIRCPath(KFFile(fileName2), 'IRC_Forward', 3*nAtoms)
+   if (len(fwdIRC) == 0) and (fileName2 != None): fwdIRC = ReadIRCPath(RKFFile(fileName2), 'IRC_Forward', 3*nAtoms)
    fwdIRC.reverse()
    #transition state geometry
    cenIRC = [f.read('IRC', 'xyz')]
@@ -34,7 +57,7 @@ def ReadIRCt21(fileName, fileName2=None):
 
 def ReadLTt21(fileName):
    # read LT coordinates which is similar to IRC
-   f              = KFFile(fileName)
+   f              = RKFFile(fileName)
    nAtoms, sAtoms = GetAtom(f)
    tmpList        = f.read('LT', 'xyz')
    matrixLT       = [tmpList[i:i+3*nAtoms] for i in range(0, len(tmpList), 3*nAtoms)]
@@ -145,6 +168,20 @@ def PrintTable(cellList, widthlist, bar):
    print ('')
    if bar: print (line)
 
+def CleanUpCalculationFolder(job : AMSJob):
+   """
+   Removes unnecessary files from the calculation folder
+   See https://www.scm.com/doc/plams/components/results.html#scm.plams.core.results.Results._clean for more info
+   """
+   r = job.results
+   if r.ok():
+      mol = r.get_main_molecule()
+      r._clean(["-", "$JN.err", "$JN.run", "CreateAtoms.out", "t12.rel", "output.xyz"])
+      for atom in set(mol.atoms):
+         r._clean(["-",f"t21.*.{atom.symbol}"])
+      job.pickle() # this will update the .dill file which is used to restart the job and extract results when using plams
+
+
 def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
    #main pyfrag driver used for fragment and complex calculation.
    #read coordinates from IRC or LT t21 file. Other choice is xyz file generated from other tools.
@@ -173,8 +210,7 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
 
    for ircIndex, ircFrags in enumerate(GetIRCFragmentList(ircStructures, inputKeys['fragment'])):
       outputData = {}
-      outputData['StrainTotal'] = 0
-      complexMolecule     = Molecule()      #each molecule is a subject of plams class Molecule()
+      outputData['StrainTotal']  = 0
       ircTag              = '.'+str(ircIndex+1).zfill(5)
       # for fragTag in ircFrags.keys():
       for fragTag in sorted(list(ircFrags.keys())):
@@ -186,31 +222,43 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
          for coorKey, coorVal in list(inputKeys['coordFile'].items()):
             if coorKey != 'ircpath':
                exec ('fragmentSettings.input.UNITS.length="Bohr"')
+         if fragTag == 'frag1':
+            jobFrag1 = AMSJob(molecule=ircFrags[fragTag], settings=fragmentSettings, name=fragTag+ircTag)
+            jobFrag1.run()
+            frag1Molecule = ircFrags[fragTag]
 
-         jobFrag = ADFJob(molecule=ircFrags[fragTag], settings=fragmentSettings, name=fragTag+ircTag)
-         jobFrag.run()
-         if True:
-#         if jobFrag.check():
-            #provide path of fragment t21 file to final fragment analysis calculation
-            if inputKeys['jobstate'] is not None:
-               exec ("complexSettings.input.Fragments." + fragTag + "=" + '"' +  inputKeys['jobstate'] + "/" + fragTag + ircTag + "/" + fragTag + ircTag + ".t21" + '"')
-            else:
-               exec ("complexSettings.input.Fragments." + fragTag + "=" + '"' + jobFrag.results._kfpath() + '"')
-            #get strain and total strain which is the energy difference between current and previous geometry.
-            outputData[fragTag + 'Strain'] = Units.convert(jobFrag.results.readkf('Energy', 'Bond Energy'), 'hartree', 'kcal/mol') - inputKeys['strain'][fragTag]
+            outputData[fragTag + 'Strain'] = jobFrag1.results.get_energy(unit='kcal/mol') - inputKeys['strain'][fragTag]
             outputData['StrainTotal'] += outputData[fragTag + 'Strain']
-            #reorganize new complex from fragments by appending fragment label. Beware the atomic orders maybe changed
-            for atom in ircFrags[fragTag]:
-               atom.fragment = fragTag
-               complexMolecule.add_atom(atom)
-            ircFrags.pop(fragTag)
+            CleanUpCalculationFolder(jobFrag1)
          else:
-            failCases.append(ircIndex)
-            success = False
-            break
-      if success:
-         jobComplex = ADFJob(molecule=complexMolecule, settings=complexSettings, name=complexMolecule.get_formula()+ircTag)
+            jobFrag2 = AMSJob(molecule=ircFrags[fragTag], settings=fragmentSettings, name=fragTag+ircTag)
+            jobFrag2.run()
+            frag2Molecule = ircFrags[fragTag]
+            outputData[fragTag + 'Strain'] = jobFrag2.results.get_energy(unit='kcal/mol') - inputKeys['strain'][fragTag]
+            outputData['StrainTotal'] += outputData[fragTag + 'Strain']
+            CleanUpCalculationFolder(jobFrag2)
+
+            if True: 
+               ircFrags.pop(fragTag)
+            else:
+               failCases.append(ircIndex)
+               success = False
+               break
+      if success: # succes if always true, needs to be fixed
+
+         for at in frag1Molecule:
+             at.properties.suffix = 'adf.f=frag1'
+
+         for at in frag2Molecule:
+             at.properties.suffix = 'adf.f=frag2'
+
+         complexMolecule     = frag1Molecule+frag2Molecule
+         complexSettings.input.adf.fragments.frag1 = (jobFrag1, 'adf')
+         complexSettings.input.adf.fragments.frag2 = (jobFrag2, 'adf')
+         jobComplex = AMSJob(molecule=complexMolecule, settings=complexSettings, name='complex'+ircTag)
+
          jobComplex.run()
+         
 #         if jobComplex.check():
          if True:
             successCases.append(ircIndex)
@@ -251,38 +299,38 @@ class PyFragResult:
       # 1. needed for output requested by user 2. complexJob.check passes
       self.complexResult        = complexResult
       #Pauli energy
-      self.Pauli                = complexResult.readkf('Energy', 'Pauli Total')
+      self.Pauli                = complexResult.readrkf('Energy', 'Pauli Total', file="adf")
       #Electrostatic energy
-      self.Elstat               = complexResult.readkf('Energy', 'Electrostatic Interaction')
+      self.Elstat               = complexResult.readrkf('Energy', 'Electrostatic Interaction', file="adf")
       #total OI which is usually not equal to the sum of all irrep OI
-      self.OI                   = complexResult.readkf('Energy', 'Orb.Int. Total')
+      self.OI                   = complexResult.readrkf('Energy', 'Orb.Int. Total', file="adf")
       #energy of total complex which is the sum of Pauli, Elstat and OI
-      self.Int                  = complexResult.readkf('Energy', 'Bond Energy')
+      self.Int                  = complexResult.readrkf('Energy', 'Bond Energy', file="adf")
       #Dispersion Energy
-      self.Disp                 = complexResult.readkf('Energy', 'Dispersion Energy')
+      self.Disp                 = complexResult.readrkf('Energy', 'Dispersion Energy', file="adf")
 
       for key in list(inputKeys.keys()):
          if key == 'overlap' or key == 'population' or key == 'orbitalenergy' or key == 'irrepOI':
          #orbital numbers according to the symmetry of each fragment and the orbitals belonging to the same symmetry in different fragments
-            self.fragOrb              = complexResult.readkf('SFOs', 'ifo')
+            self.fragOrb              = complexResult.readrkf('SFOs', 'ifo', file="adf")
             #symmetry for each orbital of fragments
-            self.fragIrrep            = str(complexResult.readkf('SFOs', 'subspecies')).split()
+            self.fragIrrep            = str(complexResult.readrkf('SFOs', 'subspecies', file="adf")).split()
             #the fragment label for each orbital
-            self.orbFragment          = complexResult.readkf('SFOs', 'fragment')
+            self.orbFragment          = complexResult.readrkf('SFOs', 'fragment', file="adf")
             #energy for each orbital of spin A
-            self.orbEnergy            = complexResult.readkf('SFOs', 'energy')
+            self.orbEnergy            = complexResult.readrkf('SFOs', 'energy', file="adf")
             #energy for each orbital of spin B
-            self.orbEnergy_B          = complexResult.readkf('SFOs', 'energy_B')
+            self.orbEnergy_B          = complexResult.readrkf('SFOs', 'energy_B', file="adf")
             #occupation of each orbitals of A which is either 0 or 2
-            self.orbOccupation        = complexResult.readkf('SFOs', 'occupation')
+            self.orbOccupation        = complexResult.readrkf('SFOs', 'occupation', file="adf")
             #occupation of each orbitals of b which is either 0 or 2
-            self.orbOccupation_B      = complexResult.readkf('SFOs', 'occupation_B')
+            self.orbOccupation_B      = complexResult.readrkf('SFOs', 'occupation_B', file="adf")
 
             #number of orbitals for each symmetry for complex
-            self.irrepOrbNumber       = complexResult.readkf('Symmetry', 'norb')
+            self.irrepOrbNumber       = complexResult.readrkf('Symmetry', 'norb', file="adf")
             #irrep label for symmetry of complex
-            self.irrepType            = str(complexResult.readkf('Symmetry', 'symlab')).split()
-            self.coreOrbNumber        = complexResult.readkf('Symmetry', 'ncbs')
+            self.irrepType            = str(complexResult.readrkf('Symmetry', 'symlab', file="adf")).split()
+            self.coreOrbNumber        = complexResult.readrkf('Symmetry', 'ncbs', file="adf")
 
    def ConvertList(self, obj):
       #single number in adf t21 is number fommat which is need to convert list
@@ -327,7 +375,7 @@ class PyFragResult:
    def GetFragNum(self, frag):
       #change frag type like 'frag1' into number like "1" recorded in t21
       #append fragmenttype(like 1 or 2) to each orbital
-      fragType = str(self.complexResult.readkf('Geometry', 'fragmenttype')).split()
+      fragType = str(self.complexResult.readrkf('Geometry', 'fragmenttype', file="adf")).split()
       return fragType.index(frag) + 1
 
    def GetFrontIndex(self, orbSign):
@@ -413,10 +461,10 @@ class PyFragResult:
       index = maxIndex * (maxIndex - 1) / 2 + minIndex - 1
       if faIrrep[index_1[0]] == faIrrep[index_2[0]]:
          if index_1[1] == 'A' and index_2[1] == 'A':
-            self.overlap_matrix = self.complexResult.readkf(faIrrep[index_1[0]], 'S-CoreSFO')
+            self.overlap_matrix = self.complexResult.readrkf(faIrrep[index_1[0]], 'S-CoreSFO', file="adf")
             return abs(self.overlap_matrix[int(index)])
          elif index_1[1] == 'B' and index_2[1] == 'B':
-            self.overlap_matrix = self.complexResult.readkf(faIrrep[index_1[0]], 'S-CoreSFO_B')
+            self.overlap_matrix = self.complexResult.readrkf(faIrrep[index_1[0]], 'S-CoreSFO_B', file="adf")
             return abs(self.overlap_matrix[int(index)])
          else:
             return 0
@@ -424,17 +472,17 @@ class PyFragResult:
          return 0
 
    def ReadFragorbEnergy(self, index):
-      return self.complexResult.readkf('Ftyp '+str(self.orbFragment[index[0]])+self.fragIrrep[index[0]], 'eps_'+index[1])[self.fragOrb[index[0]]-1]*27.2114
+      return self.complexResult.readrkf('Ftyp '+str(self.orbFragment[index[0]])+self.fragIrrep[index[0]], 'eps_'+index[1], file="adf")[self.fragOrb[index[0]]-1]*27.2114
 
    def ReadIrrepOI(self, irrep):
-      irrepOI              = [self.complexResult.readkf('Energy', 'Orb.Int. '+irreps)  for irreps in self.irrepType]
+      irrepOI              = [self.complexResult.readrkf('Energy', 'Orb.Int. '+irreps, file="adf")  for irreps in self.irrepType]
       fitCoefficient       = self.OI / sum(irrepOI)
-      return fitCoefficient*Units.convert(self.complexResult.readkf('Energy', 'Orb.Int. '+irrep), 'hartree', 'kcal/mol')
+      return fitCoefficient*Units.convert(self.complexResult.readrkf('Energy', 'Orb.Int. '+irrep, file="adf"), 'hartree', 'kcal/mol')
 
    def ReadPopulation(self, index):
       orbNumbers =  self.GetOrbNum()
       #populations of all orbitals
-      sfoPopul = self.complexResult.readkf('SFO popul', 'sfo_grosspop')
+      sfoPopul = self.complexResult.readrkf('SFO popul', 'sfo_grosspop', file="adf")
       if index[1] == 'A':
          return sfoPopul[orbNumbers[index[0]] - 1]
       else:
@@ -443,13 +491,13 @@ class PyFragResult:
    def ReadVDD(self, atomList):
       vddList = []
       for atom in atomList:
-         vddScf  = self.complexResult.readkf('Properties', 'AtomCharge_SCF Voronoi')[int(atom)-1]
-         vddInit = self.complexResult.readkf('Properties', 'AtomCharge_initial Voronoi')[int(atom)-1]
+         vddScf  = self.complexResult.readrkf('Properties', 'AtomCharge_SCF Voronoi', file="adf")[int(atom)-1]
+         vddInit = self.complexResult.readrkf('Properties', 'AtomCharge_initial Voronoi', file="adf")[int(atom)-1]
          vddList.append(vddScf - vddInit)
       return vddList
 
    def ReadHirshfeld(self, fragment):
-      valueHirshfeld = self.complexResult.readkf('Properties', 'FragmentCharge Hirshfeld')
+      valueHirshfeld = self.complexResult.readrkf('Properties', 'FragmentCharge Hirshfeld', file="adf")
       return valueHirshfeld[self.GetFragNum(fragment) - 1]
 
    def GetOutputData(self, complexMolecule, outputData, inputKeys):
