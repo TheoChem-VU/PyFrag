@@ -51,7 +51,7 @@ sed -n '/^fragment1 EXTRA$/,/^fragment1 EXTRA END$/{//!p;}' $input > fragment1_E
 sed -n '/^fragment2 EXTRA$/,/^fragment2 EXTRA END$/{//!p;}' $input > fragment2_EXTRA
 sed -n '/^complex EXTRA$/,/^complex EXTRA END$/{//!p;}' $input > complex_EXTRA
 
-submit="amspython \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
+submit="amspython \$HOSTPYFRAG/standalone/adf_newopen/PyFrag.py \\"
 
 jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub

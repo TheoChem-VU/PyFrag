@@ -55,7 +55,7 @@ source "$HOME"/.bash_profile
 fi
 
 
-curl -L -o pyfrag.zip  https://github.com/TheoChem-VU/PyFrag/zipball/master/
+curl -L -o pyfrag.zip  https://github.com/TheoChem-VU/PyFrag/zipball/development/
 PREZIP="$HOME/pyfrag.zip"
 unzip "$PREZIP"
 rm -rf $PREZIP

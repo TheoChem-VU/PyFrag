@@ -57,11 +57,8 @@ jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub
 pyfragargue pyfrag.txt                                      >> ./sub
 
-
-
 # Checks whether the old of new ADF input file is used, given by old_adfinputfile and adfinputfile, respectively 
 Options=(fragment1_EXTRA fragment2_EXTRA complex_EXTRA adfinputfile old_adfinputfile)
-
 
 for item in ${Options[*]}
 do

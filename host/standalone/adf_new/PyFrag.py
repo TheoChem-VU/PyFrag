@@ -2,11 +2,8 @@ from scm.plams import *
 import os
 import sys
 import shutil
-# from plams import *
 import argparse as ag
-import importlib.util
 from  PyFragModules  import PyFragDriver, WriteTable, WriteFailFiles, HandleRestart
-
 """
 Pyfrag 3
 Authors: Xiaobo Sun; Thomas Soini; Siebe Lekanne Deprez
@@ -49,7 +46,6 @@ parser.add_argument("--name", type=str, action='append', nargs='*', help='provid
 inputKeys = {'jobstate':None, 'filename':None}
 for key, val in vars(parser.parse_args()).items():
    if val != None:
-      # print(f"Key = {key} \nValue = {val}") # for debugging
       inputValue = []
       if key == 'overlap':
          for term in val:

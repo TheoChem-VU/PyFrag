@@ -1,0 +1,112 @@
+##### Uses the  >AMS2019 inputfile format (indicated by the AMS and AMS END keys)
+##### You must load the ams (>2019) module
+
+JOBSUB
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 72:00:00
+#SBATCH --ntasks-per-node=32
+#SBATCH --partition=tc
+#SBATCH --output=methane.out
+#SBATCH --error=methane.err
+
+module load ams/2022.101
+JOBSUB END
+
+AMS
+
+Task SinglePoint
+System
+    Charge 0
+End
+
+Engine ADF
+
+  XC
+    GGA BLYP
+    DISPERSION Grimme3 BJDAMP
+  END
+
+  NumericalQuality Good
+
+  BASIS
+    TYPE TZ2P
+    CORE None
+  END
+
+EndEngine
+
+AMS END
+
+PyFrag
+restartjob methane
+name methane
+ircpath methane.amv
+fragment  1 2 3 4
+fragment  5
+strain    0
+strain    0
+bondlength 1 5
+overlap A1 frag1 3_A A frag2 1_A
+overlap A1 frag1 3_B A frag2 1_B
+overlap A1 frag1 2_B A frag2 1_B
+population frag1 HOMO
+population frag2 HOMO
+PyFrag END
+
+
+fragment1 EXTRA
+
+System
+  Symmetrize Yes
+  Symmetry C(3V)
+End
+
+Engine ADF
+
+  Spinpolarization 1
+  unrestricted
+
+  IrrepOccupations
+    E1 2//2
+    A1 3//2
+  END
+
+  Symmetry C(3V)
+
+EndEngine
+
+fragment1 EXTRA END
+
+
+fragment2 EXTRA
+
+System
+  Symmetrize Yes
+End
+
+Engine ADF
+  Spinpolarization -1
+  Unrestricted
+
+  IrrepOccupations
+    A 0//1
+  END
+
+  Symmetry AUTO
+
+EndEngine
+
+fragment2 EXTRA END
+
+
+complex EXTRA
+
+Engine ADF
+
+  UnrestrictedFragments
+  unrestricted
+
+EndEngine
+
+complex EXTRA END
