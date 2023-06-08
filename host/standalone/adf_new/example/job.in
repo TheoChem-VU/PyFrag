@@ -24,7 +24,7 @@ bondlength 1 6  1.09
 
 PyFrag END
 
-ADF
+AMS
 
 basis
 type TZ2P
@@ -48,4 +48,4 @@ numericalquality verygood
 charge 0 0
 symmetry auto
 
-ADF END
+AMS END
