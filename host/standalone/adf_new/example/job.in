@@ -26,6 +26,8 @@ PyFrag END
 
 AMS
 
+Task SinglePoint
+
 basis
 type TZ2P
 core Small
