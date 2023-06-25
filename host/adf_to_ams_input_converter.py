@@ -6,7 +6,7 @@ from scm.plams import *
 import sys
 
 
-def main_converter(file) -> Settings:
+def main_converter(file: str) -> Settings:
     """
     Module designed to convert an ADF inputfile (before 2019) to the new AMS inputfile format (>2019)
     Argument:
