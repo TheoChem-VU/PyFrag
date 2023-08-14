@@ -2,18 +2,19 @@ Further Information
 ===================
 
 PyFrag Log & Bugfixes
----
+-----------------
 
 **PyFrag 2019.0.1**
+
 Bugfixes: 
 -inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams.
 -"Missing keys" such as UNRESTRICTEDFRAGMENTS are now recognized.
 -The calculation folders (e.g., [name].001]) are cleaned up after the calculation has finished successfully to reduce disk space. 
--"restartjob" option now copies the original folder to a "res_..." folder, and this folder is deleted afterwards to prevent multiple copies and reducing disk space.
+-"restartjob" option now copies the original folder to a "res" folder, and this folder is deleted afterwards to prevent multiple copies and reducing disk space.
 
 
 History of PyFrag
----
+-----------------
 
 **PyFrag 2008**
 
@@ -28,7 +29,7 @@ The PyFrag 2016 program was rewritten by Xiaobo Sun and Thomas Soini using the P
 The PyFrag 2019 program was specially designed to facilitate the analysis of reaction mechanism in a more efficient and user-friendly way. PyFrag 2019 has automated and reduced the time-consuming and laborious task of setting up, running, analyzing, and visualizing computational data from reaction mechanism studies to a single job. PyFrag 2019 resolves three main challenges associated with the automatized computational exploration of reaction mechanisms: 1) the management of multiple parallel calculations to automatically find a reaction path; 2) the monitoring of the entire computational process along with the extraction and plotting of relevant information from large amounts of data; and 3) the analysis and presentation of these data in a clear and informative way. The activation strain and canonical energy decomposition results that are generated, relate the characteristics of the reaction profile in terms of intrinsic properties (strain, interaction, orbital overlaps, orbital energies, populations) of the reactant species.
 
 Activation Strain Model
----
+-----------------
 
 For more information on the Activation Strain Model (ASM) of chemical reactivity, the user is directed to the references provided below. An easy exercise_ for activation strain analysis of reaction mechanism using ADF is also included.
 
