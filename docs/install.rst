@@ -2,9 +2,9 @@ Installation
 ============
 The user may choose to only install the part of the program needed to perform the Activation Strain Analysis (ASA) based on Activation Strain Model (ASM). Note that Python3 is needed to run this program. The ASA can be performed using a variety of quantum chemical software packages, including:  ADF_, Gaussian_, Orca_ and Turbomole_, given a series of coordinate from the potential energy surface is provided.
 
-Activation Strain Analysis (ASA) Module of PyFrag 2023
-------------------------------------------------------
-To install the ASA module of PyFrag 2023, go to your host machine (supercomputer or cluster), open a terminal and run the following command:
+Activation Strain Analysis (ASA) Module of PyFrag 2019.0.1
+----------------------------------------------------------
+To install the latest version (development) of the ASA module of PyFrag 2019, go to your host machine (supercomputer or cluster), open a terminal and run the following command:
 
 ``curl -L -o install_alone.sh https://raw.githubusercontent.com/TheoChem-VU/PyFrag/development/install_alone.sh``
 
@@ -22,6 +22,7 @@ Change the ircpath and the submit information, such as the number of nodes and w
 
 ``pyfrag new_ams_job.in``
 
+We recommend installing this version since it has the most recent bugfixes.
 
 Activation Strain Analysis (ASA) Module of PyFrag 2019
 ------------------------------------------------------
