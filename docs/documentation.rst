@@ -7,10 +7,10 @@ PyFrag Log & Bugfixes
 **PyFrag 2019.0.1**
 
 Bugfixes: 
-- inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams.
-- "Missing keys" such as UNRESTRICTEDFRAGMENTS are now recognized.
+- Inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams.
+- All ADF keys are now recognized such as UNRESTRICTEDFRAGMENTS.
 - The calculation folders (e.g., [name].001]) are cleaned up after the calculation has finished successfully to reduce disk space. 
-- "restartjob" option now copies the original folder to a "res" folder, and this folder is deleted afterwards to prevent multiple copies and reducing disk space.
+- The "restartjob" option now copies the original folder to a "res" folder, and this folder is deleted afterwards to prevent multiple copies and reducing disk space.
 
 
 History of PyFrag
