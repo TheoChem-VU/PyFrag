@@ -2,15 +2,23 @@
 ##### You must load the ams (>2019) module
 
 JOBSUB
+
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -t 72:00:00
+#SBATCH -t 12:00:00
 #SBATCH --ntasks-per-node=32
-#SBATCH --partition=tc
-#SBATCH --output=methane.out
-#SBATCH --error=methane.err
+#SBATCH --partition=genoa
+#SBATCH --output=new_ams_job.out
+#SBATCH --error=new_ams_job.err
 
-module load ams/2022.101
+# TC 
+# module load ams/2022.101
+
+# Snellius
+module load 2022
+module load AMS/2023.101-intelmpi
+module list
+
 JOBSUB END
 
 AMS
@@ -39,7 +47,6 @@ EndEngine
 AMS END
 
 PyFrag
-restartjob methane
 name methane
 ircpath methane.amv
 fragment  1 2 3 4
