@@ -1,5 +1,5 @@
 # Original author: SCM developers
-# Modified by: Siebe Lekanne Deprez; PhD student of the TheoCheM group at the VU (Amsterdam) 
+# Modified by: Siebe Lekanne Deprez; PhD student of the TheoCheM group at the VU (Amsterdam)
 
 from scm.input_parser import InputParser
 from scm.plams import *
@@ -20,8 +20,9 @@ def main_converter(file: str) -> Settings:
     print("# ==================================================")
     print()
 
-    with open(file, "r") as file: adf_input = ''.join(file.readlines()).strip()
-        
+    with open(file, "r") as file:
+        adf_input = ''.join(file.readlines()).strip()
+
     # In case one calls "$ADFBIN/adf -n 1 << eor", as it sometimes done for create runs...
     adf_input = adf_input.lstrip('1')
     adf_input += '\n'
@@ -35,10 +36,9 @@ def main_converter(file: str) -> Settings:
 
     # Convert the settings object from the ADF input to a settings with the new AMS input:
     adf_to_ams = ADFToAMS(adf_settings)
-    
+
     # Return the converted settings
     return adf_to_ams.return_converted_settings()
-
 
 
 class ADFToAMS(object):
@@ -51,7 +51,7 @@ class ADFToAMS(object):
         self.notes = []
 
         self.notes.append('"TAPE21" is now called "adf.rkf" and is located in AMS results folder (by default "ams.results")')
-        
+
         # Get the molecule. This will remove the 'Atoms' input block from self.adf
         self.molecule = self._get_molecule()
 
@@ -63,16 +63,14 @@ class ADFToAMS(object):
         job = AMSJob(settings=self.sett, molecule=self.molecule)
         self.input = job.get_input()
 
-
     def is_new_input_valid(self):
         # run the parser to check that the generated input is valid:
         input_parser = InputParser()
         tmp = input_parser.to_settings('ams', self.input)
-        if (len(self.sett.input.adf)>0 and len(tmp.adf)==0):
+        if (len(self.sett.input.adf) > 0 and len(tmp.adf) == 0):
             return False
         else:
             return True
-
 
     def return_converted_settings(self):
         if not self.is_new_input_valid():
@@ -93,13 +91,11 @@ class ADFToAMS(object):
             for n in self.notes:
                 print("# -", n)
 
-        return(self.sett)
-
+        return (self.sett)
 
     # ==============
     # Private stuff:
     # ==============
-
 
     def _get_molecule(self):
         """
@@ -115,7 +111,7 @@ class ADFToAMS(object):
             at = line.split()
 
             # atom line can start with a number (e.g. '1. C 0 0 0') Get rid of the number:
-            if at[0].replace('.','').isdigit():
+            if at[0].replace('.', '').isdigit():
                 at = at[1:]
 
             # atomic symbol can start with a number (e.g. '1.C 0 0 0'). Get rid of the number:
@@ -125,14 +121,14 @@ class ADFToAMS(object):
             # it might be a ghost atom (e.g. Gh.C 0 0 0)
             if 'gh.' in at[0].lower():
                 atom_properties.ghost = True
-                at[0] = at[0].split('.',1)[1]
+                at[0] = at[0].split('.', 1)[1]
 
             # atomic symbol can have a name (e.g. 'C.bla 0 0 0')
             if '.' in at[0]:
-                at[0], atom_properties.name = at[0].split('.',1)
+                at[0], atom_properties.name = at[0].split('.', 1)
 
             # atom line might have some suffix info (e.g. 'C 0 0 0 f=my_fragment bla=blu')
-            if len(at)>4:
+            if len(at) > 4:
                 suffix = ' '.join(at[4:])
                 suffix = suffix.replace('/', '|')
                 suffix = suffix.replace('f=', 'adf.f=')
@@ -140,7 +136,6 @@ class ADFToAMS(object):
                 suffix = suffix.replace('r=', 'adf.r=')
                 suffix = suffix.replace('R=', 'adf.R=')
                 atom_properties.suffix = suffix
-
 
             symbol = at[0]
             coords = [float(x) for x in at[1:4]]
@@ -156,11 +151,11 @@ class ADFToAMS(object):
         if 'atoms' in self.adf:
             if '_h' in self.adf.atoms:
                 header = self.adf.atoms._h.lower()
-                if 'zmat' in header or 'z-matrix' in header or 'z-mat' in header: 
+                if 'zmat' in header or 'z-matrix' in header or 'z-mat' in header:
                     self.warnings.append('Cannot automatically convert the "Atoms" block in "z-matrix" format.')
                     del self.adf.atoms
                     return molecule
-                if 'internal' in header: 
+                if 'internal' in header:
                     self.warnings.append('Cannot automatically convert the "Atoms" block in "internal" format.')
                     del self.adf.atoms
                     return molecule
@@ -181,12 +176,11 @@ class ADFToAMS(object):
         if 'create' in self.adf:
             symbol = self.adf.create.split()[0]
             self.adf.create = self.adf.create.replace('/atomicdata/', '/atomicdata/ADF/')
-            molecule.add_atom(Atom(symbol=symbol, coords=[0.,0.,0.]))
+            molecule.add_atom(Atom(symbol=symbol, coords=[0., 0., 0.]))
 
         return molecule
 
-
-    def _convert_input(self):       
+    def _convert_input(self):
         self.sett.input.ams.task = 'SinglePoint'
 
         self._handle_spin_polarization_and_charge()
@@ -200,14 +194,13 @@ class ADFToAMS(object):
 
         self.sett.input.adf += self.adf
 
-
     def _handle_spin_polarization_and_charge(self):
         spin_polarization = 0
 
         if 'charge' in self.adf:
             val = self.adf['charge'].split()
             charge = val[0]
-            if len(val)>1:
+            if len(val) > 1:
                 spin_polarization = val[1]
 
             self.sett.input.ams.System.Charge = charge
@@ -219,9 +212,8 @@ class ADFToAMS(object):
             self.sett.input.adf.SpinPolarization = spin_polarization
             del self.adf.unrestricted
 
-
     def _handle_symmetry(self):
-        if not 'symmetry' in self.adf or str.lower(self.adf.symmetry)=='auto':
+        if not 'symmetry' in self.adf or str.lower(self.adf.symmetry) == 'auto':
             self.sett.input.ams.System.Symmetrize = 'Yes'
             self.sett.input.ams.Symmetry.SymmetrizeTolerance = '0.001'
             self.notes.append('Unlike ADF2019, AMS does not symmetrize the structure by default. See "System -> Symmetrize" in the AMS driver manual.')
@@ -230,7 +222,6 @@ class ADFToAMS(object):
         if 'symmetry' in self.adf and 'tol' in self.adf.symmetry:
             del self.adf.symmetry
             self.warnings.append('The "Symmetry" tolerance was not automatically converted. You should be use the new "SymmetryTolerance" key in ADF.')
-
 
     def _handle_relativity(self):
         if 'relativistic' in self.adf:
@@ -254,9 +245,8 @@ class ADFToAMS(object):
 
             del self.adf.relativistic
         else:
-            self.sett.input.adf.Relativity.Level = 'None'
+            self.sett.input.adf.Relativity.Level = 'scalar'
             self.notes.append('Scalar relativistic effects (ZORA) are included by default in the 2020 version of ADF.')
-
 
         if 'noncollinear' in self.adf:
             self.sett.input.adf.Relativity.SpinOrbitMagnetization = 'NonCollinear'
@@ -278,8 +268,6 @@ class ADFToAMS(object):
             self.sett.input.adf.Relativity.SpinOrbitMagnetization = 'CollinearY'
             del self.adf.souy
 
-
-
     def _handle_properties(self):
         if 'analyticalfreq' in self.adf:
             self.sett.input.ams.Properties.NormalModes = 'Yes'
@@ -297,10 +285,8 @@ class ADFToAMS(object):
             self.sett.input.ams.Properties.VROA = 'Yes'
             del self.adf.vroa
 
-
-
     def _remove_keys_and_raise_warning(self):
-        
+
         removed_message = 'The key "{}" does not exist anymore and it has been removed from the input. '
 
         to_be_removed = [
@@ -319,18 +305,15 @@ class ADFToAMS(object):
             ('BondOrder',   'See "Properties -> BondOrders" in the AMS driver manual.')
         ]
 
-        for key in ['database', 'crdfilexyz', 'crdfilemol', 'cdatafile', 'crdfilemopac', 'grad_trf_btrf', 'Hessdiag', 
-                     'quild_nocoords_in_log', 'sicoep', 'lintermvxc', 'nodrop', 'prtiao', 'readfcfile', 'reducedmass', 
-                     'sfguess', 'solv', 'testaor', 'testfit', 'testjob', 'testpscharge', 'trustsfguess', 'userlegmn']:
-            to_be_removed.append((key,''))
-
+        for key in ['database', 'crdfilexyz', 'crdfilemol', 'cdatafile', 'crdfilemopac', 'grad_trf_btrf', 'Hessdiag',
+                    'quild_nocoords_in_log', 'sicoep', 'lintermvxc', 'nodrop', 'prtiao', 'readfcfile', 'reducedmass',
+                    'sfguess', 'solv', 'testaor', 'testfit', 'testjob', 'testpscharge', 'trustsfguess', 'userlegmn']:
+            to_be_removed.append((key, ''))
 
         for key, warning in to_be_removed:
             if key in self.adf:
                 del self.adf[key]
                 self.warnings.append(removed_message.format(key)+warning)
-
-
 
     def _misc(self):
         if 'aoresponse' in self.adf and 'frequency' in self.adf.aoresponse:
@@ -399,7 +382,6 @@ class ADFToAMS(object):
             del self.adf.rihartreefock.atomdepquality
             self.warnings.append('The key "RIHartreeFock -> atomdepquality" has been removed from the input. See the new key "RIHartreeFock -> QualityPerRegion".')
 
-
     def _handle_basis(self):
         new_basis = []
         if 'basis' in self.adf:
@@ -407,7 +389,7 @@ class ADFToAMS(object):
             for line in self.adf.basis._1:
                 if 'createoutput' in line.lower():
                     pass
-                elif line.lower().startswith('type') or line.lower().startswith('core') or line.lower().startswith('fittype') or line.lower().startswith('path') :
+                elif line.lower().startswith('type') or line.lower().startswith('core') or line.lower().startswith('fittype') or line.lower().startswith('path'):
                     new_basis.append(line.replace('/atomicdata/', '/atomicdata/ADF/'))
                 elif 'redfit' in line.lower():
                     self.warnings.append(f'Could not automatically convert the following line in the Basis key: {line}. "RedFit" should now be "PolTDDFT? See ADF user doc.')
@@ -418,10 +400,9 @@ class ADFToAMS(object):
                     self.warnings.append(f'Could not automatically convert the following line in the Basis key: "{line}". See the ADF manual on the "Basis" key')
 
             self.adf.basis._1 = new_basis
-            
+
             if per_atom:
                 self.adf.basis._1 += per_atom
-
 
     def _handle_geometry_block(self):
         if 'geometry' in self.adf:
@@ -445,9 +426,9 @@ class ADFToAMS(object):
                 self.sett.input.ams.Task = 'GeometryOptimization'
 
             if 'converge' in self.adf.geometry and 'grad' in self.adf.geometry.converge:
-                    self.sett.input.ams.GeometryOptimization.Convergence.Gradients = self.adf.geometry.converge.grad
+                self.sett.input.ams.GeometryOptimization.Convergence.Gradients = self.adf.geometry.converge.grad
             if 'converge' in self.adf.geometry and 'e' in self.adf.geometry.converge:
-                    self.sett.input.ams.GeometryOptimization.Convergence.Energy = self.adf.geometry.converge.e
+                self.sett.input.ams.GeometryOptimization.Convergence.Energy = self.adf.geometry.converge.e
 
             if 'inithess' in self.adf.geometry:
                 self.sett.input.ams.GeometryOptimization.InitialHessian.File = self.adf.geometry.inithess
