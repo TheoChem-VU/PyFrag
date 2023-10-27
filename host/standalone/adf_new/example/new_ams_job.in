@@ -5,13 +5,20 @@ JOBSUB
 
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -t 12:00:00
-#SBATCH --ntasks-per-node=32
-#SBATCH --partition=tc
+#SBATCH -t 00:10:00
+#SBATCH --ntasks-per-node=16
+#SBATCH --partition=genoa
 #SBATCH --output=new_ams_job.out
 #SBATCH --error=new_ams_job.err
 
-module load ams/2022.101
+# TC 
+# module load ams/2023.101
+
+# Snellius
+module load 2022
+module load AMS/2023.101-intelmpi
+module list
+
 
 JOBSUB END
 
