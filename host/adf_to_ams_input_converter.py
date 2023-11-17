@@ -2,7 +2,7 @@
 # Modified by: Siebe Lekanne Deprez; PhD student of the TheoCheM group at the VU (Amsterdam)
 
 from scm.input_parser import InputParser
-from scm.plams import *
+from scm.plams import Settings, Molecule, Atom, AMSJob
 import sys
 
 
@@ -12,7 +12,7 @@ def main_converter(file: str) -> Settings:
     Argument:
         file (str): path to the (old) ADF inputfile
     Returns:
-        settings (plams Settings object): the converted AMS inputfile 
+        settings (plams Settings object): the converted AMS inputfile
     """
     print()
     print("# ==================================================")
@@ -20,8 +20,8 @@ def main_converter(file: str) -> Settings:
     print("# ==================================================")
     print()
 
-    with open(file, "r") as file:
-        adf_input = ''.join(file.readlines()).strip()
+    with open(file, "r") as f:
+        adf_input = ''.join(f.readlines()).strip()
 
     # In case one calls "$ADFBIN/adf -n 1 << eor", as it sometimes done for create runs...
     adf_input = adf_input.lstrip('1')
@@ -213,7 +213,7 @@ class ADFToAMS(object):
             del self.adf.unrestricted
 
     def _handle_symmetry(self):
-        if not 'symmetry' in self.adf or str.lower(self.adf.symmetry) == 'auto':
+        if 'symmetry' not in self.adf or str.lower(self.adf.symmetry) == 'auto':
             self.sett.input.ams.System.Symmetrize = 'Yes'
             self.sett.input.ams.Symmetry.SymmetrizeTolerance = '0.001'
             self.notes.append('Unlike ADF2019, AMS does not symmetrize the structure by default. See "System -> Symmetrize" in the AMS driver manual.')
