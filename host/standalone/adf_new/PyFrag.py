@@ -1,10 +1,14 @@
 from scm.plams import config, init, finish
 import os
-import sys
 import shutil
 import argparse as ag
 from PyFragModules import PyFragDriver, WriteTable, HandleRestart, settings_from_inputfile
 import logging
+import pathlib as pl
+import sys
+sys.path.append(str(pl.Path(__file__).parent.parent.parent))  # path to the adf_to_ams_input_converter.py file
+from adf_to_ams_input_converter import main_converter
+
 """
 Pyfrag 3
 Authors: Xiaobo Sun; Thomas Soini; Siebe Lekanne Deprez
@@ -161,8 +165,6 @@ if "adfinputfile" in inputKeys.keys():
     settings_general = settings_from_inputfile(inputKeys['adfinputfile'])
 elif "old_adfinputfile" in inputKeys.keys():
     print("Detecting an old ADF inputfile (prior to 2019).\nAttempting to convert the input to settings WHICH MAY NOT BE SUCCESFUL...")
-    sys.path.append("/".join(__file__.rsplit("/")[:-3]))  # path to the adf_to_ams_input_converter.py file
-    from adf_to_ams_input_converter import main_converter
     settings_general = main_converter((inputKeys['old_adfinputfile']))
     old_ADF_input = True
 
