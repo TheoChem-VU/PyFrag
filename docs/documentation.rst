@@ -7,10 +7,11 @@ PyFrag Log & Bugfixes
 **PyFrag 2019.0.1**
 
 Bugfixes: 
-- Inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams.
-- All ADF keys are now recognized such as UNRESTRICTEDFRAGMENTS.
-- The calculation folders (e.g., [name].001]) are cleaned up after the calculation has finished successfully to reduce disk space. 
-- The "restartjob" option now copies the original folder to a "res" folder, and this folder is deleted afterwards to prevent multiple copies and reducing disk space.
+ - Inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams.
+ - All ADF keys are now recognized such as UNRESTRICTEDFRAGMENTS.
+ - The calculation folders (e.g., [name].001]) are cleaned up after the calculation has finished successfully to reduce disk space. 
+ - PyFrag jobs now automically restart when a folder with the same name already exists. The old folder will get the ".res" extension and will be deleted when the new calculation finished succesfully. This is to prevent multiple copies and reducing disk space.
+ - A logger has been added through the key "log_level" which makes a "[calculation_name].log" file. Try to specify "log_level debug" in you input within the "PyFrag" section
 
 
 History of PyFrag
