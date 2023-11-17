@@ -1,6 +1,6 @@
 
-.. image:: https://travis-ci.org/sunxb05/PyFrag.svg?branch=master
-   :target: https://travis-ci.org/sunxb05/PyFrag
+.. image:: https://travis-ci.org/TheoChem-VU/PyFrag.svg?branch=master
+   :target: https://travis-ci.org/TheoChem-VU/PyFrag
 .. image:: pyfrag_logo.png
    :align: center
 
