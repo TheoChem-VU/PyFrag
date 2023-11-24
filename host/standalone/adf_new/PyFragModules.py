@@ -525,9 +525,10 @@ class PyFragResult:
         outputData['EnergyTotal'] = Units.convert(self.Int, 'hartree', 'kcal/mol') + outputData['StrainTotal']
 
         # check for unspecified options such as irrep printing if not specified by user
-        if 'irrepOI' not in inputKeys and len(self.irrepType) != 1 and hasattr(self, 'irrepType'):
-            log(level=3, message="NOTE:No irreps specified for OI calculation by the user, but detecting irreps in complex.")
-            inputKeys["irrepOI"] = self.CheckIrrepOI()
+        if hasattr(self, 'irrepType'):
+            if 'irrepOI' not in inputKeys and len(self.irrepType) != 1:
+                log(level=3, message="NOTE:No irreps specified for OI calculation by the user, but detecting irreps in complex.")
+                inputKeys["irrepOI"] = self.CheckIrrepOI()
 
         # collect user defined data
         for key, val in list(inputKeys.items()):
