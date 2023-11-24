@@ -365,6 +365,8 @@ class PyFragResult:
         self.Int = complexResult.readrkf('Energy', 'Bond Energy', file="adf")
         # Dispersion Energy
         self.Disp = complexResult.readrkf('Energy', 'Dispersion Energy', file="adf")
+        # irrep label for symmetry of complex
+        self.irrepType = str(complexResult.readrkf('Symmetry', 'symlab', file='adf')).split()
 
         for key in list(inputKeys.keys()):
             if key == 'overlap' or key == 'population' or key == 'orbitalenergy' or key == 'irrepOI':
@@ -382,11 +384,8 @@ class PyFragResult:
                 self.orbOccupation = complexResult.readrkf('SFOs', 'occupation', file="adf")
                 # occupation of each orbitals of b which is either 0 or 2
                 self.orbOccupation_B = complexResult.readrkf('SFOs', 'occupation_B', file="adf")
-
                 # number of orbitals for each symmetry for complex
                 self.irrepOrbNumber = complexResult.readrkf('Symmetry', 'norb', file="adf")
-                # irrep label for symmetry of complex
-                self.irrepType = str(complexResult.readrkf('Symmetry', 'symlab', file="adf")).split()
                 # number of core orbitals for each symmetry for complex
                 self.coreOrbNumber = complexResult.readrkf('Symmetry', 'ncbs', file="adf")
 
@@ -573,10 +572,9 @@ class PyFragResult:
         outputData['EnergyTotal'] = Units.convert(self.Int, 'hartree', 'kcal/mol') + outputData['StrainTotal']
 
         # check for unspecified options such as irrep printing if not specified by user
-        if hasattr(self, 'irrepType'):
-            if 'irrepOI' not in inputKeys and len(self.irrepType) != 1:
-                log(level=3, message="NOTE:No irreps specified for OI calculation by the user, but detecting irreps in complex.")
-                inputKeys["irrepOI"] = self.CheckIrrepOI()
+        if 'irrepOI' not in inputKeys and len(self.irrepType) != 1:
+            log(level=3, message="NOTE:No irreps specified for OI calculation by the user, but detecting irreps in complex.")
+            inputKeys["irrepOI"] = self.CheckIrrepOI()
 
         # collect user defined data
         for key, val in list(inputKeys.items()):
