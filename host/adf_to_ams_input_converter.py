@@ -214,16 +214,18 @@ class ADFToAMS(object):
 
     def _handle_symmetry(self):
         if 'symmetry' not in self.adf or str.lower(self.adf.symmetry) == 'auto':
-            self.sett.input.ams.System.Symmetrize = 'Yes'
-            self.sett.input.ams.Symmetry.SymmetrizeTolerance = '0.001'
-            self.notes.append('Unlike ADF2019, AMS does not symmetrize the structure by default. See "System -> Symmetrize" in the AMS driver manual.')
-            self.notes.append('The AMS default symmetrization tolerance is larger than the ADF2019 one. See "Symmetry -> SymmetrizeTolerance" in the AMS driver manual.')
-
+            # self.sett.input.ams.System.Symmetrize = 'Yes'
+            # self.sett.input.ams.Symmetry.SymmetrizeTolerance = '0.001'
+            # self.notes.append('Unlike ADF2019, AMS does not symmetrize the structure by default. See "System -> Symmetrize" in the AMS driver manual.')
+            # self.notes.append('The AMS default symmetrization tolerance is larger than the ADF2019 one. See "Symmetry -> SymmetrizeTolerance" in the AMS driver manual.')
+            self.notes.append("Symmetrize is disabled for PyFrag calculations due to transformation errors")
         if 'symmetry' in self.adf and 'tol' in self.adf.symmetry:
             del self.adf.symmetry
             self.warnings.append('The "Symmetry" tolerance was not automatically converted. You should be use the new "SymmetryTolerance" key in ADF.')
 
     def _handle_relativity(self):
+
+        self.notes.append("Relativity is standard scalar-ZORA now. See 'Relativity' in the AMS driver manual.")
         if 'relativistic' in self.adf:
             rel_string = self.adf.relativistic.lower()
             self.sett.input.adf.Relativity.Level = 'scalar'
