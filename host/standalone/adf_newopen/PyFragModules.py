@@ -377,9 +377,9 @@ class PyFragResult:
                 # the fragment label for each orbital
                 self.orbFragment = complexResult.readrkf('SFOs', 'fragment', file="adf")
                 # energy for each orbital of spin A
-                self.orbEnergy = complexResult.readrkf('SFOs', 'energy', file="adf")
+                self.orbEnergy = complexResult.readrkf('SFOs', 'escale', file="adf")
                 # energy for each orbital of spin B
-                self.orbEnergy_B = complexResult.readrkf('SFOs', 'energy_B', file="adf")
+                self.orbEnergy_B = complexResult.readrkf('SFOs', 'escale_B', file="adf")
                 # occupation of each orbitals of A which is either 0 or 2
                 self.orbOccupation = complexResult.readrkf('SFOs', 'occupation', file="adf")
                 # occupation of each orbitals of b which is either 0 or 2
