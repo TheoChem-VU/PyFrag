@@ -386,8 +386,8 @@ class PyFragResult:
                 self.fragIrrep = str(complexResult.readrkf('SFOs', 'subspecies', file='adf')).split()
                 # the fragment label for each orbital
                 self.orbFragment = complexResult.readrkf('SFOs', 'fragment', file='adf')
-                # energy for each orbital
-                self.orbEnergy = complexResult.readrkf('SFOs', 'energy', file='adf')
+                # Relativistically scaled energy for each orbital
+                self.orbEnergy = complexResult.readrkf('SFOs', 'escale', file='adf')
                 # occupation of each orbitals which is either 0 or 2
                 self.orbOccupation = complexResult.readrkf('SFOs', 'occupation', file='adf')
                 # number of orbitals for each symmetry for complex
