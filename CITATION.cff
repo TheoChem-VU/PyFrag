@@ -1,13 +1,13 @@
 # YAML 1.2
 # Metadata for citation of this software according to the CFF format (https://citation-file-format.github.io/)
-cff-version: 1.0.3
-message: If you use this software, please cite it as below.
-title: QMworks
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "QMworks"
 doi: 10.5281/zenodo.1045523
 authors:
-- given-names: Xiaobo
-  family-names: Sun
-  orcid:  "https://orcid.org/0000-0001-8286-677X"
+- family-names: Sun
+  given-names: Xiaobo
+  orcid:  https://orcid.org/0000-0001-8286-677X
 
 keywords:
  - computational-chemistry
@@ -18,3 +18,6 @@ version: '0.0.1'
 date-released: 2019-01-10
 repository-code: https://github.com/SCM-NV/qmflows
 license: "LGPL-3.0"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.1045523
