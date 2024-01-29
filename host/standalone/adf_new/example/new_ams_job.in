@@ -11,14 +11,13 @@ JOBSUB
 #SBATCH --output=new_ams_job.out
 #SBATCH --error=new_ams_job.err
 
-# TC 
+# TC
 # module load ams/2023.101
 
 # Snellius
 module load 2022
 module load AMS/2023.101-intelmpi
 module list
-
 
 JOBSUB END
 
