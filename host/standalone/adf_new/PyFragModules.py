@@ -61,7 +61,7 @@ def HandleRestart(foldername) -> Optional[str]:
             print(f"RESTART: Moving {foldername} to {restart_backup} and restarting from it")
     else:
         restart_backup = None
-        print("RESTART: The folder specified for restart does not exist.")
+        print("RESTART: The folder specified for restart does not exist, starting from scratch")
     return restart_backup
 
 

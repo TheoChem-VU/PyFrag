@@ -6,17 +6,7 @@ import os
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from scm.plams import (
-    AMSJob,
-    AMSResults,
-    Atom,
-    KFFile,
-    Molecule,
-    Settings,
-    Units,
-    load_all,
-    log,
-)
+from scm.plams import AMSJob, AMSResults, Atom, KFFile, Molecule, Settings, Units, load_all, log
 
 # from plams import *
 
@@ -392,6 +382,8 @@ class PyFragResult:
         self.Int = complexResult.readrkf("Energy", "Bond Energy", file="adf")
         # Dispersion Energy
         self.Disp = complexResult.readrkf("Energy", "Dispersion Energy", file="adf")
+        # irrep label for symmetry of complex
+        self.irrepType = str(complexResult.readrkf("Symmetry", "symlab", file="adf")).split()
 
         for key in list(inputKeys.keys()):
             if key == "overlap" or key == "population" or key == "orbitalenergy" or key == "irrepOI":
@@ -411,7 +403,6 @@ class PyFragResult:
                     self.orbEnergy = complexResult.readrkf("SFOs", "energy", file="adf")
                     self.orbEnergy_B = complexResult.readrkf("SFOs", "energy_B", file="adf")
 
-                # energy for each orbital of spin B
                 # occupation of each orbitals of A which is either 0 or 2
                 self.orbOccupation = complexResult.readrkf("SFOs", "occupation", file="adf")
                 # occupation of each orbitals of b which is either 0 or 2
@@ -419,8 +410,6 @@ class PyFragResult:
 
                 # number of orbitals for each symmetry for complex
                 self.irrepOrbNumber = complexResult.readrkf("Symmetry", "norb", file="adf")
-                # irrep label for symmetry of complex
-                self.irrepType = str(complexResult.readrkf("Symmetry", "symlab", file="adf")).split()
                 # number of core orbitals for each symmetry for complex
                 self.coreOrbNumber = complexResult.readrkf("Symmetry", "ncbs", file="adf")
 
