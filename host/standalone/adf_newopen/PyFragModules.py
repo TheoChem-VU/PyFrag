@@ -159,6 +159,7 @@ def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: 
         job = AMSJob(molecule=frag_mol, settings=frag_settings, name=job_names.pop(0))
         opt_jobs.append(job)
     opt_results = [job.run() for job in opt_jobs]
+    [CleanUpCalculationFolder(job) for job in opt_jobs]
     return opt_results
 
 
@@ -267,14 +268,17 @@ def PyFragDriver(inputKeys, frag1Settings: Settings, frag2Settings: Settings, co
 
     irc_structures = GetIRCFragmentList(ircStructures, inputKeys["fragment"])
 
-    # Optimize fragments if requested
-    if inputKeys["optimize_fragments"]:
+    # Optimize fragments if the strain energy of both or one of the fragments is not given
+    logging.log(level=logging.INFO, msg="Checking if fragments need to be optimized")
+    if len(inputKeys["strain"]) != 2:
         logging.log(level=logging.INFO, msg="Optimizing fragments")
         frag1_mol, frag2_mol = irc_structures[0]["frag1"], irc_structures[0]["frag2"]
         results_optimized_frags = optimize_fragments(frag1_mol, frag2_mol, frag1Settings.copy(), frag2Settings.copy())  # copy settings to avoid changing the original settings
         inputKeys["strain"]["frag1"] = results_optimized_frags[0].get_energy(unit="kcal/mol")
         inputKeys["strain"]["frag2"] = results_optimized_frags[1].get_energy(unit="kcal/mol")
         logging.log(level=logging.INFO, msg=f"Optimization of fragments finished with energies (kcal/mol): {inputKeys['strain']['frag1']} and {inputKeys['strain']['frag2']}")
+    else:
+        logging.log(level=logging.INFO, msg="Fragments strain energies are given, no need to optimize fragments")
 
     for ircIndex, ircFrags in enumerate(irc_structures):
         logging.log(level=logging.INFO, msg=f"Starting calculations for IRC point {ircIndex+1}/{len(ircStructures)}")
