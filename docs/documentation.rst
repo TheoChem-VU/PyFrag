@@ -7,12 +7,13 @@ PyFrag Log & Bugfixes
 **PyFrag 2019.0.1**
 
 Bugfixes: 
- - Inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams.
+ - Inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams. The difference in PyFrag inputfiles is that the ADF / ADF END has been changed to AMS / AMS END, and that the content within the AMS / AMS END should be the same as specified in the ADF GUI for >AMS2019 with an "engine", "system", and "task" block
  - All ADF keys are now recognized such as UNRESTRICTEDFRAGMENTS.
  - The calculation folders (e.g., [name].001]) are cleaned up after the calculation has finished successfully to reduce disk space. 
  - PyFrag jobs now automically restart when a folder with the same name already exists. The old folder will get the ".res" extension and will be deleted when the new calculation finished succesfully. This is to prevent multiple copies and reducing disk space.
  - A logger has been added through the key "log_level" which makes a "[calculation_name].log" file. Try to specify "log_level debug" in you input within the "PyFrag" section
-
+ - Printing the relativistically-scaled orbital energies instead of unscaled energies if scalar ZORA is specified
+ - Automatically optimizing fragments when strain keys are not specified
 
 History of PyFrag
 -----------------
