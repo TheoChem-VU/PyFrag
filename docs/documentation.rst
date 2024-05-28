@@ -1,8 +1,9 @@
 Further Information
 ===================
 
+
 PyFrag Log & Bugfixes
------------------
+---------------------
 
 **PyFrag 2019.0.1**
 
@@ -12,7 +13,7 @@ Bugfixes:
  - The calculation folders (e.g., [name].001]) are cleaned up after the calculation has finished successfully to reduce disk space. 
  - PyFrag jobs now automically restart when a folder with the same name already exists. The old folder will get the ".res" extension and will be deleted when the new calculation finished succesfully. This is to prevent multiple copies and reducing disk space.
  - A logger has been added through the key "log_level" which makes a "[calculation_name].log" file. Try to specify "log_level debug" in you input within the "PyFrag" section
-
+ - The dEint term is not always decomposed into the irreducible irreps of the molecule if symmetryie is used. There is thus no need to specify the IrrepOI keyword in the "PyFrag" section.  
 
 History of PyFrag
 -----------------
