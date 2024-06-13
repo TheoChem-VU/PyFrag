@@ -24,7 +24,7 @@ function adfargue {
 adf=$*
 
 Mark=(scf xc basis BECKEGRID EPRINT OCCUPATIONS ZLMFIT)
-SMark=(numericalquality relativistic charge symmetry unrestricted PRINT)
+SMark=(numericalquality relativistic charge symmetry unrestricted PRINT STOFIT)
 
 
 for item in ${Mark[*]}
