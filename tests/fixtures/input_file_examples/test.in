@@ -1,0 +1,94 @@
+JOBSUB
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 12:00:00
+#SBATCH --ntasks-per-node=64
+#SBATCH --partition=genoa
+#SBATCH --output=%job.stdout
+#SBATCH --error=%job.stdout
+
+echo "== Starting run at $(date)"
+echo "== Job ID: ${SLURM_JOBID}"
+echo "== Node list: ${SLURM_NODELIST}"
+echo "== Submit dir. : ${SLURM_SUBMIT_DIR}"
+echo "== Scratch dir. : ${TMPDIR}"
+
+module load 2022
+module load AMS/2023.101-intelmpi
+module list
+
+JOBSUB END
+
+PyFrag  # PyFrag input file
+ircpath PES1normdist57ang80.ams.amv
+fragment  1 2 3 4 5 6 7 8 9 10
+fragment  11 12
+strain    0
+strain    0
+bondlength 11 5
+bondlength 12 5
+log_level debug
+
+PyFrag END
+
+fragment1 EXTRA
+System
+  Charge 0
+End
+fragment1 EXTRA END
+
+fragment2 EXTRA
+System
+  Charge -1
+End
+fragment2 EXTRA END
+
+complex EXTRA
+System
+  Charge -1
+End
+
+Engine ADF
+  FragOccupations
+     CX
+     A1 8 // 7
+     A2 0 // 0
+     B1 2 // 2
+     B2 4 // 3
+     subend
+     NH2
+     A1 3 // 4
+     A2 1 // 1
+     B1 1 // 1
+     B2 3 // 4
+     subend
+  End
+
+Engine ADF
+  IrrepOccupations
+    A1 18 1
+    A2 0
+    B1 6
+    B2 8 1
+  End
+EndEngine
+EndEngine
+
+complex EXTRA END
+
+
+AMS
+Task SinglePoint
+Engine ADF
+  XC
+    GGA OLYP
+  END
+  NumericalQuality normal
+  BASIS
+    TYPE DZP
+    CORE None
+  END
+
+EndEngine
+AMS END
+
