@@ -33,7 +33,6 @@ CHARGE 0
 ADF END
 
 PyFrag
-restartjob old_methane
 name old_methane
 ircpath methane.amv
 fragment  1 2 3 4
@@ -62,12 +61,13 @@ fragment1 EXTRA END
 
 
 fragment2 EXTRA
-SYMMETRY AUTO
+SYMMETRY ATOM
 CHARGE 0 -1
 Unrestricted
 
+
 IrrepOccupations
-S 0//1
+A 0//1
 END
 fragment2 EXTRA END
 

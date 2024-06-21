@@ -19,7 +19,6 @@ JOBSUB
 # module load AMS/2023.101-intelmpi
 # module list
 
-
 JOBSUB END
 
 
@@ -32,8 +31,6 @@ strain    0
 strain   -554.09
 
 bondlength 1 6  1.09
-bondlength 1 3  0.00
-bondlength 1 5  0.00
 
 angle 1 4 5  0.00
 angle 1 3 4 0.00

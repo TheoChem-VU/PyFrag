@@ -11,7 +11,7 @@ JOBSUB
 #SBATCH --output=new_ams_job.out
 #SBATCH --error=new_ams_job.err
 
-# TC 
+# TC
 # module load ams/2022.101
 
 # Snellius
@@ -59,15 +59,12 @@ overlap A1 frag1 3_B A frag2 1_B
 overlap A1 frag1 2_B A frag2 1_B
 population frag1 HOMO
 population frag2 HOMO
+
+log_level debug
 PyFrag END
 
 
 fragment1 EXTRA
-
-System
-  Symmetrize Yes
-  Symmetry C(3V)
-End
 
 Engine ADF
 
@@ -88,10 +85,6 @@ fragment1 EXTRA END
 
 fragment2 EXTRA
 
-System
-  Symmetrize Yes
-End
-
 Engine ADF
   Spinpolarization -1
   Unrestricted
@@ -99,8 +92,6 @@ Engine ADF
   IrrepOccupations
     A 0//1
   END
-
-  Symmetry AUTO
 
 EndEngine
 

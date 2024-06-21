@@ -21,7 +21,11 @@ def settings_from_inputfile(inputfile: str) -> Settings:
     pre_calc_job: AMSJob = AMSJob.from_inputfile(inputfile)
 
     # This does not include the "System" block; it does include the "Task" and "Engine" block
-    settings = pre_calc_job.settings
+    settings = pre_calc_job.settings if pre_calc_job.settings is not None else Settings()
+
+    # Validate the settings: if there is an system block (containing symmetrize or symmetry), then it will fail:
+    if settings.input.ams.get("System") is not None:
+        raise ValueError(f"The inputfile contains a System block with keys {settings.input.ams.get('System')}, which is not allowed")
 
     # # First make sure that the inputfile is read in correctly (parsing the heredoc)
     # with open(inputfile, 'r') as f:
@@ -149,6 +153,20 @@ def GetIRCFragmentList(ircStructures, fragDefinition):
     return ircList
 
 
+def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: Settings, frag2Settings: Settings) -> List[AMSResults]:
+    """Optimizes the fragments if requested by the user. Returns a list of AMSResults with a length of two."""
+    job_names = ["frag1_opt", "frag2_opt"]
+    opt_jobs = []
+    for frag_mol, frag_settings in zip([frag1_mol, frag2_mol], [frag1Settings, frag2Settings]):
+        frag_settings.input.ams.Task = "GeometryOptimization"
+        frag_settings.input.ams.GeometryOptimization.Convergence.Gradients = "1e-4"
+        job = AMSJob(molecule=frag_mol, settings=frag_settings, name=job_names.pop(0))
+        opt_jobs.append(job)
+    opt_results = [job.run() for job in opt_jobs]
+    [CleanUpCalculationFolder(job) for job in opt_jobs]
+    return opt_results
+
+
 def get_output_data(data: Dict[str, Any]):
     """
     This function takes a dictionary and converts it into a format where each value in a list
@@ -245,7 +263,7 @@ def CleanUpCalculationFolder(job: AMSJob):
         job.pickle()  # this will update the .dill file which is used to restart the job and extract results when using plams
 
 
-def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
+def PyFragDriver(inputKeys, frag1Settings: Settings, frag2Settings: Settings, complexSettings: Settings):
     # main pyfrag driver used for fragment and complex calculation.
     # read coordinates from IRC or LT t21 file. Other choice is xyz file generated from other tools.
     if inputKeys["jobstate"] is not None:
@@ -269,7 +287,21 @@ def PyFragDriver(inputKeys, frag1Settings, frag2Settings, complexSettings):
     successCases = []
     failStructures = []
 
-    for ircIndex, ircFrags in enumerate(GetIRCFragmentList(ircStructures, inputKeys["fragment"])):
+    irc_structures = GetIRCFragmentList(ircStructures, inputKeys["fragment"])
+
+    # Optimize fragments if the strain energy of both or one of the fragments is not given
+    logging.log(level=logging.INFO, msg="Checking if fragments need to be optimized")
+    if len(inputKeys["strain"]) != 2:
+        logging.log(level=logging.INFO, msg="Optimizing fragments")
+        frag1_mol, frag2_mol = irc_structures[0]["frag1"], irc_structures[0]["frag2"]
+        results_optimized_frags = optimize_fragments(frag1_mol, frag2_mol, frag1Settings.copy(), frag2Settings.copy())  # copy settings to avoid changing the original settings
+        inputKeys["strain"]["frag1"] = results_optimized_frags[0].get_energy(unit="kcal/mol")
+        inputKeys["strain"]["frag2"] = results_optimized_frags[1].get_energy(unit="kcal/mol")
+        logging.log(level=logging.INFO, msg=f"Optimization of fragments finished with energies (kcal/mol): {inputKeys['strain']['frag1']} and {inputKeys['strain']['frag2']}")
+    else:
+        logging.log(level=logging.INFO, msg="Fragments strain energies are given, no need to optimize fragments")
+
+    for ircIndex, ircFrags in enumerate(irc_structures):
         logging.log(level=logging.INFO, msg=f"Starting calculations for IRC point {ircIndex+1}/{len(ircStructures)}")
         logging.log(level=logging.DEBUG, msg="\n".join(str(ircFrags[fragtag]) for fragtag in sorted(list(ircFrags.keys()))))
         outputData = {}
@@ -390,6 +422,17 @@ class PyFragResult:
                 self.orbEnergy = complexResult.readrkf("SFOs", "energy", file="adf")
                 # energy for each orbital of spin B
                 self.orbEnergy_B = complexResult.readrkf("SFOs", "energy_B", file="adf")
+                self.orbFragment = complexResult.readrkf("SFOs", "fragment", file="adf")
+                # energy for each orbital of spin A and B (escale is only if relativistic corrections are used)
+                try:
+                    logging.log(level=logging.DEBUG, msg="Reading relativistic orbital energies")
+                    self.orbEnergy = complexResult.readrkf("SFOs", "escale", file="adf")
+                    self.orbEnergy_B = complexResult.readrkf("SFOs", "escale_B", file="adf")
+                except KeyError:
+                    logging.log(level=logging.DEBUG, msg="Reading non-relativistic orbital energies")
+                    self.orbEnergy = complexResult.readrkf("SFOs", "energy", file="adf")
+                    self.orbEnergy_B = complexResult.readrkf("SFOs", "energy_B", file="adf")
+
                 # occupation of each orbitals of A which is either 0 or 2
                 self.orbOccupation = complexResult.readrkf("SFOs", "occupation", file="adf")
                 # occupation of each orbitals of b which is either 0 or 2
@@ -540,17 +583,23 @@ class PyFragResult:
             return 0
 
     def ReadFragorbEnergy(self, index):
-        return self.complexResult.readrkf("Ftyp " + str(self.orbFragment[index[0]]) + self.fragIrrep[index[0]], "eps_" + index[1], file="adf")[self.fragOrb[index[0]] - 1] * 27.2114
+        orb_energy_ha = self.complexResult.readrkf("Ftyp " + str(self.orbFragment[index[0]]) + self.fragIrrep[index[0]], "eps_" + index[1], file="adf")[self.fragOrb[index[0]] - 1]
+        orb_energy_ev = Units.convert(orb_energy_ha, "hartree", "eV")
+        return orb_energy_ev
 
     def CheckIrrepOI(self) -> List[Dict[str, str]]:
         """Checks whether OI irreps are present that can be included. Returns a list of dictionaries with irreps that can be included."""
-        irreps = [{"irrep": irrep} for irrep in self.irrepType]
-        logging.log(level=logging.INFO, msg=f"Found irreps [{[irrep.values() for irrep in irreps]}] in complex that will be included in OI")
+        # Split degenerate irreps (e.g., E1:1, E1:2) into one entry per irrep (e.g., E1) as these are stored in the kf file
+        irreps = set([irrep if ":" not in irrep else irrep.split(":")[0] for irrep in self.irrepType])
+        logging.info(msg=f"Found irreps {', '.join(irreps)} in complex that will be included in OI")
+        irreps = [{"irrep": irrep} for irrep in irreps]
+
         return irreps
 
     def ReadIrrepOI(self, irrep) -> float:
-        irrepOI = [self.complexResult.readrkf("Energy", "Orb.Int. " + irreps, file="adf") for irreps in self.irrepType]
-        fitCoefficient = self.OI / sum(irrepOI)
+        irreps = set([irrep if ":" not in irrep else irrep.split(":")[0] for irrep in self.irrepType])
+        irrepOI = [self.complexResult.readrkf("Energy", "Orb.Int. " + irrep, file="adf") for irrep in irreps]
+        fitCoefficient = self.OI / sum(irrepOI)  # MetaGGAs have a scaling factor that needs to be applied
         return fitCoefficient * Units.convert(self.complexResult.readrkf("Energy", "Orb.Int. " + irrep, file="adf"), "hartree", "kcal/mol")
 
     def ReadPopulation(self, index) -> float:

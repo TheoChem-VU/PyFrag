@@ -56,7 +56,7 @@ parser.add_argument("--name", type=str, action="append", nargs="*", help="provid
 parser.add_argument("--log_level", type=str, action="append", nargs="*", help='detemine the log level of the program. Options are "debug", "info", "warning", "error", "critical"')
 
 # Set default values
-inputKeys = {"jobstate": None, "filename": "pyfrag_calc", log_level: logging.INFO}
+inputKeys = {"jobstate": None, "filename": "pyfrag_calc", log_level: logging.INFO, "strain": {}}
 
 for key, val in vars(parser.parse_args()).items():
     if val is not None:
@@ -146,8 +146,8 @@ logfile = inputKeys["filename"] + ".log"
 logging.basicConfig(filename=logfile, filemode="w", level=log_level)
 logging.log(logging.CRITICAL, f"Starting PyFrag calculations with log level {logging.getLevelName(log_level)}")
 
-# Log settings if debug level is set
-logging.log(logging.DEBUG, "\n".join([f"{key}: {val}" for key, val in inputKeys.items()]))
+# Log settings if info level is configured
+logging.log(logging.INFO, "\n".join([f"{key}: {val}" for key, val in inputKeys.items()]))
 
 # Handle restart | filename is the name of the restart directory
 inputKeys["jobstate"] = handle_restart(inputKeys["filename"])
@@ -160,7 +160,7 @@ old_ADF_input = False
 if "adfinputfile" in inputKeys.keys():
     settings_general = settings_from_inputfile(inputKeys["adfinputfile"])
 elif "old_adfinputfile" in inputKeys.keys():
-    print("Detecting an old ADF inputfile (prior to 2019).\nAttempting to convert the input to settings WHICH MAY NOT BE SUCCESFUL...")
+    logging.log(logging.CRITICAL, "Detecting an old ADF inputfile (prior to 2019).\nAttempting to convert the input to settings WHICH MAY NOT BE SUCCESFUL...")
     settings_general = main_converter((inputKeys["old_adfinputfile"]))
     old_ADF_input = True
 else:

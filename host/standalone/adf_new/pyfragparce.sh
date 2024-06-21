@@ -1,19 +1,19 @@
 ### General information ###
 # This script is used create an parser input file for the PyFrag.py script
-# The pyfrag input file (*not* the parser input file) is split into three main sections 
+# The pyfrag input file (*not* the parser input file) is split into three main sections
 # and possibly extra sections depending of additional ADF/AMS settings for the two fragments and complex
 #
 # The three main sections are:
 # JOBSUB contains sbatch information (including loading modules) and ends up in the "sub" file
 # AMS    contains the ADF/AMS settings that is used for the two fragments and complex (common settings)
 # PyFrag contains parser commands specifically for the PyFrag.py script and PyFrag related options
-# 
+#
 # Additional sections are:
-# fragment1 EXTRA contains ADF/AMS settings that is used for fragment 1 only 
+# fragment1 EXTRA contains ADF/AMS settings that is used for fragment 1 only
 # fragment2 EXTRA contains ADF/AMS settings that is used for fragment 2 only
 # complex EXTRA   contains ADF/AMS settings that is used for the complex only
 #
-# This is only compatible with the AMS2020 and later versions of AMS! 
+# This is only compatible with the AMS2020 and later versions of AMS!
 
 function jobsubargue {
 # This function translates the jobsub.txt file into a string of arguments that ends up in the "sub" file
@@ -57,7 +57,7 @@ jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub
 pyfragargue pyfrag.txt                                      >> ./sub
 
-# Checks whether the old of new ADF input file is used, given by old_adfinputfile and adfinputfile, respectively 
+# Checks whether the old of new ADF input file is used, given by old_adfinputfile and adfinputfile, respectively
 Options=(fragment1_EXTRA fragment2_EXTRA complex_EXTRA adfinputfile old_adfinputfile)
 
 for item in ${Options[*]}
