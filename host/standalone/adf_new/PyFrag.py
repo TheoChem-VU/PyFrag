@@ -1,11 +1,12 @@
-from scm.plams import config, init, finish
-import os
-import shutil
 import argparse as ag
-from PyFragModules import PyFragDriver, WriteTable, HandleRestart, settings_from_inputfile
 import logging
+import os
 import pathlib as pl
+import shutil
 import sys
+
+from PyFragModules import PyFragDriver, handle_restart, settings_from_inputfile, write_table
+from scm.plams import config, finish, init
 
 sys.path.append(str(pl.Path(__file__).parent.parent.parent))  # path to the adf_to_ams_input_converter.py file
 from adf_to_ams_input_converter import main_converter
@@ -85,7 +86,8 @@ for key, val in vars(parser.parse_args()).items():
             inputKeys[key] = inputValue
 
         elif key == "irrep OI" or key == "irrepOI" or key == "irrep" or key == "irrep_oi" or key == "irrep oi":
-            inputKeys["irrepOI"] = [{"irrep": term[0]} for term in val]
+            logging.warning("The key 'irrep OI' is deprecated. The irreps are automatically detected. Please remove this key from your input file.")
+            # inputKeys["irrepOI"] = [{"irrep": term[0]} for term in val]
 
         elif key == "ircpath":
             inputKeys["coordFile"] = {"ircpath": val[0][0]}
@@ -148,7 +150,7 @@ logging.log(logging.CRITICAL, f"Starting PyFrag calculations with log level {log
 logging.log(logging.DEBUG, "\n".join([f"{key}: {val}" for key, val in inputKeys.items()]))
 
 # Handle restart | filename is the name of the restart directory
-inputKeys["jobstate"] = HandleRestart(inputKeys["filename"])
+inputKeys["jobstate"] = handle_restart(inputKeys["filename"])
 
 init(folder=inputKeys["filename"])
 workdir_path = config.default_jobmanager.workdir
@@ -192,7 +194,7 @@ for system, specific_sett in zip(["All systems", "Frag1", "Frag2", "Complex"], [
 # Execute PyFrag calculations: for each point on the IRC/LT, perform single point calculations for the fragments and the complex
 tableValue, fileName, failStructures = PyFragDriver(inputKeys, settings_Frag1, settings_Frag2, settings_Complex)
 
-WriteTable(tableValue, fileName)
+write_table(tableValue, fileName)
 # Below does not work
 # if failStructures is not None:
 #     WriteFailFiles(failStructures, fileName)

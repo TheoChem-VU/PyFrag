@@ -1,18 +1,19 @@
-from scm.plams import config, init, finish
-import os
-import shutil
 import argparse as ag
-from PyFragModules import PyFragDriver, WriteTable, HandleRestart, settings_from_inputfile
 import logging
+import os
 import pathlib as pl
+import shutil
 import sys
+
+from PyFragModules import PyFragDriver, handle_restart, settings_from_inputfile, write_table
+from scm.plams import config, finish, init
 
 sys.path.append(str(pl.Path(__file__).parent.parent.parent))  # path to the adf_to_ams_input_converter.py file
 from adf_to_ams_input_converter import main_converter
 
 """
 Pyfrag 3
-Authors: Xiaobo Sun; Thomas Soini
+Authors: Xiaobo Sun; Thomas Soini; Siebe Lekanne Deprez
 
 This program has the following functionalities:
 1: Reads in a series of Linear Transit or IRC structures (coordinate files or t21).
@@ -22,14 +23,14 @@ This program has the following functionalities:
 4: The program will generate a text file containing the decomposition energies plus other, user defined, values such as the strain energy.
 
 Example use:
-startpython PyFrag.py  --ircpath structuresIRC_CH3N.irc --fragment 1 3 4 --fragment 2 5 --strain 0 --strain 0 --adfinput basis.type=DZ
+amspython PyFrag.py  --ircpath structuresIRC_CH3N.irc --fragment 1 3 4 --fragment 2 5 --strain 0 --strain 0 --adfinput basis.type=DZ
 
 For the earlier version (PyFrag 2.0) please see http://www.few.vu.nl/~wolters/pyfrag/
 """
-
 LOG_LEVEL_MAP = {"debug": logging.DEBUG, "info": logging.INFO, "warning": logging.WARNING, "error": logging.ERROR, "critical": logging.CRITICAL}
 
 log_level = logging.INFO
+
 
 parser = ag.ArgumentParser(description="Print user defined values")
 parser.add_argument("--ircpath", type=str, action="append", nargs="*", help="IRC coordinate file")
@@ -85,7 +86,8 @@ for key, val in vars(parser.parse_args()).items():
             inputKeys[key] = inputValue
 
         elif key == "irrep OI" or key == "irrepOI" or key == "irrep" or key == "irrep_oi" or key == "irrep oi":
-            inputKeys[key] = [{"irrep": term[0]} for term in val]
+            logging.warning("The key 'irrep OI' is deprecated. The irreps are automatically detected. Please remove this key from your input file.")
+            # inputKeys["irrepOI"] = [{"irrep": term[0]} for term in val]
 
         elif key == "ircpath":
             inputKeys["coordFile"] = {"ircpath": val[0][0]}
@@ -148,11 +150,10 @@ logging.log(logging.CRITICAL, f"Starting PyFrag calculations with log level {log
 logging.log(logging.DEBUG, "\n".join([f"{key}: {val}" for key, val in inputKeys.items()]))
 
 # Handle restart | filename is the name of the restart directory
-inputKeys["jobstate"] = HandleRestart(inputKeys["filename"])
+inputKeys["jobstate"] = handle_restart(inputKeys["filename"])
 
 init(folder=inputKeys["filename"])
 workdir_path = config.default_jobmanager.workdir
-
 
 # This (ugly) block of code is necessary to check if the user has provided an AMS input file or an old ADF input file
 old_ADF_input = False
@@ -186,7 +187,6 @@ for extra_input, extra_input_path in inputKeys.items():
         else:
             settings_Complex += settings_from_inputfile(extra_input_path)
 
-
 # Logging settings
 for system, specific_sett in zip(["All systems", "Frag1", "Frag2", "Complex"], [settings_general, settings_Frag1, settings_Frag2, settings_Complex]):
     logging.log(logging.DEBUG, f"Settings for {system}:\n" + str(specific_sett))
@@ -194,7 +194,7 @@ for system, specific_sett in zip(["All systems", "Frag1", "Frag2", "Complex"], [
 # Execute PyFrag calculations: for each point on the IRC/LT, perform single point calculations for the fragments and the complex
 tableValue, fileName, failStructures = PyFragDriver(inputKeys, settings_Frag1, settings_Frag2, settings_Complex)
 
-WriteTable(tableValue, fileName)
+write_table(tableValue, fileName)
 # Below does not work
 # if failStructures is not None:
 #     WriteFailFiles(failStructures, fileName)
