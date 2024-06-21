@@ -33,7 +33,7 @@ then
     echo "       -h          : print this information"
     echo "       -x command  : start the executable named command"
     echo "                   : command include adf, which use adf as engine"
-    echo "                   : open, which use adf as engine but do open shell EDA"
+    echo "                   : newopen, which use adf as engine but do open shell EDA"
     echo "                   : openorb, which print the real orbital energy from the open shell calculation"
 	echo "                   : single, which use adf as engine to do a series of SP calculation"
     echo "                   : gaussian, which use gaussian as engine"
@@ -52,8 +52,10 @@ fi
 
 if test -x "$HOSTPYFRAG/bin/$EXECUTABLE.sh";
 then
+    echo "Using $EXECUTABLE as engine"
     exec "$HOSTPYFRAG/bin/$EXECUTABLE.sh"  "$@"
 else
+    echo "Using adf as engine since $EXECUTABLE is not found.\nAvailable engines are adf, open, openorb, single, gaussian, orca, turbomole, adfold"
     exec "$HOSTPYFRAG/bin/adf.sh"  "$@"
 fi
 
