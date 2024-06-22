@@ -82,3 +82,22 @@ complex EXTRA END
 
     assert "System" in sections_content["COMPLEX EXTRA"]
     assert "Charge -1" in sections_content["COMPLEX EXTRA"]
+
+
+def test_extract_sections_small_variations():
+    file_content_with_comment = """
+PyFrag # This is a comment
+    ircpath PES1normdist57ang80.ams.amv
+PyFrag END
+    """
+    sections_content = extract_section_blocks_from_file_content(file_content_with_comment)
+    assert sections_content["PYFRAG"] is None
+
+    file_content_case_invariant = """
+PyfRAG
+    ircpath PES1normdist57ang80.ams.amv
+PyfRAG END
+    """
+
+    sections_content = extract_section_blocks_from_file_content(file_content_case_invariant)
+    assert sections_content["PYFRAG"] == "ircpath PES1normdist57ang80.ams.amv"

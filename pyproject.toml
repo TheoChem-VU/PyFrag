@@ -42,7 +42,7 @@ dev = ["pytest", "sphinx"]
 [project.scripts]
 # Uncomment the following line to enable the console script
 pyfrag-dev = "pyfrag.main_parser:main"
-pyfrag_driver = "pyfrag.main_program:main"
+pyfrag-driver = "pyfrag.main_program:main"
 
 [tool.setuptools.packages.find]
 where = ["src"] # list of folders that contain the packages (["."] by default)

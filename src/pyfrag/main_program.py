@@ -4,6 +4,7 @@ from typing import Union
 
 from pyfrag import initialize_pyfrag_program
 from pyfrag.input.parse_input_file import extract_section_blocks_from_file_content
+from pyfrag.input.read_pyfrag_section import extract_pyfrag_section
 
 
 def _read_run_file_content(file_path: Union[str, Path]) -> str:
@@ -25,6 +26,10 @@ def main():
 
     file_content = _read_run_file_content(args.file)
     file_blocks = extract_section_blocks_from_file_content(file_content)
+
+    if file_blocks.PYFRAG is not None:
+        pyfrag_keys = extract_pyfrag_section(file_blocks.PYFRAG)
+        print(pyfrag_keys)
 
 
 if __name__ == "__main__":

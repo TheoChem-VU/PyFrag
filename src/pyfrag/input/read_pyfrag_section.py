@@ -1,28 +1,7 @@
-import os
 import re
 from typing import Any, Callable, Dict, List, Sequence, Tuple, Union
 
 from pyfrag.errors import PyFragSectionInputError
-
-
-def _extract_pyfrag_section(filename: str) -> List[str]:
-    with open(filename, "r") as f:
-        lines = f.readlines()
-
-    start_index = -1
-    end_index = -1
-
-    for i, line in enumerate(lines):
-        if re.match(r"^\s*PyFrag\s*$", line, re.IGNORECASE):
-            start_index = i + 1
-        if re.match(r"^\s*PyFrag END\s*$", line, re.IGNORECASE):
-            end_index = i - 1
-            break
-
-    if any(index == -1 for index in (start_index, end_index)):
-        raise ValueError("Could not find PyFrag section in file. Check if the lines 'PyFrag' and 'PyFrag END' are present in the file.")
-
-    return lines[start_index : end_index + 1]
 
 
 def _check_line_length(line: str, input_key: str, limits: Sequence[int]) -> List[str]:
@@ -45,8 +24,8 @@ def _check_line_length(line: str, input_key: str, limits: Sequence[int]) -> List
     """
     line_content: list[str] = re.split(r"\s*[#!;:]\s*", line.strip())[0].split()
 
-    if len(line_content) not in limits:
-        raise PyFragSectionInputError(f"Length of the {input_key} not correct. Make sure to specify the correct format", input_key)
+    if len(line_content) < limits[0] or len(line_content) > limits[1]:
+        raise PyFragSectionInputError(f"Length of the {input_key} is not correct. Make sure to specify the correct format", input_key)
     return line_content
 
 
@@ -198,7 +177,62 @@ def _read_irrep_line(line: str) -> List[str]:
     return [irrep]
 
 
-read_functions: Dict[str, Callable] = {
+def _read_strain_line(line: str) -> float:
+    """Reads the line containing the "strain" keyword. The correct formats are:
+
+    strain  0.5
+    strain -0.5
+
+    """
+    line_content: List[str] = _check_line_length(line, "strain", (2, 2))
+    _, value = line_content
+
+    try:
+        value = float(value)
+    except ValueError:
+        raise PyFragSectionInputError("Make sure to specify the strain value correctly with a float number", "strain")
+
+    return value
+
+
+def _read_fragment_indices_line(line: str) -> List[int]:
+    """Reads the line containing the "fragment" keyword which specifies the atom indices of each fragment. The correct formats are:
+
+    fragment 1 2 3 4
+    fragment 3 6 8
+
+    or:
+
+    fragment 1-4
+    fragment 3-8
+
+    or:
+
+    fragment 1 2 3 4 5-8
+    fragment -1 (this will select all atoms except the ones of the other fragment)
+
+    """
+    line_content: List[str] = _check_line_length(line, "fragment", (2, 100_000))
+    _, unprocessed_indices = line_content[0], line_content[1:]
+
+    if any(index == "0" for index in unprocessed_indices):
+        raise PyFragSectionInputError("fragment is not valid. The atom indices should start with 1.", "fragment")
+
+    if len(unprocessed_indices) == 1 and unprocessed_indices[0] == "-1":
+        return [-1]
+
+    indices: List[int] = []
+    for index in unprocessed_indices:
+        if "-" in index:
+            start, end = index.split("-")
+            indices.extend(list(range(int(start), int(end) + 1)))
+        else:
+            indices.append(int(index))
+
+    return indices
+
+
+read_functions: Dict[str, Callable[[str], Any]] = {
     "bondlength": _read_bondlength_line,
     "angle": _read_bondangle_line,
     "dihedral": _read_dihedral_angle,
@@ -207,40 +241,44 @@ read_functions: Dict[str, Callable] = {
     "orbitalenergy": _read_orbitalenergy_line,
     "vdd": _read_vdd_line,
     "irrep": _read_irrep_line,
+    "strain": _read_strain_line,
+    "fragment": _read_fragment_indices_line,
 }
 
 
-def read_inputfile(inputfile: str) -> Dict[str, Any]:
+def extract_pyfrag_section(pyfrag_section: str) -> Dict[str, Any]:
     """Extracts extra specifications from the PyFrag input file.
 
     This function takes the PyFrag input file as an argument and extracts extra specifications such as orbitalenergy, overlap, population of a certain fragment and MO.
     The function returns a dictionary containing the extracted specifications.
 
     Args:
-        inputfile (str): The PyFrag input file.
+        pyfrag_section (str): The PyFrag section of the input file. It must be a string with newline characters.
 
     Returns:
         Dict[str, Any]: A dictionary containing the extracted specifications.
 
+    Example of the returned dictionary:
+    {
+        'bondlength_1': (1, 2, 1.0),
+        'angle_1': (1, 2, 120.0),
+        'dihedral_1': (1, 2, 3, 180.0),
+        'fragment_1': [1, 2, 3, 4],
+        'fragment_2': [5, 6, 7, 8],
+        'strain_1': 0.5,
+        'strain_2': -0.5,
+        'overlap': ('frag1', 'HOMO', 'frag2', 'LUMO')
+    }
     """
+    pyfrag_lines = pyfrag_section.split("\n")
     input_keys: Dict[str, Any] = {}
 
-    pyfrag_section: List[str] = _extract_pyfrag_section(inputfile)
-
     counter = {key: 0 for key in read_functions}
-    for line in pyfrag_section:
+    for line in pyfrag_lines:
         # Property keys such as bondlength, angle, dihedral, overlap, population, orbitalenergy, vdd
         for key, func in read_functions.items():
             if key.lower() in line.lower():
                 counter[key] += 1
                 input_keys[f"{key}_{counter[key]}"] = func(line)
-
-        # Special keys such as name
-        if "name" in line.lower():
-            input_keys["name"] = line.split()[1]
-
-    # Add the name of the inputfile to the dictionary if it is not specified in the inputfile
-    if "name" not in input_keys:
-        input_keys["name"] = os.path.dirname(inputfile).split(os.sep)[-1]
 
     return input_keys
