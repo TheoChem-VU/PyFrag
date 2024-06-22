@@ -1,7 +1,6 @@
-
 import pytest
 from pyfrag.errors import UnsupportedSectionError
-from pyfrag.input.parse_input_file import extract_sections, get_one_section
+from pyfrag.input.parse_input_file import extract_section_blocks_from_file_content, get_one_section
 
 
 def test_get_one_section():
@@ -64,10 +63,10 @@ complex EXTRA
     End
 complex EXTRA END
     """
-    sections_content = extract_sections(file_content)
+    sections_content = extract_section_blocks_from_file_content(file_content)
 
-    assert sections_content["JOBSUB"] == '#!/bin/bash\n#SBATCH -N 1'
-    assert sections_content["PYFRAG"] == 'ircpath PES1normdist57ang80.ams.amv'
+    assert sections_content["JOBSUB"] == "#!/bin/bash\n#SBATCH -N 1"
+    assert sections_content["PYFRAG"] == "ircpath PES1normdist57ang80.ams.amv"
 
     # Asserting word for word instead of the whole string because of the indentation
     assert "System" in sections_content["AMS"]
@@ -75,14 +74,11 @@ complex EXTRA END
     assert "BASIS" in sections_content["AMS"]
     assert "EndEngine" in sections_content["AMS"]
 
-
     assert "System" in sections_content["FRAGMENT1 EXTRA"]
     assert "Charge 0" in sections_content["FRAGMENT1 EXTRA"]
 
-
     assert "System" in sections_content["FRAGMENT2 EXTRA"]
     assert "Charge -1" in sections_content["FRAGMENT2 EXTRA"]
-
 
     assert "System" in sections_content["COMPLEX EXTRA"]
     assert "Charge -1" in sections_content["COMPLEX EXTRA"]
