@@ -1,19 +1,31 @@
-import pytest
-from pyfrag.errors import UnsupportedSectionError
-from pyfrag.input.parse_input_file import extract_section_blocks_from_file_content, get_one_section
+from pyfrag.input.parse_input_file import extract_section_blocks_from_file_content
 
 
-def test_get_one_section():
+def test_spellcheck_correction():
     """Test the get_one_section function that returns the section name if it is supported."""
-    assert get_one_section("JOBSUB") == "JOBSUB"
-    assert get_one_section("NOT A SECTION") is None
-    assert get_one_section("PYFRAG") == "PYFRAG"
-    with pytest.raises(UnsupportedSectionError):
-        get_one_section("JOB SUB")
-    with pytest.raises(UnsupportedSectionError):
-        get_one_section("FRAGMENT1_EXTRA")
-    with pytest.raises(UnsupportedSectionError):
-        get_one_section("COMPLEX_EXTRA")
+    file_content = """
+    Fragment1_EXTRA
+        System
+            Charge 0
+        End
+    FraGMENt1_EXTRA END
+
+    job sub
+    #!/bin/bash
+    job sub END
+
+    cOmPLEx EXTRA
+    System
+        Charge -1
+    End
+    COmPLEX EXTRA END
+    """
+
+    sections_content = extract_section_blocks_from_file_content(file_content)
+
+    assert sections_content["FRAGMENT1 EXTRA"] == "System\n            Charge 0\n        End"
+    assert sections_content["JOBSUB"] == "#!/bin/bash"
+    assert sections_content["COMPLEX EXTRA"] == "System\n        Charge -1\n    End"
 
 
 def test_extract_sections():
