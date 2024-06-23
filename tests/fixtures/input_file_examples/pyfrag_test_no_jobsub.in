@@ -25,18 +25,6 @@ Engine ADF
 EndEngine
 AMS END
 
-FRAGMENT1 EXTRA
-System
-  Charge 0
-End
-FRAGMENT1 EXTRA END
-
-FRAGMENT2 EXTRA
-System
-  Charge -1
-End
-FRAGMENT2 EXTRA END
-
 COMPLEX EXTRA
 System
   Charge -1
@@ -67,3 +55,15 @@ Engine ADF
   End
 EndEngine
 COMPLEX EXTRA END
+
+FRAGMENT2 EXTRA
+System
+  Charge -1
+End
+FRAGMENT2 EXTRA END
+
+FRAGMENT1 EXTRA
+System
+  Charge 0
+End
+FRAGMENT1 EXTRA END

@@ -12,11 +12,11 @@ log_level debug
 
 PyFrag END
 
-fragment1 EXTRA
+fragment1_EXTRA
 System
   Charge 0
 End
-fragment1 EXTRA END
+fragment1_EXTRA END
 
 fragment2 EXTRA
 System
