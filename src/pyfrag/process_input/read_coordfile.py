@@ -134,13 +134,18 @@ extension_func_mapping: Dict[str, Callable[[Path], List[Molecule]]] = {
 def main():
     coord_file_dir = Path(pyfrag.__file__).parent.parent.parent.resolve() / "tests" / "fixtures" / "coord_files"
 
-    extensions = ["xyz", "rkf", "amv"]
-    files = {ext: coord_file_dir / f"ams.{ext}" for ext in extensions}
+    files = [
+        ("xyz", coord_file_dir / "ams.xyz"),
+        ("amv", coord_file_dir / "ams.amv"),
+        ("rkf", coord_file_dir / "pes.ams.rkf"),
+        ("rkf", coord_file_dir / "irc.ams.rkf"),
+    ]
 
-    for ext, file in files.items():
+    for pair in files:
         mol = Molecule()
+        ext, file = pair
         mol = extension_func_mapping[ext](file)
-        print(ext, len(mol), mol[31])
+        print(ext, len(mol), mol[11])
 
 
 if __name__ == "__main__":
