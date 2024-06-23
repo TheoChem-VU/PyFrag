@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Sequence, Tuple, Union
 from pyfrag.errors import PyFragSectionInputError
 
 
-def _check_line_length(line: str, input_key: str, limits: Sequence[int]) -> List[str]:
+def _check_line_length(line: str, input_key: str, limits: Sequence[int], strict_limit: bool = True) -> List[str]:
     """Checks if the line has the correct length for reading the specified input key.
 
     This function checks if the line has the correct length for reading the specified input key. If the line does not have the correct length, an error is raised.
@@ -14,6 +14,7 @@ def _check_line_length(line: str, input_key: str, limits: Sequence[int]) -> List
         line (str): The line containing the keyword and the values.
         input_key (str): The keyword to be read.
         limits (Sequence[int]): The limits of the length of the line such as (3, 4) for bondlength and angle.
+        strict_limit (bool, optional): If True, the length of the line must be exactly the same as the limits. If False, the length of the line must be within the limits. Defaults to True.
 
     Raises:
         PyFragSectionInputError: If the line does not have the correct length.
@@ -24,7 +25,9 @@ def _check_line_length(line: str, input_key: str, limits: Sequence[int]) -> List
     """
     line_content: list[str] = re.split(r"\s*[#!;:]\s*", line.strip())[0].split()
 
-    if len(line_content) < limits[0] or len(line_content) > limits[1]:
+    if strict_limit and len(line_content) not in limits:
+        raise PyFragSectionInputError(f"Length of the {input_key} is not correct. Make sure to specify the correct format", input_key)
+    elif not strict_limit and len(line_content) < limits[0] or len(line_content) > limits[1]:
         raise PyFragSectionInputError(f"Length of the {input_key} is not correct. Make sure to specify the correct format", input_key)
     return line_content
 
@@ -212,7 +215,7 @@ def _read_fragment_indices_line(line: str) -> List[int]:
     fragment -1 (this will select all atoms except the ones of the other fragment)
 
     """
-    line_content: List[str] = _check_line_length(line, "fragment", (2, 100_000))
+    line_content: List[str] = _check_line_length(line, "fragment", (2, 100_000), strict_limit=False)
     _, unprocessed_indices = line_content[0], line_content[1:]
 
     if any(index == "0" for index in unprocessed_indices):
@@ -232,6 +235,19 @@ def _read_fragment_indices_line(line: str) -> List[int]:
     return indices
 
 
+def _read_coord_file_line(line: str) -> str:
+    """Reads the line containing the "coord_file" keyword. Multiple coordinate files may be specified by having multiple lines. The correct format for the line is:
+
+    coord_file FILENAME1
+    coord_file FILENAME2
+
+    """
+    line_content: List[str] = _check_line_length(line, "coord_file", (2, 2))
+    _, coord_file = line_content
+
+    return coord_file
+
+
 read_functions: Dict[str, Callable[[str], Any]] = {
     "bondlength": _read_bondlength_line,
     "angle": _read_bondangle_line,
@@ -243,6 +259,7 @@ read_functions: Dict[str, Callable[[str], Any]] = {
     "irrep": _read_irrep_line,
     "strain": _read_strain_line,
     "fragment": _read_fragment_indices_line,
+    "coord_file": _read_coord_file_line,
 }
 
 
@@ -260,25 +277,23 @@ def extract_pyfrag_section(pyfrag_section: str) -> Dict[str, Any]:
 
     Example of the returned dictionary:
     {
-        'bondlength_1': (1, 2, 1.0),
-        'angle_1': (1, 2, 120.0),
-        'dihedral_1': (1, 2, 3, 180.0),
-        'fragment_1': [1, 2, 3, 4],
-        'fragment_2': [5, 6, 7, 8],
-        'strain_1': 0.5,
-        'strain_2': -0.5,
-        'overlap': ('frag1', 'HOMO', 'frag2', 'LUMO')
+        'bondlength': [(1, 2, 1.0)],
+        'angle': [(1, 2, 120.0)],
+        'dihedral': [(1, 2, 3, 180.0)],
+        'fragment': [[1, 2, 3, 4], [5, 6, 7, 8]]
+        'strain': [-0.5, 0.5],
+        'overlap': [('frag1', 'HOMO', 'frag2', 'LUMO')]
+        'coord_file': file.xyz
     }
     """
     pyfrag_lines = pyfrag_section.split("\n")
-    input_keys: Dict[str, Any] = {}
+    input_keys: Dict[str, list[Any]] = {}
 
-    counter = {key: 0 for key in read_functions}
     for line in pyfrag_lines:
         # Property keys such as bondlength, angle, dihedral, overlap, population, orbitalenergy, vdd
         for key, func in read_functions.items():
-            if key.lower() in line.lower():
-                counter[key] += 1
-                input_keys[f"{key}_{counter[key]}"] = func(line)
+            if line.lower().startswith(key.lower()):  # This checks for comments such as #, !, :
+                input_keys[key] = [] if key not in input_keys else input_keys[key]
+                input_keys[key].append(func(line))
 
     return input_keys

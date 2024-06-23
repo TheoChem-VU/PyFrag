@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import pyfrag.main_program as pyfrag_driver
-from pyfrag.input.parse_input_file import InputBlocks, extract_section_blocks_from_file_content, read_input_file_content
+from pyfrag.read_input.parse_input_file import InputBlocks, extract_section_blocks_from_file_content, read_input_file_content
 
 
 def _write_pyfrag_input_file(file_path: Path, input_blocks: InputBlocks) -> None:

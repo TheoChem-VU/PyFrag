@@ -1,4 +1,4 @@
-import pyfrag.input.read_pyfrag_section as input_reader
+import pyfrag.read_input.read_pyfrag_section as input_reader
 import pytest
 from pyfrag.errors import PyFragSectionInputError
 

@@ -1,4 +1,4 @@
-from pyfrag.input.parse_input_file import extract_section_blocks_from_file_content
+from pyfrag.read_input.parse_input_file import extract_section_blocks_from_file_content
 
 
 def test_spellcheck_correction():

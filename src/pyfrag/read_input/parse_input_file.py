@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from typing import Set, Union
 
-from pyfrag.input.inputblocks import InputBlocks
+from pyfrag.read_input.inputblocks import InputBlocks
 
 logger = logging.getLogger(name="PyFrag Section Reader")
 
