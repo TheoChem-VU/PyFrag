@@ -8,30 +8,9 @@ import logging
 import os
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Union
 
 import pyfrag.main_program as pyfrag_driver
-from pyfrag.errors import PyFragSectionInputError
-from pyfrag.input.parse_input_file import InputBlocks, extract_section_blocks_from_file_content
-
-
-def _read_input_file_content(file_path: Union[str, Path]) -> str:
-    """Reads the content of a given file. May raises errors when the file does not exist."""
-    file = Path(file_path)
-
-    if not file.exists():
-        raise FileNotFoundError(f"File {file_path} does not exist. Please make sure the file exists.")
-
-    with open(file, "r") as f:
-        return f.read()
-
-
-def _valide_input_blocks(input_blocks: InputBlocks) -> None:
-    if input_blocks.PYFRAG is None:
-        raise PyFragSectionInputError("PyFrag section is missing in the input file.\nPlease make sure to include 'PyFrag' ... ''PyFrag END' in the input file.")
-
-    if input_blocks.ADF is None and input_blocks.AMS is None:
-        raise PyFragSectionInputError("ADF and AMS sections are missing in the input file.\nPlease make sure to include 'ADF' ... ''ADF END' or 'AMS' ... ''AMS END' in the input file.")
+from pyfrag.input.parse_input_file import InputBlocks, extract_section_blocks_from_file_content, read_input_file_content
 
 
 def _write_pyfrag_input_file(file_path: Path, input_blocks: InputBlocks) -> None:
@@ -88,10 +67,10 @@ def main():
     logger = logging.getLogger("pyfrag.parser")
 
     logger.debug(f"Reading file: {file_path.name} (Exists: {file_path.exists()})")
-    file_content = _read_input_file_content(file_path=file_path)
+    file_content = read_input_file_content(file_path=file_path)
 
     section_blocks = extract_section_blocks_from_file_content(file_content)
-    _valide_input_blocks(section_blocks)
+    section_blocks.validate()
     logger.debug(f"Extracted sections: {', '.join([section for section, _ in section_blocks])}")
 
     run_file_path = file_path.parent / f"{file_path.stem}.run"

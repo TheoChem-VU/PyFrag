@@ -1,4 +1,5 @@
 import argparse
+import logging
 from pathlib import Path
 from typing import Union
 
@@ -19,12 +20,16 @@ def _read_run_file_content(file_path: Union[str, Path]) -> str:
 
 
 def main():
-    initialize_pyfrag_program()
     parser = argparse.ArgumentParser(description="Parse PyFrag input file.")
     parser.add_argument("-f", "--file", help="Path to the run file.", required=True)
+    parser.add_argument("-v", "--verbose", help="Set the logger to debug mode.", action="store_true")
     args = parser.parse_args()
 
-    file_content = _read_run_file_content(args.file)
+    file_path = Path(args.file).resolve()
+    log_level = logging.getLevelName("DEBUG") if args.verbose else logging.INFO
+
+    initialize_pyfrag_program(log_level=log_level)
+    file_content = _read_run_file_content(file_path)
     file_blocks = extract_section_blocks_from_file_content(file_content)
 
     if file_blocks.PYFRAG is not None:
