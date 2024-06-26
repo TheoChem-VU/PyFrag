@@ -55,7 +55,7 @@ then
     echo "Using $EXECUTABLE as engine"
     exec "$HOSTPYFRAG/bin/$EXECUTABLE.sh"  "$@"
 else
-    echo "Using adf as engine since $EXECUTABLE is not found.\nAvailable engines are adf, open, openorb, single, gaussian, orca, turbomole, adfold"
+    echo "Using the adf engine as default engine"
     exec "$HOSTPYFRAG/bin/adf.sh"  "$@"
 fi
 

@@ -23,6 +23,10 @@ def settings_from_inputfile(inputfile: str) -> Settings:
     # This does not include the "System" block; it does include the "Task" and "Engine" block
     settings = pre_calc_job.settings
 
+    # Add "Task" block if it is not present
+    if "Task" not in settings.input.ams:
+        settings.input.ams.Task = "SinglePoint"
+
     # # First make sure that the inputfile is read in correctly (parsing the heredoc)
     # with open(inputfile, 'r') as f:
     #     inp_file = parse_heredoc(f.read(), 'eor')
