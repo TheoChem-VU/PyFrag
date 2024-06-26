@@ -13,4 +13,5 @@ done
 
 bash "$HOSTPYFRAG"/standalone/adf_newopen/pyfragparce.sh "$1"
 
-sbatch $JOBDIR/sub
+
+sbatch $JOBDIR/sub || bash $JOBDIR/sub
