@@ -34,6 +34,8 @@ dependencies = [
     "pandas>=1.4.0",
     "tabulate>=0.8.9",
     "plams",
+    "pydantic>=2.8.0",
+    "pydantic-settings>=0.1.0",
 ]
 
 [project.optional-dependencies]
