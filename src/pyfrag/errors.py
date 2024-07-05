@@ -25,3 +25,13 @@ class AMSSectionInputError(ValueError):
             message = f"{key} is not valid. {message}"
         super().__init__(message)
         self.key = key
+
+
+class CoordFileError(ValueError):
+    """An error that occurs when the coordinate file is invalid."""
+
+    def __init__(self, message, key: Optional[str] = None):
+        if key is not None:
+            message = f"{key} is not valid. {message}"
+        super().__init__(message)
+        self.key = key
