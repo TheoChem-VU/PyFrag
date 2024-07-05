@@ -1,0 +1,13 @@
+[units]
+orbital_energy_unit = "eV"
+
+[ams]
+input_blocks = [
+    "ADF",
+    "AMS",
+    "COMPLEX EXTRA",
+    "FRAGMENT1 EXTRA",
+    "FRAGMENT2 EXTRA",
+    "FRAGMENT1 OPEN EXTRA",
+    "FRAGMENT2 OPEN EXTRA",
+]
