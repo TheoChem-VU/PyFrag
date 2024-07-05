@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Union
 
 from pyfrag import initialize_pyfrag_program
+from pyfrag.process_input.process_ams import process_ams_input
+from pyfrag.process_input.process_coordfile import extract_molecules_from_coord_file
 from pyfrag.read_input.parse_input_file import extract_section_blocks_from_file_content
 from pyfrag.read_input.read_pyfrag_section import extract_pyfrag_section
 
@@ -35,6 +37,11 @@ def main():
     if file_blocks.PYFRAG is not None:
         pyfrag_keys = extract_pyfrag_section(file_blocks.PYFRAG)
         print(pyfrag_keys)
+
+    # Process input blocks
+    coord_file = extract_molecules_from_coord_file(pyfrag_keys["coordfile"])
+    setting_blocks, calc_type = process_ams_input(file_blocks)
+    print(setting_blocks, calc_type)
 
 
 if __name__ == "__main__":
