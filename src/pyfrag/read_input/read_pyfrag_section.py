@@ -259,7 +259,7 @@ read_functions: Dict[str, Callable[[str], Any]] = {
     "irrep": _read_irrep_line,
     "strain": _read_strain_line,
     "fragment": _read_fragment_indices_line,
-    "coord_file": _read_coord_file_line,
+    "coordfile": _read_coord_file_line,
 }
 
 
