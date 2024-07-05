@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pyfrag.process_input.read_coordfile import _create_molecule_from_ams_rkf, _create_molecule_from_xyz
+from pyfrag.process_input.process_coordfile import _create_molecule_from_ams_rkf, _create_molecule_from_xyz
 from scm.plams import Molecule
 
 
