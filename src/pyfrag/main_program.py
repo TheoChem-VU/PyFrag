@@ -5,7 +5,7 @@ from typing import Union
 
 from pyfrag import initialize_pyfrag_program
 from pyfrag.process_input.process_ams import process_ams_input
-from pyfrag.process_input.process_coordfile import extract_molecules_from_coord_file
+from pyfrag.process_input.process_coordfile import extract_molecules_from_coord_file, split_trajectory_into_fragment_molecules
 from pyfrag.read_input.parse_input_file import extract_section_blocks_from_file_content
 from pyfrag.read_input.read_pyfrag_section import extract_pyfrag_section
 
@@ -38,10 +38,16 @@ def main():
         pyfrag_keys = extract_pyfrag_section(file_blocks.PYFRAG)
         print(pyfrag_keys)
 
-    # Process input blocks
-    coord_file = extract_molecules_from_coord_file(pyfrag_keys["coordfile"])
+    # ==========================================================================
+    # ================== Process the data from the input file ==================
+    # ==========================================================================
+
+    # ********************* Reading the coordinate file ***********************
+    coordinates_data = extract_molecules_from_coord_file(pyfrag_keys["coordfile"])
+    trajectories = split_trajectory_into_fragment_molecules(coordinates_data, pyfrag_keys["fragments"])
+
+    # ********************* Converting AMS input to plams settings ***********************
     setting_blocks, calc_type = process_ams_input(file_blocks)
-    print(setting_blocks, calc_type)
 
 
 if __name__ == "__main__":

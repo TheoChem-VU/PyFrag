@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Set, Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -134,11 +134,8 @@ extension_func_mapping: Dict[str, Callable[[Path], List[Molecule]]] = {
 
 def extract_molecules_from_coord_file(coord_files: List[str]) -> List[Molecule]:
     """
-    INTERFACE FUNCTION
-
-    Extract molecules from a coordinate file.
+    Extract molecules from one or multiple coordinate files.
     Supported file types are .xyz, .amv, .rkf
-
     """
     converted_coord_files = [Path(coord_file).resolve() for coord_file in coord_files]
     extensions = {coord_file.suffix[1:] for coord_file in converted_coord_files}
@@ -153,8 +150,64 @@ def extract_molecules_from_coord_file(coord_files: List[str]) -> List[Molecule]:
     return molecules
 
 
+# =============================================================================
+# Fragmentation of molecules  =================================================
+# =============================================================================
+
+
+def split_trajectory_into_fragment_molecules(mols: List[Molecule], frag_indices: List[List[int]]) -> List[List[Molecule]]:
+    """
+    Given a list of molecules, split each molecule into fragments (based on the entries = nfrags in the nested frag_indices list).
+
+    Returns a list with length n_frags + 1: (complex_trajectory, frag1_trajectory, frag2_trajectory, ...)
+    where the first entry is the trajectory of the complex molecule and the following entries are the trajectories of the fragments
+    """
+    all_specified_indices = _collect_specified_indices(frag_indices=frag_indices)
+    frag_indices = _handle_special_case(n_atoms=len(mols[0]), frag_indices=frag_indices, all_specified_indices=all_specified_indices)
+    trajectories = _create_trajectory_lists(mols=mols, frag_indices=frag_indices)
+    return trajectories
+
+
+def _collect_specified_indices(frag_indices: List[List[int]]) -> Set[int]:
+    """
+    Collect all explicitly specified indices from the frag_indices list, excluding -1.
+    """
+    all_specified_indices = set()
+    for indices in frag_indices:
+        if indices != [-1]:
+            all_specified_indices.update(indices)
+    return all_specified_indices
+
+
+def _handle_special_case(n_atoms: int, frag_indices: List[List[int]], all_specified_indices: Set[int]) -> List[List[int]]:
+    """
+    Handle the special case where frag_indices contains [-1]. This indicates that all indices that have not been specified should be used.
+    An example is [[-1], [1, 2, 3]] -> [[4, 5, 6], [1, 2, 3]]
+    """
+    for i, indices in enumerate(frag_indices):
+        if indices == [-1]:
+            all_indices = set(range(1, n_atoms + 1))
+            remaining_indices = all_indices - all_specified_indices
+            frag_indices[i] = list(remaining_indices)
+    return frag_indices
+
+
+def _create_trajectory_lists(mols: List[Molecule], frag_indices: List[List[int]]) -> List[List[Molecule]]:
+    """
+    Create the trajectory lists for the complex molecule and fragments.
+    """
+    trajectories = [mols]
+    for indices in frag_indices:
+        fragments = []
+        for mol in mols:
+            fragments.append(mol.copy([mol.atoms[i - 1] for i in indices]))
+        trajectories.append(fragments)
+    return trajectories
+
+
 def main():
     coord_file_dir = Path(pyfrag.__file__).parent.parent.parent.resolve() / "tests" / "fixtures" / "coord_files"
+    fragment_indices = [[-1], [3, 5, 6]]
 
     files = [
         ("xyz", coord_file_dir / "ams.xyz"),
@@ -167,7 +220,7 @@ def main():
         mol = Molecule()
         ext, file = pair
         mol = extension_func_mapping[ext](file)
-        print(ext, len(mol), mol[11])
+        split_trajectory_into_fragment_molecules(mol, fragment_indices)
 
 
 if __name__ == "__main__":
