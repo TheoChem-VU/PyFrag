@@ -163,7 +163,7 @@ def split_trajectory_into_fragment_molecules(mols: List[Molecule], frag_indices:
     where the first entry is the trajectory of the complex molecule and the following entries are the trajectories of the fragments
     """
     all_specified_indices = _collect_specified_indices(frag_indices=frag_indices)
-    frag_indices = _handle_special_case(n_atoms=len(mols[0]), frag_indices=frag_indices, all_specified_indices=all_specified_indices)
+    frag_indices = _handle_special_indices_case(n_atoms=len(mols[0]), frag_indices=frag_indices, all_specified_indices=all_specified_indices)
     trajectories = _create_trajectory_lists(mols=mols, frag_indices=frag_indices)
     return trajectories
 
@@ -179,7 +179,7 @@ def _collect_specified_indices(frag_indices: List[List[int]]) -> Set[int]:
     return all_specified_indices
 
 
-def _handle_special_case(n_atoms: int, frag_indices: List[List[int]], all_specified_indices: Set[int]) -> List[List[int]]:
+def _handle_special_indices_case(n_atoms: int, frag_indices: List[List[int]], all_specified_indices: Set[int]) -> List[List[int]]:
     """
     Handle the special case where frag_indices contains [-1]. This indicates that all indices that have not been specified should be used.
     An example is [[-1], [1, 2, 3]] -> [[4, 5, 6], [1, 2, 3]]

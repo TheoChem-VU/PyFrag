@@ -2,16 +2,32 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Literal
 
 import scm.plams as plams
 
-# Define extra paths relative to AMSHOME
-EXTRA_PATHS: Dict[str, Path] = {
-    "SCM": Path("scripting/scm"),
-    "SCM_LIBBASE": Path("scripting/scm/libbase"),
-    "SCM_LIBBASE_PYTHON": Path("bin/python3.8/lib/python3.8/site-packages"),
-}
+# Detect Windows, Linux, or MacOS
+OPERATING_SYSTEM: Literal["Windows", "Linux/MacOS"] = "Linux/MacOS"
+if os.name == "nt":
+    # Windows
+    OPERATING_SYSTEM = "Windows"
+else:
+    raise ValueError(f"Unsupported operating system: {os.name}")
+
+
+def get_extra_ams_paths(operating_system: Literal["Windows", "Linux/MacOS"]) -> Dict[str, Path]:
+    # Define extra paths relative to AMSHOME
+    paths: Dict[str, Path] = {
+        "SCM": Path("scripting/scm"),
+        "SCM_LIBBASE": Path("scripting/scm/libbase"),
+        "SCM_LIBBASE_PYTHON": Path("bin/python3.8/site-packages"),
+    }
+
+    if operating_system == "Linux/MacOS":
+        paths["SCM_LIBBASE_PYTHON"] = Path("bin/python3.8/lib/python3.8/site-packages")
+    else:
+        paths["SCM_LIBBASE_PYTHON"] = Path("bin/python3.8/Lib/site-packages")
+    return paths
 
 
 def add_scm_libbase_to_sys_path():
@@ -37,6 +53,8 @@ def add_scm_libbase_to_sys_path():
 
     and any imports from scm.libbase will be correctly resolved as it has also been added to sys.path so that python environment manager can find it.
     """
+    extra_paths = get_extra_ams_paths(OPERATING_SYSTEM)
+
     # Configure logging
     AMSHOME = os.getenv("AMSHOME")
     if not AMSHOME:
@@ -45,7 +63,7 @@ def add_scm_libbase_to_sys_path():
 
     AMSHOME_PATH = Path(AMSHOME)
     # Append paths to sys.path
-    for description, relative_path in EXTRA_PATHS.items():
+    for description, relative_path in extra_paths.items():
         full_path = AMSHOME_PATH / relative_path
         if full_path.exists():
             sys.path.append(str(full_path))
@@ -53,13 +71,13 @@ def add_scm_libbase_to_sys_path():
             logging.warning(f"{description} path does not exist: {full_path}")
 
     # Create or update symlink for SCM libbase
-    update_scm_libbase_symlink(AMSHOME_PATH)
+    update_scm_libbase_symlink(AMSHOME_PATH, extra_paths)
 
 
-def update_scm_libbase_symlink(amshome_path: Path):
+def update_scm_libbase_symlink(amshome_path: Path, extra_paths: Dict[str, Path]):
     """Create or update the SCM libbase symlink."""
     local_scm_path = Path(plams.__file__).parent.parent  # Local SCM directory
-    scm_libbase_path = amshome_path / EXTRA_PATHS["SCM_LIBBASE"]  # Target SCM libbase directory
+    scm_libbase_path = amshome_path / extra_paths["SCM_LIBBASE"]  # Target SCM libbase directory
 
     local_libbase_path = local_scm_path / "libbase"
     if local_libbase_path.is_symlink() or local_libbase_path.exists():
