@@ -11,8 +11,6 @@ OPERATING_SYSTEM: Literal["Windows", "Linux/MacOS"] = "Linux/MacOS"
 if os.name == "nt":
     # Windows
     OPERATING_SYSTEM = "Windows"
-else:
-    raise ValueError(f"Unsupported operating system: {os.name}")
 
 
 def get_extra_ams_paths(operating_system: Literal["Windows", "Linux/MacOS"]) -> Dict[str, Path]:

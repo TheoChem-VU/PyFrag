@@ -25,17 +25,13 @@ Engine ADF
 EndEngine
 AMS END
 
-FRAGMENT1 EXTRA
-System
-  Charge 0
-End
-FRAGMENT1 EXTRA END
+FRAGMENT_EXTRA
+[]
+FRAGMENT_EXTRA END
 
-FRAGMENT2 EXTRA
-System
-  Charge -1
-End
-FRAGMENT2 EXTRA END
+FRAGMENT_OPEN_EXTRA
+[]
+FRAGMENT_OPEN_EXTRA END
 
 COMPLEX EXTRA
 System
@@ -58,7 +54,6 @@ Engine ADF
      subend
   End
 
-Engine ADF
   IrrepOccupations
     A1 18 1
     A2 0
@@ -67,3 +62,15 @@ Engine ADF
   End
 EndEngine
 COMPLEX EXTRA END
+
+FRAGMENT2 EXTRA
+System
+  Charge -1
+End
+FRAGMENT2 EXTRA END
+
+FRAGMENT1 EXTRA
+System
+  Charge 0
+End
+FRAGMENT1 EXTRA END

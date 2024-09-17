@@ -1,5 +1,5 @@
 import pytest
-from pyfrag.process_input.process_coordfile import _collect_specified_indices, _handle_special_case, split_trajectory_into_fragment_molecules
+from pyfrag.process_input.process_coordfile import _collect_specified_indices, _handle_special_indices_case, split_trajectory_into_fragment_molecules
 from scm.plams import Atom, Molecule
 
 
@@ -32,7 +32,7 @@ def test_handle_special_case():
     frag_indices = [[-1], [1, 2, 3], [16, 17]]
     all_specified_indices = {1, 2, 3, 16, 17}
     expected_output = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 20], [1, 2, 3], [16, 17]]
-    result = _handle_special_case(n_atoms, frag_indices, all_specified_indices)
+    result = _handle_special_indices_case(n_atoms, frag_indices, all_specified_indices)
     assert result == expected_output, "The function did not return the expected output."
 
 
@@ -43,7 +43,7 @@ def test_handle_special_case_sorted_order():
     expected_output = [[4, 5, 6], [1, 2, 3]]
 
     # Call the function with the test case
-    result = _handle_special_case(n_atoms, frag_indices, all_specified_indices)
+    result = _handle_special_indices_case(n_atoms, frag_indices, all_specified_indices)
 
     # Sort the sublists and the outer list to ensure the order doesn't affect the test
     result_sorted = [sorted(sublist) for sublist in result]

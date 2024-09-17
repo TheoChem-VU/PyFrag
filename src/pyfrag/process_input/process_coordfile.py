@@ -6,7 +6,7 @@ from numpy.typing import NDArray
 from scm.plams import Atom, KFHistory, KFReader, Molecule, PeriodicTable, Units
 
 import pyfrag
-from pyfrag.errors import CoordFileError
+from pyfrag.errors import PyFragCoordFileError
 
 # =============================================================================
 # AMV / XYZ file reading  =====================================================
@@ -138,10 +138,14 @@ def extract_molecules_from_coord_file(coord_files: List[str]) -> List[Molecule]:
     Supported file types are .xyz, .amv, .rkf
     """
     converted_coord_files = [Path(coord_file).resolve() for coord_file in coord_files]
+
+    if not all(coord_file.exists() for coord_file in converted_coord_files):
+        raise PyFragCoordFileError(f"File(s) not found: {converted_coord_files}")
+
     extensions = {coord_file.suffix[1:] for coord_file in converted_coord_files}
 
     if not all(extension in extension_func_mapping for extension in extensions):
-        raise CoordFileError(f"Unsupported file extension detected in: {extensions}. Allowed are {set(extension_func_mapping)}.")
+        raise PyFragCoordFileError(f"Unsupported file extension detected in: {extensions}. Allowed are {set(extension_func_mapping)}.")
 
     molecules = []
     for extension, coord_file in zip(extensions, converted_coord_files):
@@ -157,7 +161,7 @@ def extract_molecules_from_coord_file(coord_files: List[str]) -> List[Molecule]:
 
 def split_trajectory_into_fragment_molecules(mols: List[Molecule], frag_indices: List[List[int]]) -> List[List[Molecule]]:
     """
-    Given a list of molecules, split each molecule into fragments (based on the entries = nfrags in the nested frag_indices list).
+    Given a list of molecules, split each molecule into fragments (based on the entries = number of fragments in the nested frag_indices list).
 
     Returns a list with length n_frags + 1: (complex_trajectory, frag1_trajectory, frag2_trajectory, ...)
     where the first entry is the trajectory of the complex molecule and the following entries are the trajectories of the fragments
@@ -220,7 +224,9 @@ def main():
         mol = Molecule()
         ext, file = pair
         mol = extension_func_mapping[ext](file)
-        split_trajectory_into_fragment_molecules(mol, fragment_indices)
+        res = split_trajectory_into_fragment_molecules(mol, fragment_indices)
+
+        print(res)
 
 
 if __name__ == "__main__":

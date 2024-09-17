@@ -273,7 +273,7 @@ def extract_pyfrag_section(pyfrag_section: str) -> Dict[str, Any]:
         pyfrag_section (str): The PyFrag section of the input file. It must be a string with newline characters.
 
     Returns:
-        Dict[str, Any]: A dictionary containing the extracted specifications.
+        dict[str, Any]: A dictionary containing the extracted specifications.
 
     Example of the returned dictionary:
     {

@@ -21,20 +21,25 @@ def _write_pyfrag_input_file(file_path: Path, input_blocks: InputBlocks) -> None
         [f.write(f"\n{section}\n{content}\n{section} END\n") for section, content in input_blocks if section != "JOBSUB"]
 
 
-def _write_pyfrag_run_script(file_path: Path, input_file_path: Path, input_blocks: InputBlocks) -> None:
+def _write_pyfrag_run_script(file_path: Path, input_file_path: Path, input_blocks: InputBlocks, verbose: bool = False) -> None:
     """
     Writes the PyFrag run script to the file path given. First it decides whether to use sbatch or not which depends on the job submission section.
     Then, it writes the sbatch script to the file path.
     """
     jobsub_section = input_blocks.JOBSUB
 
+    python_command = f"python {pyfrag_driver.__file__} -f {str(input_file_path)}"
+
+    if verbose:
+        python_command += " --verbose"
+
     with open(file_path, "w") as f:
         f.write(f"{jobsub_section}\n") if jobsub_section is not None else f.write("#!/bin/bash\n")
-        f.write(f"\npython {pyfrag_driver.__file__} -f {str(input_file_path)}\n")
+        f.write(f"\n{python_command}\n")
 
 
 @contextmanager
-def _run_pyfrag_program(run_file: Path, input_file: Path, use_sbatch: bool):
+def _run_pyfrag_program(run_file: Path, use_sbatch: bool, keep_run_file: bool = False):
     """Runs the PyFrag program with the given run file. If use_sbatch is True, it will run the program with sbatch."""
     submit_command = f"sbatch {str(run_file)}" if use_sbatch else f"bash {str(run_file)}"
 
@@ -42,7 +47,8 @@ def _run_pyfrag_program(run_file: Path, input_file: Path, use_sbatch: bool):
         os.system(submit_command)
         yield
     finally:
-        run_file.unlink(missing_ok=True)
+        if not keep_run_file:
+            run_file.unlink(missing_ok=True)
 
 
 def main():
@@ -55,16 +61,21 @@ def main():
     5. Run the PyFrag program using a context manager that always removes the run file after the program is done.
 
     """
+
+    # Parse the command line arguments
     parser = argparse.ArgumentParser(description="Parse PyFrag input file.")
     parser.add_argument("-f", "--file", help="Path to the run file.", required=True)
     parser.add_argument("-v", "--verbose", help="Set the logger to debug mode.", action="store_true")
     args = parser.parse_args()
 
     file_path = Path(args.file).resolve()
-    log_level = logging.getLevelName("DEBUG") if args.verbose else logging.INFO
+    log_level = logging.DEBUG if args.verbose else logging.INFO
 
+    # Set up the logger
     logging.basicConfig(level=log_level, format="[%(asctime)s][%(levelname)s][%(module)s]: %(message)s", datefmt="%I:%M:%S")
     logger = logging.getLogger("pyfrag.parser")
+
+    # Now comes the running logic: Read the input file, extract the sections, write the run script and run the PyFrag program
 
     logger.debug(f"Reading file: {file_path.name} (Exists: {file_path.exists()})")
     file_content = read_input_file_content(file_path=file_path)
@@ -74,16 +85,16 @@ def main():
     logger.debug(f"Extracted sections: {', '.join([section for section, _ in section_blocks])}")
 
     run_file_path = file_path.parent / f"{file_path.stem}.run"
-    use_sbatch = section_blocks.JOBSUB is not None
+    use_sbatch = True if section_blocks.JOBSUB else False
 
     input_file_path = file_path.parent / f"pyfrag_{file_path.stem}.in"
     _write_pyfrag_input_file(input_file_path, section_blocks)
-    _write_pyfrag_run_script(run_file_path, input_file_path, section_blocks)
+    _write_pyfrag_run_script(run_file_path, input_file_path, section_blocks, verbose=args.verbose)
 
-    with _run_pyfrag_program(run_file_path, use_sbatch=use_sbatch, input_file=input_file_path):
+    with _run_pyfrag_program(run_file_path, use_sbatch=use_sbatch, keep_run_file=args.verbose):
         logger.info(f"Running PyFrag Driver. Run file: {run_file_path.name}")
 
-    if log_level != logging.DEBUG:
+    if not args.verbose:
         input_file_path.unlink(missing_ok=True)
 
 

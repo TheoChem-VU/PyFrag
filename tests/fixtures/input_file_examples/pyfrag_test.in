@@ -1,9 +1,9 @@
 
 PYFRAG
-coordfile PES1normdist57ang80.ams.amv
+ircpath PES1normdist57ang80.ams.amv
 fragment  1 2 3 4 5 6 7 8 9 10
 fragment  11 12
-strain    0  # Help
+strain    0
 strain    0
 bondlength 11 5
 bondlength 12 5
@@ -25,13 +25,11 @@ Engine ADF
 EndEngine
 AMS END
 
-FRAGMENT2 EXTRA
-System
-  Charge -1
-End
-FRAGMENT2 EXTRA END
+FRAGMENT_EXTRA
+['System\n  Charge 0\nEnd', 'System\n  Charge -1\nEnd']
+FRAGMENT_EXTRA END
 
-COMPLEX EXTRA
+COMPLEX_EXTRA
 System
   Charge -1
 End
@@ -52,7 +50,6 @@ Engine ADF
      subend
   End
 
-Engine ADF
   IrrepOccupations
     A1 18 1
     A2 0
@@ -60,10 +57,4 @@ Engine ADF
     B2 8 1
   End
 EndEngine
-COMPLEX EXTRA END
-
-FRAGMENT1 EXTRA
-System
-  Charge 0
-End
-FRAGMENT1 EXTRA END
+COMPLEX_EXTRA END

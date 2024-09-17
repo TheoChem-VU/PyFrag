@@ -1,13 +1,19 @@
 from typing import Optional
 
 
-class UnsupportedSectionError(Exception):
+class PyFragError(Exception):
+    """Base class for PyFrag errors."""
+
+
+class PyFragInputFileNotFoundError(PyFragError):
+    """Error raised when the input file is not found."""
+
+
+class UnsupportedSectionError(PyFragError):
     """Error raised when the section is not supported when trying to extract sections from the input file."""
 
-    ...
 
-
-class PyFragSectionInputError(ValueError):
+class PyFragSectionInputError(PyFragError):
     """An error that occurs when the PyFrag input is invalid."""
 
     def __init__(self, message, key: Optional[str] = None):
@@ -17,7 +23,7 @@ class PyFragSectionInputError(ValueError):
         self.key = key
 
 
-class AMSSectionInputError(ValueError):
+class AMSSectionInputError(PyFragError):
     """An error that occurs when the PyFrag input is invalid."""
 
     def __init__(self, message, key: Optional[str] = None):
@@ -27,11 +33,9 @@ class AMSSectionInputError(ValueError):
         self.key = key
 
 
-class CoordFileError(ValueError):
+class PyFragCoordFileError(PyFragError):
     """An error that occurs when the coordinate file is invalid."""
 
-    def __init__(self, message, key: Optional[str] = None):
-        if key is not None:
-            message = f"{key} is not valid. {message}"
-        super().__init__(message)
-        self.key = key
+
+class PyFragAMSSectionReadError(PyFragError):
+    """An error that occurs when the AMS section is invalid."""

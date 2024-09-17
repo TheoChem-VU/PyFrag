@@ -6,8 +6,6 @@ input_blocks = [
     "ADF",
     "AMS",
     "COMPLEX EXTRA",
-    "FRAGMENT1 EXTRA",
-    "FRAGMENT2 EXTRA",
-    "FRAGMENT1 OPEN EXTRA",
-    "FRAGMENT2 OPEN EXTRA",
+    "FRAGMENT EXTRA",
+    "FRAGMENT OPEN EXTRA",
 ]

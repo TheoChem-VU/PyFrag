@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 12:00:00
+#SBATCH --ntasks-per-node=64
+#SBATCH --partition=genoa
+#SBATCH --output=%job.stdout
+#SBATCH --error=%job.stdout
+
+echo "== Starting run at $(date)"
+echo "== Job ID: ${SLURM_JOBID}"
+echo "== Node list: ${SLURM_NODELIST}"
+echo "== Submit dir. : ${SLURM_SUBMIT_DIR}"
+echo "== Scratch dir. : ${TMPDIR}"
+
+module load 2022
+module load AMS/2023.101-intelmpi
+module list
+
+python /Users/siebeld/Library/CloudStorage/OneDrive-VrijeUniversiteitAmsterdam/PhD/Scripting/local_packages/PyFrag/src/pyfrag/main_program.py -f /Users/siebeld/Library/CloudStorage/OneDrive-VrijeUniversiteitAmsterdam/PhD/Scripting/local_packages/PyFrag/tests/fixtures/input_file_examples/pyfrag_test.in --verbose
