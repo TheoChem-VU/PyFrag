@@ -1,0 +1,3 @@
+
+
+python C:\Users\siebb\VU_PhD\PhD\Scripting\local_packages\PyFrag\src\pyfrag\main_program.py -f C:\Users\siebb\VU_PhD\PhD\Scripting\local_packages\PyFrag\example\regular_job\pyfrag_new_ams_job.in --verbose
