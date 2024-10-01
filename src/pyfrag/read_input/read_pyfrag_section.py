@@ -1,7 +1,28 @@
 import re
 from typing import Any, Callable, Dict, List, Sequence, Tuple, Union
 
-from pyfrag.errors import PyFragSectionInputError
+from pyfrag.errors import PyFragCoordFileError, PyFragSectionInputError
+from pyfrag.read_input.pyfrag_settings import (
+    VDD,
+    Angle,
+    BondLength,
+    CoordFile,
+    Dihedral,
+    FragmentIndices,
+    Irrep,
+    OrbitalEnergy,
+    OrbitalEnergyWithIrrep,
+    Overlap,
+    OverlapWithIrrep,
+    Population,
+    PopulationWithIrrep,
+    PyFragSection,
+    Strain,
+)
+
+deprecated_keys_and_message_mapping: Dict[str, str] = {
+    "ircpath": "'ircpath' is deprecated. Use 'coordfile' instead.",
+}
 
 
 def _check_line_length(line: str, input_key: str, limits: Sequence[int], strict_limit: bool = True) -> List[str]:
@@ -201,17 +222,17 @@ def _read_strain_line(line: str) -> float:
 def _read_fragment_indices_line(line: str) -> List[int]:
     """Reads the line containing the "fragment" keyword which specifies the atom indices of each fragment. The correct formats are:
 
-    fragment 1 2 3 4
+    fragment 1 2 4
     fragment 3 6 8
 
     or:
 
     fragment 1-4
-    fragment 3-8
+    fragment 5-8
 
     or:
 
-    fragment 1 2 3 4 5-8
+    fragment 1 2 5-8
     fragment -1 (this will select all atoms except the ones of the other fragment)
 
     """
@@ -263,7 +284,7 @@ read_functions: Dict[str, Callable[[str], Any]] = {
 }
 
 
-def extract_pyfrag_section(pyfrag_section: str) -> Dict[str, Any]:
+def extract_pyfrag_section(pyfrag_section: str) -> PyFragSection:
     """Extracts extra specifications from the PyFrag input file.
 
     This function takes the PyFrag input file as an argument and extracts extra specifications such as orbitalenergy, overlap, population of a certain fragment and MO.
@@ -285,15 +306,40 @@ def extract_pyfrag_section(pyfrag_section: str) -> Dict[str, Any]:
         'overlap': [('frag1', 'HOMO', 'frag2', 'LUMO')]
         'coord_file': file.xyz
     }
+
     """
     pyfrag_lines = pyfrag_section.split("\n")
     input_keys: Dict[str, list[Any]] = {}
 
     for line in pyfrag_lines:
+        line = line.lower()
+
+        for key, message in deprecated_keys_and_message_mapping.items():
+            if line.startswith(key):
+                raise PyFragCoordFileError(message)
+
         # Property keys such as bondlength, angle, dihedral, overlap, population, orbitalenergy, vdd
         for key, func in read_functions.items():
-            if line.lower().startswith(key.lower()):  # This checks for comments such as #, !, :
+            if line.startswith(key):  # This checks for comments such as #, !, :
                 input_keys[key] = [] if key not in input_keys else input_keys[key]
                 input_keys[key].append(func(line))
+
+    # Convert the input_keys dictionary to a PyFragSection model
+    return PyFragSection(
+        bondlength=[BondLength(atom1=bl[0], atom2=bl[1], bond_length=bl[2]) for bl in input_keys.get("bondlength", [])],
+        angle=[Angle(atom1=a[0], atom2=a[1], angle=a[2]) for a in input_keys.get("angle", [])],
+        dihedral=[Dihedral(atom1=d[0], atom2=d[1], atom3=d[2], dihedral_angle=d[3]) for d in input_keys.get("dihedral", [])],
+        overlap=[
+            Overlap(frag1=o[0], MO1=o[1], frag2=o[2], MO2=o[3]) if len(o) == 4 else OverlapWithIrrep(irrep1=o[0], frag1=o[1], index1=o[2], irrep2=o[3], frag2=o[4], index2=o[5])
+            for o in input_keys.get("overlap", [])
+        ],
+        population=[Population(frag1=p[0], MO1=p[1]) if len(p) == 2 else PopulationWithIrrep(irrep1=p[0], frag1=p[1], index1=p[2]) for p in input_keys.get("population", [])],
+        orbitalenergy=[OrbitalEnergy(frag1=oe[0], MO1=oe[1]) if len(oe) == 2 else OrbitalEnergyWithIrrep(irrep1=oe[0], frag1=oe[1], index1=oe[2]) for oe in input_keys.get("orbitalenergy", [])],
+        vdd=[VDD(atom_indices=v) for v in input_keys.get("vdd", [])],
+        irrep=[Irrep(irrep=i[0]) for i in input_keys.get("irrep", [])],
+        strain=[Strain(value=s) for s in input_keys.get("strain", [])],
+        fragment=[FragmentIndices(indices=f) for f in input_keys.get("fragment", [])],
+        coordfile=[CoordFile(filename=c) for c in input_keys.get("coordfile", [])],
+    )
 
     return input_keys
