@@ -1,10 +1,9 @@
-from typing import Dict, Tuple
+from typing import Tuple
 
 from scm.plams import AMSJob, Molecule, Settings
 
-from pyfrag.config.config import pyfrag_config
+from pyfrag.enums import CalcType
 from pyfrag.errors import PyFragSectionInputError
-from pyfrag.process_input.enums import CalcType
 from pyfrag.read_input.inputblocks import InputBlocks
 
 
@@ -21,12 +20,18 @@ def convert_input_block_to_settings(input_block: str) -> Settings:
         raise PyFragSectionInputError(f"Error occurred when converting input block to settings: {e}")
 
     # This does not include the "System" block; it does include the "Task" and "Engine" block
+
+    # Validate the settings: if there is an system block (containing symmetrize or symmetry), then it is removed since it crashes the program (e.g., there is no information about "symmetry" in the settings so we can't extract the appropriate point group)
+    if pre_calc_job.settings.input.ams.get("System") is not None:
+        _ = pre_calc_job.settings.input.ams.pop("System") if "System" in pre_calc_job.settings.input.ams else []
+
     settings = pre_calc_job.settings
 
     # Add "Task" block if it is not present
     if "Task" not in settings.input.ams:
         settings.input.ams.Task = "SinglePoint"
 
+    print(settings)
     if pre_calc_job.molecule is not None:
         molecule: Molecule = pre_calc_job.molecule[""]  # type: ignore
         charge = molecule.properties.charge
@@ -52,22 +57,17 @@ def determine_calculation_type_from_ams_input(ams_input: InputBlocks) -> CalcTyp
     return CalcType.RESTRICTED
 
 
-def process_ams_input(ams_input: InputBlocks) -> Tuple[Dict[str, Settings], CalcType]:
+def process_ams_input(ams_input: InputBlocks) -> Tuple[Settings, CalcType]:
     """
-    INTERFACE FUNCTION
-
     Process the input blocks that specifies settings for the AMS/ADF program.
     Returns a Settings object for each input block that can be used to run an AMSJob.
     Also returns the information regarding the type of calculation (Enum) for branching the workflow.
     """
-    processed_settings: Dict[str, Settings] = {}
 
     calc_type = determine_calculation_type_from_ams_input(ams_input)
-    ams_keys = pyfrag_config.ams.input_blocks
 
-    for key in ams_keys:
-        if key in ams_input:
-            if ams_input[key] is not None:
-                processed_settings[key] = convert_input_block_to_settings(ams_input[key])
+    key = "AMS" if "AMS" in ams_input else "ADF"
+    if key in ams_input and ams_input[key] is not None:
+        processed_settings = convert_input_block_to_settings(ams_input[key])
 
     return processed_settings, calc_type
