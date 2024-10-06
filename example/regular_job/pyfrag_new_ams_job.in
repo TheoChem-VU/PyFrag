@@ -1,31 +1,45 @@
-
-PYFRAG
-name new_ams_job
+PyFrag
+name test_job
 coordfile molecule.xyz
-fragment  2
-fragment  1 3 4 5 6
+fragment  1 2 3 4 5 6 7 8 9 10
+fragment  11 12
 strain    0
-strain   -554.09
-bondlength 1 6  1.09
-PYFRAG END
+strain    0
+bondlength 11 5
+bondlength 12 5
+
+PyFrag END
+
+fragment1 EXTRA
+System
+  Charge 0
+End
+fragment1 EXTRA END
+
+fragment2 EXTRA
+System
+  Charge -1
+End
+fragment2 EXTRA END
+
+complex EXTRA
+System
+  Charge -1
+End
+complex EXTRA END
+
 
 AMS
 Task SinglePoint
+Engine ADF
+  XC
+    GGA OLYP
+  END
+  NumericalQuality normal
+  BASIS
+    TYPE DZP
+    CORE None
+  END
 
-Engine adf
-  basis
-    core Small
-    type TZ2P
-  End
-
-  eprint
-    sfo EIG OVL
-  End
-
-  numericalquality VeryGood
-
-  xc
-    gga OPBE
-  End
 EndEngine
 AMS END
