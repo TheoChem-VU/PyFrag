@@ -1,9 +1,10 @@
+import pathlib as pl
 from typing import List, Protocol, Union
 
 from pydantic import BaseModel, Field
 
 
-class PyFragSetting(Protocol):
+class PyFragInputKey(Protocol):
     def label(self) -> str: ...
 
 
@@ -91,50 +92,14 @@ class OrbitalEnergyWithIrrep(BaseModel):
         return f"{self.irrep1}-{self.frag1}-{self.index1}"
 
 
-class VDD(BaseModel):
-    atom_indices: List[int]
-
-    def label(self) -> str:
-        return f"{self.atom_indices}"
-
-
-class Irrep(BaseModel):
-    irrep: str
-
-    def label(self) -> str:
-        return f"{self.irrep}"
-
-
-class Strain(BaseModel):
-    value: float
-
-    def label(self) -> str:
-        return f"{self.value}"
-
-
-class FragmentIndices(BaseModel):
-    indices: List[int]
-
-    def label(self) -> str:
-        return f"{self.indices}"
-
-
-class CoordFile(BaseModel):
-    filename: str
-
-    def label(self) -> str:
-        return f"{self.filename}"
-
-
 class PyFragSection(BaseModel):
-    bondlength: List[BondLength] = Field(default_factory=list)
-    angle: List[Angle] = Field(default_factory=list)
-    dihedral: List[Dihedral] = Field(default_factory=list)
-    overlap: List[Union[Overlap, OverlapWithIrrep]] = Field(default_factory=list)
-    population: List[Union[Population, PopulationWithIrrep]] = Field(default_factory=list)
-    orbitalenergy: List[Union[OrbitalEnergy, OrbitalEnergyWithIrrep]] = Field(default_factory=list)
-    vdd: List[VDD] = Field(default_factory=list)
-    irrep: List[Irrep] = Field(default_factory=list)
-    strain: List[Strain] = Field(default_factory=list)
-    fragment: List[FragmentIndices] = Field(default_factory=list)
-    coordfile: List[CoordFile] = Field(default_factory=list)
+    bondlengths: List[BondLength] = Field(default_factory=list)
+    angles: List[Angle] = Field(default_factory=list)
+    dihedrals: List[Dihedral] = Field(default_factory=list)
+    overlaps: List[Union[Overlap, OverlapWithIrrep]] = Field(default_factory=list)
+    populations: List[Union[Population, PopulationWithIrrep]] = Field(default_factory=list)
+    orbitalenergies: List[Union[OrbitalEnergy, OrbitalEnergyWithIrrep]] = Field(default_factory=list)
+    vdd_indices: List[int] = Field(default_factory=list)
+    strain_values: List[float] = Field(default_factory=list)
+    fragment_indices: List[List[int]] = Field(default_factory=list)
+    coordfile: List[pl.Path] = Field(default_factory=list)
