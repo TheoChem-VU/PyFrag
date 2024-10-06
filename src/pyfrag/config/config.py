@@ -1,6 +1,6 @@
 import pathlib as pl
 from pprint import pformat
-from typing import List, Tuple, Type, Union
+from typing import Tuple, Type, Union
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, TomlConfigSettingsSource
@@ -12,13 +12,8 @@ class Units(BaseSettings, validate_assignment=True):
     orbital_energy_unit: str = Field("eV", description="The unit of the orbital energies that are read from the adf.rkf file(s)")
 
 
-class AMS(BaseSettings, validate_assignment=True):
-    input_blocks: List[str] = Field(..., description="The names of the input blocks in the PyFrag input file that is used to specify the calculation settings for AMS")
-
-
 class PyFragConfig(BaseSettings, validate_assignment=True):
     units: Units
-    ams: AMS
 
     @classmethod
     def settings_customise_sources(

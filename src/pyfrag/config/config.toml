@@ -1,11 +1,2 @@
 [units]
 orbital_energy_unit = "eV"
-
-[ams]
-input_blocks = [
-    "ADF",
-    "AMS",
-    "COMPLEX EXTRA",
-    "FRAGMENT EXTRA",
-    "FRAGMENT OPEN EXTRA",
-]
