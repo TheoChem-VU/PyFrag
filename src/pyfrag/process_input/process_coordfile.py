@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Set, Union
 
@@ -7,6 +8,25 @@ from scm.plams import Atom, KFHistory, KFReader, Molecule, PeriodicTable, Units
 
 import pyfrag
 from pyfrag.errors import PyFragCoordFileError
+
+logger = logging.getLogger(name="Coordfile Processor")
+# =============================================================================
+# AMV / XYZ file reading  =====================================================
+# =============================================================================
+
+
+def _find_files_with_star_option(coord_files: List[Path]) -> List[Path]:
+    """
+    Find files with the * option in the path.
+    """
+    files = []
+    for coord_file in coord_files:
+        if "*" in coord_file.name:
+            files.extend(coord_file.parent.glob(coord_file.name))
+        else:
+            files.append(coord_file)
+    return files
+
 
 # =============================================================================
 # AMV / XYZ file reading  =====================================================
@@ -132,23 +152,24 @@ extension_func_mapping: Dict[str, Callable[[Path], List[Molecule]]] = {
 }
 
 
-def extract_molecules_from_coord_file(coord_files: List[str]) -> List[Molecule]:
+def extract_molecules_from_coord_file(coord_files: List[Path]) -> List[Molecule]:
     """
     Extract molecules from one or multiple coordinate files.
     Supported file types are .xyz, .amv, .rkf
     """
-    converted_coord_files = [Path(coord_file).resolve() for coord_file in coord_files]
 
-    if not all(coord_file.exists() for coord_file in converted_coord_files):
-        raise PyFragCoordFileError(f"File(s) not found: {converted_coord_files}")
+    coord_files = _find_files_with_star_option(coord_files)
 
-    extensions = {coord_file.suffix[1:] for coord_file in converted_coord_files}
+    if not all(coord_file.exists() for coord_file in coord_files):
+        raise PyFragCoordFileError(f"File(s) not found: {coord_files}")
+
+    extensions = {coord_file.suffix[1:] for coord_file in coord_files}
 
     if not all(extension in extension_func_mapping for extension in extensions):
         raise PyFragCoordFileError(f"Unsupported file extension detected in: {extensions}. Allowed are {set(extension_func_mapping)}.")
 
     molecules = []
-    for extension, coord_file in zip(extensions, converted_coord_files):
+    for extension, coord_file in zip(extensions, coord_files):
         molecules.extend(extension_func_mapping[extension](coord_file))
 
     return molecules
@@ -163,11 +184,14 @@ def split_trajectory_into_fragment_molecules(mols: List[Molecule], frag_indices:
     """
     Given a list of molecules, split each molecule into fragments (based on the entries = number of fragments in the nested frag_indices list).
 
-    Returns a list with length n_frags + 1: (complex_trajectory, frag1_trajectory, frag2_trajectory, ...)
+    Returns a list with length n_frags + 1: [[complex_trajectory], [frag1_trajectory], [frag2_trajectory], ...]
     where the first entry is the trajectory of the complex molecule and the following entries are the trajectories of the fragments
     """
     all_specified_indices = _collect_specified_indices(frag_indices=frag_indices)
     frag_indices = _handle_special_indices_case(n_atoms=len(mols[0]), frag_indices=frag_indices, all_specified_indices=all_specified_indices)
+
+    logger.debug(f"Fragment indices: {frag_indices}")
+
     trajectories = _create_trajectory_lists(mols=mols, frag_indices=frag_indices)
     return trajectories
 
