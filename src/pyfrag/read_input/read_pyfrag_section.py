@@ -1,15 +1,12 @@
+import pathlib as pl
 import re
 from typing import Any, Callable, Dict, List, Sequence, Tuple, Union
 
 from pyfrag.errors import PyFragCoordFileError, PyFragSectionInputError
 from pyfrag.read_input.pyfrag_settings import (
-    VDD,
     Angle,
     BondLength,
-    CoordFile,
     Dihedral,
-    FragmentIndices,
-    Irrep,
     OrbitalEnergy,
     OrbitalEnergyWithIrrep,
     Overlap,
@@ -17,7 +14,6 @@ from pyfrag.read_input.pyfrag_settings import (
     Population,
     PopulationWithIrrep,
     PyFragSection,
-    Strain,
 )
 
 deprecated_keys_and_message_mapping: Dict[str, str] = {
@@ -120,8 +116,9 @@ def _read_overlap_line(line: str) -> Union[Tuple[str, str, str, str, str, str], 
     # Two fragments, two MOs (HOMO/LUMO kind), no irreps
     if len(line_content) == 5:
         frag1, MO1, frag2, MO2 = line_content[1:5]
+
         # Check if the fragments are strings and are named frag1 and frag2
-        assert frag1 == "frag1" and frag2 == "frag2"
+        assert all(["frag" in frag for frag in [frag1, frag2]])
         return str(frag1), str(MO1), str(frag2), str(MO2)
 
     irrep1, frag1, index1, irrep2, frag2, index2 = line_content[1:]
@@ -264,9 +261,9 @@ def _read_coord_file_line(line: str) -> str:
 
     """
     line_content: List[str] = _check_line_length(line, "coord_file", (2, 2))
-    _, coord_file = line_content
+    _, coord_files = line_content
 
-    return coord_file
+    return coord_files
 
 
 read_functions: Dict[str, Callable[[str], Any]] = {
@@ -284,7 +281,7 @@ read_functions: Dict[str, Callable[[str], Any]] = {
 }
 
 
-def extract_pyfrag_section(pyfrag_section: str) -> PyFragSection:
+def extract_pyfrag_section(pyfrag_section: str, input_file_dir: pl.Path) -> PyFragSection:
     """Extracts extra specifications from the PyFrag input file.
 
     This function takes the PyFrag input file as an argument and extracts extra specifications such as orbitalenergy, overlap, population of a certain fragment and MO.
@@ -326,20 +323,17 @@ def extract_pyfrag_section(pyfrag_section: str) -> PyFragSection:
 
     # Convert the input_keys dictionary to a PyFragSection model
     return PyFragSection(
-        bondlength=[BondLength(atom1=bl[0], atom2=bl[1], bond_length=bl[2]) for bl in input_keys.get("bondlength", [])],
-        angle=[Angle(atom1=a[0], atom2=a[1], angle=a[2]) for a in input_keys.get("angle", [])],
-        dihedral=[Dihedral(atom1=d[0], atom2=d[1], atom3=d[2], dihedral_angle=d[3]) for d in input_keys.get("dihedral", [])],
-        overlap=[
+        bondlengths=[BondLength(atom1=bl[0], atom2=bl[1], bond_length=bl[2]) for bl in input_keys.get("bondlength", [])],
+        angles=[Angle(atom1=a[0], atom2=a[1], angle=a[2]) for a in input_keys.get("angle", [])],
+        dihedrals=[Dihedral(atom1=d[0], atom2=d[1], atom3=d[2], dihedral_angle=d[3]) for d in input_keys.get("dihedral", [])],
+        overlaps=[
             Overlap(frag1=o[0], MO1=o[1], frag2=o[2], MO2=o[3]) if len(o) == 4 else OverlapWithIrrep(irrep1=o[0], frag1=o[1], index1=o[2], irrep2=o[3], frag2=o[4], index2=o[5])
             for o in input_keys.get("overlap", [])
         ],
-        population=[Population(frag1=p[0], MO1=p[1]) if len(p) == 2 else PopulationWithIrrep(irrep1=p[0], frag1=p[1], index1=p[2]) for p in input_keys.get("population", [])],
-        orbitalenergy=[OrbitalEnergy(frag1=oe[0], MO1=oe[1]) if len(oe) == 2 else OrbitalEnergyWithIrrep(irrep1=oe[0], frag1=oe[1], index1=oe[2]) for oe in input_keys.get("orbitalenergy", [])],
-        vdd=[VDD(atom_indices=v) for v in input_keys.get("vdd", [])],
-        irrep=[Irrep(irrep=i[0]) for i in input_keys.get("irrep", [])],
-        strain=[Strain(value=s) for s in input_keys.get("strain", [])],
-        fragment=[FragmentIndices(indices=f) for f in input_keys.get("fragment", [])],
-        coordfile=[CoordFile(filename=c) for c in input_keys.get("coordfile", [])],
+        populations=[Population(frag1=p[0], MO1=p[1]) if len(p) == 2 else PopulationWithIrrep(irrep1=p[0], frag1=p[1], index1=p[2]) for p in input_keys.get("population", [])],
+        orbitalenergies=[OrbitalEnergy(frag1=oe[0], MO1=oe[1]) if len(oe) == 2 else OrbitalEnergyWithIrrep(irrep1=oe[0], frag1=oe[1], index1=oe[2]) for oe in input_keys.get("orbitalenergy", [])],
+        vdd_indices=[item for sublist in input_keys.get("vdd", []) for item in sublist],  # Flatten the list of lists
+        strain_values=[s for s in input_keys.get("strain", [])],
+        fragment_indices=[f for f in input_keys.get("fragment", [])],
+        coordfile=[input_file_dir / c for c in input_keys.get("coordfile", [])],
     )
-
-    return input_keys
