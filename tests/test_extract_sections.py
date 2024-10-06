@@ -11,7 +11,7 @@ def test_spellcheck_correction_fragment_extra():
     fraGMENt1_EXTRA END
     """
     sections_content = extract_section_blocks_from_file_content(file_content)
-    assert sections_content.FRAGMENT_EXTRA == ["System\n            Charge 0\n        End"]
+    assert sections_content.FRAGMENT_EXTRA == {1: "System\n            Charge 0\n        End"}
 
 
 def test_spellcheck_correction_jobsub():
@@ -98,8 +98,8 @@ fragment1 EXTRA
 fragment1 EXTRA END
     """
     sections_content = extract_section_blocks_from_file_content(file_content)
-    assert "System" in sections_content.FRAGMENT_EXTRA[0]
-    assert "Charge 0" in sections_content.FRAGMENT_EXTRA[0]
+    assert "System" in sections_content.FRAGMENT_EXTRA[1]
+    assert "Charge 0" in sections_content.FRAGMENT_EXTRA[1]
 
 
 def test_extract_sections_fragment2_extra():
@@ -112,8 +112,8 @@ fragment2 EXTRA
 fragment2 EXTRA END
     """
     sections_content = extract_section_blocks_from_file_content(file_content)
-    assert "System" in sections_content.FRAGMENT_EXTRA[0]
-    assert "Charge -1" in sections_content.FRAGMENT_EXTRA[0]
+    assert "System" in sections_content.FRAGMENT_EXTRA[2]
+    assert "Charge -1" in sections_content.FRAGMENT_EXTRA[2]
 
 
 def test_extract_sections_complex_extra():

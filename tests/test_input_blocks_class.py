@@ -50,8 +50,8 @@ def test_iter():
         PYFRAG="some pyfrag content",
         ADF="some adf content",
         AMS="some ams content",
-        FRAGMENT_EXTRA=["fragment1 content", "fragment2 content"],
-        FRAGMENT_OPEN_EXTRA=["fragment open extra content"],
+        FRAGMENT_EXTRA={1: "fragment1 content", 2: "fragment2 content"},
+        FRAGMENT_OPEN_EXTRA={1: "fragment1 open content"},
         COMPLEX_EXTRA="some complex extra content",
     )
     result = list(input_blocks)
@@ -62,7 +62,7 @@ def test_iter():
         ("AMS", "some ams content"),
         ("FRAGMENT1_EXTRA", "fragment1 content"),
         ("FRAGMENT2_EXTRA", "fragment2 content"),
-        ("FRAGMENT1_OPEN_EXTRA", "fragment open extra content"),
+        ("FRAGMENT1_OPEN_EXTRA", "fragment1 open content"),
         ("COMPLEX_EXTRA", "some complex extra content"),
     ]
     assert result == expected

@@ -1,4 +1,4 @@
-from pyfrag.process_input.enums import CalcType
+from pyfrag.enums import CalcType
 from pyfrag.read_input.read_ams_section import determine_calc_type
 
 
