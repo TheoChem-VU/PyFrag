@@ -1,8 +1,8 @@
 import logging
 
-from pyfrag.process_input.enums import CalcType
+from pyfrag.enums import CalcType
 
-logger = logging.getLogger(name="AMS/ADF Section Reader")
+logger = logging.getLogger(name="AMS Section Reader")
 
 
 def determine_calc_type(ams_section: str) -> CalcType:
