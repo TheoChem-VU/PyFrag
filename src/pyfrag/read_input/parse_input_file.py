@@ -113,24 +113,45 @@ def extract_section_blocks_from_file_content(file_content: str) -> InputBlocks:
     matches = pattern.findall(preprocessed_content)
 
     for match in matches:
-        section_name = match[0].upper()
-        section_content = match[1].strip()
+        # Replace spaces with underscores and make the section name uppercase such that it matches the attribute name in the InputBlocks class (spaces are not allowed in attribute names).
+        section_name = "_".join(match[0].upper().split(" ")) if " " in match[0] else match[0].upper()
 
+        # Get the content (string) of the section and remove comments for preventing errors in the parsing of the content
+        section_content = match[1].strip()
         section_content = remove_comments(section_content, section_name)
 
-        if section_name == "JOBSUB":
-            sections_content.JOBSUB = section_content
-        elif section_name == "PYFRAG":
-            sections_content.PYFRAG = section_content
-        elif section_name == "ADF":
-            sections_content.ADF = section_content
-        elif section_name == "AMS":
-            sections_content.AMS = section_content
-        elif section_name == "COMPLEX EXTRA":
-            sections_content.COMPLEX_EXTRA = section_content
-        elif re.match(r"FRAGMENT\d+ EXTRA", section_name, re.IGNORECASE):
-            sections_content.FRAGMENT_EXTRA.append(section_content)
-        elif re.match(r"FRAGMENT\d+ OPEN EXTRA", section_name, re.IGNORECASE):
-            sections_content.FRAGMENT_OPEN_EXTRA.append(section_content)
+        # Handle the fixed cases such as JOBSUB, PYFRAG, ADF, AMS, and COMPLEX EXTRA
+        if section_name in ["JOBSUB", "PYFRAG", "ADF", "AMS", "COMPLEX_EXTRA"]:
+            setattr(sections_content, section_name, section_content)
+
+        # Handle the FRAGMENT{x} EXTRA and FRAGMENT{x} OPEN EXTRA cases
+        elif "FRAGMENT" in section_name:
+            fragment_number = int(section_name.split("_")[0].replace("FRAGMENT", ""))
+            if "OPEN" in section_name:
+                sections_content.FRAGMENT_OPEN_EXTRA[fragment_number] = section_content
+            else:
+                sections_content.FRAGMENT_EXTRA[fragment_number] = section_content
 
     return sections_content
+
+
+def get_specific_section_content(file_content: str, section_name: str) -> str:
+    """
+    Get the content of a specific section from the input file content.
+
+    Args:
+        file_content (str): The content of the input file.
+        section_name (str): The name of the section to extract.
+
+    Returns:
+        str: The content of the section which can be an empty string if the section does not exist.
+
+
+    """
+    pattern = re.compile(rf"{section_name}\n(.*?){section_name} END", re.DOTALL | re.IGNORECASE)
+    match = pattern.search(file_content)
+
+    if match is None:
+        return ""
+
+    return match.group(1).strip()
