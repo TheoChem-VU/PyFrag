@@ -15,9 +15,9 @@ logger = logging.getLogger(name="Coordfile Processor")
 # =============================================================================
 
 
-def _find_files_with_star_option(coord_files: List[Path]) -> List[Path]:
+def _find_files_with_wildcard_option(coord_files: List[Path]) -> List[Path]:
     """
-    Find files with the * option in the path.
+    Find files with the * option ("wildcard") in the path.
     """
     files = []
     for coord_file in coord_files:
@@ -158,7 +158,7 @@ def extract_molecules_from_coord_file(coord_files: List[Path]) -> List[Molecule]
     Supported file types are .xyz, .amv, .rkf
     """
 
-    coord_files = _find_files_with_star_option(coord_files)
+    coord_files = _find_files_with_wildcard_option(coord_files)
 
     if not all(coord_file.exists() for coord_file in coord_files):
         raise PyFragCoordFileError(f"File(s) not found: {coord_files}")
