@@ -27,7 +27,7 @@ jobs:
           pip install -e .
       - name: Lint with ruff
         run: |
-          ruff check --format=github --target-version=py38 --line-length=250 src
+          ruff check src
       - name: Test with pytest
         run: |
           pytest --cov
