@@ -10,7 +10,7 @@ logger = logging.getLogger(name="PyFrag Section Reader")
 
 @dataclass
 class InputBlocks:
-    """Dataclass to store the input blocks of the PyFrag input file."""
+    """Dataclass that stores the input blocks of the PyFrag input file."""
 
     JOBSUB: str = ""
     PYFRAG: str = ""
@@ -21,7 +21,7 @@ class InputBlocks:
     COMPLEX_EXTRA: str = ""
 
     def get_input_blocks_specific_section(self, section_name: Literal["SCM", "PYFRAG", "JOBSUB"]) -> Dict[str, Union[str, None]]:
-        """Returns the content of the specific section. Note: SCM"""
+        """Returns the content of the specific section. Note: SCM includes both the PyFrag-defined AMS and ADF sections (AMS is the >2019 parsing of SCM and ADF is the parsing format before 2019)."""
         section_name_str = section_name.upper()
 
         if section_name_str not in self.__dict__.keys() and section_name_str != "SCM":

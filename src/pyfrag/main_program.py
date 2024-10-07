@@ -68,6 +68,7 @@ def main():
     # ================== Create and Run the PyFragJob ==========================
     # ==========================================================================
 
+    exit()
     with RestrictedPyFragJob(job_dir=file_path.parent, complex=complex, fragments=fragments) as job:
         job.run()
 

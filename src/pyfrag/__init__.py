@@ -7,6 +7,7 @@ def initialize_pyfrag_program(log_level: int = log.INFO):
     """
     This function initializes the PyFrag program. It includes:
     - Setting up the python logger with the given log level.
+    - Adding the SCM libbase to the sys.path for the correct input parsing from calculation user input (such as basis set, functional, etc.) to plams.Settings.
 
     Args:
         log_level (int): The log level to set the logger to. Default is logging.INFO.

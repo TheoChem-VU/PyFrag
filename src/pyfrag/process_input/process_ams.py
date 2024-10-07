@@ -9,7 +9,7 @@ from pyfrag.read_input.inputblocks import InputBlocks
 
 def convert_input_block_to_settings(input_block: str) -> Settings:
     """
-    Returns a Settings object from an inputfile
+    Returns a Settings object from an input block that specifies the calculation settings for the AMS program & ADF engine.
 
     Adapted from the AMSJob.from_inputfile method to read in the settings from a file and return a Settings object
     Reason for adapting was because the AMSJob.from_inputfile method does remove the ams block from the settings object
@@ -18,8 +18,6 @@ def convert_input_block_to_settings(input_block: str) -> Settings:
         pre_calc_job: AMSJob = AMSJob.from_input(input_block)
     except Exception as e:
         raise PyFragSectionInputError(f"Error occurred when converting input block to settings: {e}")
-
-    # This does not include the "System" block; it does include the "Task" and "Engine" block
 
     # Validate the settings: if there is an system block (containing symmetrize or symmetry), then it is removed since it crashes the program (e.g., there is no information about "symmetry" in the settings so we can't extract the appropriate point group)
     if pre_calc_job.settings.input.ams.get("System") is not None:
@@ -31,7 +29,7 @@ def convert_input_block_to_settings(input_block: str) -> Settings:
     if "Task" not in settings.input.ams:
         settings.input.ams.Task = "SinglePoint"
 
-    print(settings)
+    # Charge is not part of the settings, but absorbed into the molecule properties. So we need to put it back into the plams settings object.
     if pre_calc_job.molecule is not None:
         molecule: Molecule = pre_calc_job.molecule[""]  # type: ignore
         charge = molecule.properties.charge

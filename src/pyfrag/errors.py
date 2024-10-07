@@ -1,8 +1,26 @@
 from typing import Optional
 
+# =============================================================================
+# Base PyFrag error
+# =============================================================================
+
 
 class PyFragError(Exception):
     """Base class for PyFrag errors."""
+
+
+# =============================================================================
+# AMS environment error
+# =============================================================================
+
+
+class AMSNotFoundError(PyFragError):
+    """Error raised when the AMS environment is not found."""
+
+
+# =============================================================================
+# Input reading and parsing errors
+# =============================================================================
 
 
 class PyFragInputFileNotFoundError(PyFragError):
@@ -33,8 +51,16 @@ class AMSSectionInputError(PyFragError):
         self.key = key
 
 
+# =============================================================================
+# Coordinate file errors
+# =============================================================================
 class PyFragCoordFileError(PyFragError):
     """An error that occurs when the coordinate file is invalid."""
+
+
+# =============================================================================
+# AMS input error
+# =============================================================================
 
 
 class PyFragAMSSectionReadError(PyFragError):

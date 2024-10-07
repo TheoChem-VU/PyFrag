@@ -6,6 +6,8 @@ from typing import Dict, Literal
 
 import scm.plams as plams
 
+from pyfrag.errors import AMSNotFoundError
+
 # Detect Windows, Linux, or MacOS
 OPERATING_SYSTEM: Literal["Windows", "Linux/MacOS"] = "Linux/MacOS"
 if os.name == "nt":
@@ -56,8 +58,7 @@ def add_scm_libbase_to_sys_path():
     # Configure logging
     AMSHOME = os.getenv("AMSHOME")
     if not AMSHOME:
-        logging.error("AMSHOME environment variable is not set.")
-        raise ValueError("AMSHOME environment variable is not set.")
+        raise AMSNotFoundError("AMSHOME environment variable is not set. Please set it to the root directory of the SCM installation.")
 
     AMSHOME_PATH = Path(AMSHOME)
     # Append paths to sys.path
