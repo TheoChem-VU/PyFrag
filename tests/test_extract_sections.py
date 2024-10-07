@@ -153,13 +153,13 @@ PyfRAG END
 def test_extract_commented_out_jobsub_section():
     """This function should actually not pass!"""
     file_content = """
-#JOBSUB
+# JOBSUB
 #!/bin/bash
 #SBATCH -N 1
 
 echo module list
 
-#JOBSUB END
+# JOBSUB END
 """
     sections_content = extract_section_blocks_from_file_content(file_content)
     # assert sections_content.JOBSUB == "#!/bin/bash\n#SBATCH -N 1\n\necho module list\n\n#"

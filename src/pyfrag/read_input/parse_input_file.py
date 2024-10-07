@@ -15,7 +15,17 @@ logger = logging.getLogger(name="PyFrag Section Reader")
 
 
 def read_input_file_content(file_path: Union[str, Path]) -> str:
-    """Reads the content of a given file. May raises errors when the file does not exist."""
+    """Reads the content of a given file. Raises an error if the file does not exist.
+
+    Args:
+        file_path (Union[str, Path]): The path to the input file.
+
+    Raises:
+        PyFragInputFileNotFoundError: If the input file does not exist.
+
+    Returns:
+        str: The content of the input file.
+    """
     file = Path(file_path)
 
     if not file.exists():
@@ -31,15 +41,20 @@ def read_input_file_content(file_path: Union[str, Path]) -> str:
 
 
 def correct_spelling_mistakes(file_content: str) -> str:
-    """
-    Correct spelling mistakes in the input file content. Currently, it tests for the following cases:
+    """Corrects spelling mistakes in the input file content.
 
+    Currently, it corrects the following cases:
         - FRAGMENT1_EXTRA -> FRAGMENT1 EXTRA
         - FRAGMENT1_OPEN_EXTRA -> FRAGMENT1 OPEN EXTRA
         - COMPLEX_EXTRA -> COMPLEX EXTRA
         - JOB SUB -> JOBSUB
         - JOB_SUB -> JOBSUB
 
+    Args:
+        file_content (str): The content of the input file.
+
+    Returns:
+        str: The corrected content of the input file.
     """
     # Correct section names like FRAGMENT1_EXTRA to FRAGMENT1 EXTRA and FRAGMENT1_OPEN_EXTRA to FRAGMENT1 OPEN EXTRA.
     pattern_fragment = re.compile(r"(FRAGMENT\d+)_(OPEN_)?EXTRA", re.IGNORECASE)
@@ -52,15 +67,21 @@ def correct_spelling_mistakes(file_content: str) -> str:
     return corrected_content
 
 
-def remove_comments(section_content: str, section_name: str) -> str:
-    """Removes comments from the input file content which are lines starting with # or !."""
+def remove_comments(section_content: str) -> str:
+    """Removes comments from the input file content which are lines starting with # or !.
 
-    # JOBSUB contains sbatch options such as #SBATCH -N 1, which should not be removed. Thus, return the content as is.
-    if section_name == "JOBSUB":
-        return section_content
+    The following assumptions are made:
+        - Lines designated as comments always start with a # or !.
+        - There is a space after the # or !. Otherwise, all the SBATCH lines in the JOBSUB section would be removed.
 
+    Args:
+        section_content (str): The content of the section.
+
+    Returns:
+        str: The content of the section without comments.
+    """
     lines = section_content.split("\n")
-    section_content_without_comments = [line for line in lines if not line.strip().startswith(("#", "!"))]
+    section_content_without_comments = [line for line in lines if not line.strip().startswith(("# ", "! "))]
     return "\n".join(section_content_without_comments)
 
 
@@ -104,6 +125,7 @@ def extract_section_blocks_from_file_content(file_content: str) -> InputBlocks:
 
     # Preprocess the file content
     preprocessed_content = correct_spelling_mistakes(file_content)
+    preprocessed_content = remove_comments(preprocessed_content)
 
     # This pattern matches the section name (case-insensitive) followed by the content of the section. There is no limit to how many "FRAGMENT{x} EXTRA" sections there can be.
     # Note that this pattern also graps sections that are commented out. A fix is hard because the "JOBSUB" section contains sbatch lines that start also with a comment
@@ -116,9 +138,8 @@ def extract_section_blocks_from_file_content(file_content: str) -> InputBlocks:
         # Replace spaces with underscores and make the section name uppercase such that it matches the attribute name in the InputBlocks class (spaces are not allowed in attribute names).
         section_name = "_".join(match[0].upper().split(" ")) if " " in match[0] else match[0].upper()
 
-        # Get the content (string) of the section and remove comments for preventing errors in the parsing of the content
+        # Get the content (string) of the section and remove comments for preventing errors in the parsing of the content. Note: the JOBSUB section is skipped since the SBATCH lines begin with a comment
         section_content = match[1].strip()
-        section_content = remove_comments(section_content, section_name)
 
         # Handle the fixed cases such as JOBSUB, PYFRAG, ADF, AMS, and COMPLEX EXTRA
         if section_name in ["JOBSUB", "PYFRAG", "ADF", "AMS", "COMPLEX_EXTRA"]:

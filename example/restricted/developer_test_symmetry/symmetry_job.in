@@ -1,7 +1,7 @@
 ##### Uses the  >AMS2019 inputfile format (indicated by the AMS and AMS END keys)
 ##### You must load the ams (>2019) module
 
-JOBSUB
+# JOBSUB
 
 #!/bin/bash
 #SBATCH -N 1
@@ -19,7 +19,7 @@ JOBSUB
 # module load AMS/2023.101-intelmpi
 # module list
 
-JOBSUB END
+# JOBSUB END
 
 
 PyFrag
