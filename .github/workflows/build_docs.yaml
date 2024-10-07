@@ -1,0 +1,69 @@
+name: 'Documentation'
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [closed]
+    branches: [main]
+  release:
+    types: [published]
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get git tags
+        run: git fetch --prune --unshallow --tags
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build package
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -e .
+
+      - name: Install sphinx
+        run: pip install sphinx sphinx-tabs sphinx-copybutton sphinx-autodoc-typehints sphinx-argparse
+
+      - name: Install sphinx theme
+        run: pip install pydata-sphinx-theme
+
+      - name: Install other dependencies
+        run: pip install plams
+
+      - name: Run sphinx-apidoc
+        run: cd docs; sphinx-apidoc -f -o ./api ../src/pyfrag
+
+      - name: Build the docs
+        run: cd docs; make html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+           publish_branch: gh-pages
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           publish_dir: docs/_build/
+           force_orphan: true
