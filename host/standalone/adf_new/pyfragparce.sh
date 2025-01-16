@@ -43,13 +43,13 @@ done < "$pyfrag"
 input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
-sed -n '/^JOBSUB$/,/^JOBSUB END$/{//!p;}' $input > jobsub.txt
-sed -n '/^AMS$/,/^AMS END$/{//!p;}' $input > adfinputfile
-sed -n '/^ADF$/,/^ADF END$/{//!p;}' $input > old_adfinputfile
-sed -n '/^PyFrag$/,/^PyFrag END$/{//!p;}' $input > pyfrag.txt
-sed -n '/^fragment1 EXTRA$/,/^fragment1 EXTRA END$/{//!p;}' $input > fragment1_EXTRA
-sed -n '/^fragment2 EXTRA$/,/^fragment2 EXTRA END$/{//!p;}' $input > fragment2_EXTRA
-sed -n '/^complex EXTRA$/,/^complex EXTRA END$/{//!p;}' $input > complex_EXTRA
+sed -n '/^JOBSUB$/I,/^JOBSUB END$/I{//!p;}' $input > jobsub.txt
+sed -n '/^AMS$/I,/^AMS END$/I{//!p;}' $input > adfinputfile
+sed -n '/^ADF$/I,/^ADF END$/I{//!p;}' $input > old_adfinputfile
+sed -n '/^PyFrag$/I,/^PyFrag END$/I{//!p;}' $input > pyfrag.txt
+sed -n '/^fragment1 EXTRA$/I,/^fragment1 EXTRA END$/I{//!p;}' $input > fragment1_EXTRA
+sed -n '/^fragment2 EXTRA$/I,/^fragment2 EXTRA END$/I{//!p;}' $input > fragment2_EXTRA
+sed -n '/^complex EXTRA$/I,/^complex EXTRA END$/I{//!p;}' $input > complex_EXTRA
 
 submit="amspython \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
 
