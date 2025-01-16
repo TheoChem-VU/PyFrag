@@ -29,7 +29,7 @@ For the earlier version (PyFrag 2.0) please see http://www.few.vu.nl/~wolters/py
 """
 LOG_LEVEL_MAP = {"debug": logging.DEBUG, "info": logging.INFO, "warning": logging.WARNING, "error": logging.ERROR, "critical": logging.CRITICAL}
 
-log_level = logging.INFO
+log_level = logging.DEBUG
 
 
 parser = ag.ArgumentParser(description="Print user defined values")
@@ -57,7 +57,7 @@ parser.add_argument("--log_level", type=str, action="append", nargs="*", help='d
 
 
 # Set default values
-inputKeys = {"jobstate": None, "filename": "pyfrag_calc", log_level: logging.INFO, "strain": {}}
+inputKeys = {"jobstate": None, "filename": "pyfrag_calc", "log_level": logging.INFO, "strain": {}}
 
 for key, val in vars(parser.parse_args()).items():
     if val is not None:
@@ -174,19 +174,19 @@ settings_Complex = settings_general.copy()
 for extra_input, extra_input_path in inputKeys.items():
     if extra_input == "fragment1_EXTRA":
         if old_ADF_input:
-            settings_Frag1 += main_converter(extra_input_path)
+            settings_Frag1.update(main_converter(extra_input_path))
         else:
-            settings_Frag1 += settings_from_inputfile(extra_input_path)
+            settings_Frag1.update(settings_from_inputfile(extra_input_path))
     if extra_input == "fragment2_EXTRA":
         if old_ADF_input:
-            settings_Frag2 += main_converter(extra_input_path)
+            settings_Frag2.update(main_converter(extra_input_path))
         else:
-            settings_Frag2 += settings_from_inputfile(extra_input_path)
+            settings_Frag2.update(settings_from_inputfile(extra_input_path))
     if extra_input == "complex_EXTRA":
         if old_ADF_input:
-            settings_Complex += main_converter(extra_input_path)
+            settings_Complex.update(main_converter(extra_input_path))
         else:
-            settings_Complex += settings_from_inputfile(extra_input_path)
+            settings_Complex.update(settings_from_inputfile(extra_input_path))
 
 # Logging settings
 for system, specific_sett in zip(["All systems", "Frag1", "Frag2", "Complex"], [settings_general, settings_Frag1, settings_Frag2, settings_Complex]):
