@@ -20,18 +20,32 @@ function jobsubargue {
 jobsub="$1"
 while read -r line
 do
+    # Skip lines that are fully commented (but allow lines starting with #SBATCH or #!/) (e.g., shebang)
+    if [[ "$line" =~ ^# && ! "$line" =~ ^#SBATCH && ! "$line" =~ ^#!/ ]]; then
+        continue
+    fi
+
+    # Remove inline comments (e.g., #, ;, or /) but preserve the line if it starts with #SBATCH or #!/  (e.g., shebang)
+    if [[ ! "$line" =~ ^#SBATCH && ! "$line" =~ ^#!/ ]]; then
+        line=$(echo "$line" | sed -E 's/[#;/].*$//' | sed '/^\s*$/d')
+    fi
+
+    # Process non-empty lines
     if [ "$line" != "" ]; then
-      name="$line"
-      echo "$name"
+        name="$line"
+        echo "$name"
     fi
 done < "$jobsub"
 }
 
 function pyfragargue {
-# This function translates the pyfrag.txt file into a string of arguments (format: "--parser_key") that ends up in the "sub" file
+# This function translates the PyFrag sections into a string of arguments (format: "--parser_key") that ends up in the "sub" file
+# Lines starting with # or ; are ignored, and inline comments are also removed
 pyfrag="$1"
 while read -r line
 do
+    # Remove inline comments and skip lines starting with comment symbols
+    line=$(echo "$line" | sed -E 's/[#;/].*$//' | sed '/^\s*$/d')
     if [ "$line" != "" ]; then
       name="$line"
       echo "--$name \\"
@@ -43,6 +57,9 @@ done < "$pyfrag"
 input=$*
 SCRIPTPATH="$( cd "$(dirname "$1")" ; pwd -P )"
 
+# Extract the relevant sections from the input file, e.g. JOBSUB, AMS, ADF, PyFrag, fragment1 EXTRA, fragment2 EXTRA, complex EXTRA
+# Each section has a header (one line) and a footer (specified with END block)
+# The sections are read in a case-insensitive manner through the sed command with the I flag
 sed -n '/^JOBSUB$/I,/^JOBSUB END$/I{//!p;}' $input > jobsub.txt
 sed -n '/^AMS$/I,/^AMS END$/I{//!p;}' $input > adfinputfile
 sed -n '/^ADF$/I,/^ADF END$/I{//!p;}' $input > old_adfinputfile
