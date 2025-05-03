@@ -1,5 +1,6 @@
 import logging
 import os
+from pprint import pprint
 
 # from scm.libbase import InputParser  # type: ignore
 # from scm.plams.core.functions import parse_heredoc
@@ -10,6 +11,10 @@ from scm.plams import AMSJob, AMSResults, Atom, KFFile, Molecule, Settings, Unit
 
 # from plams import *
 
+
+# =====================================================================
+# Handling of input files and settings
+# =====================================================================
 
 def settings_from_inputfile(inputfile: str) -> Settings:
     """
@@ -45,12 +50,21 @@ def settings_from_inputfile(inputfile: str) -> Settings:
     return settings
 
 
-def handle_restart(foldername) -> Optional[str]:
+# =====================================================================
+# Handling of restarting the PyFrag Calculations
+# =====================================================================
+
+def handle_restart(foldername: str) -> Optional[str]:
     """
-    Copied mostly from the plams routine on restarting jobs
-    https://github.com/SCM-NV/PLAMS/blob/master/scripts/plams
+    Copied mostly from the [plams routine on restarting jobs](https://github.com/SCM-NV/PLAMS/blob/master/scripts/plams).
+    The main idea is to check if the foldername exists (which implies that the calculations have already been computed) and rename that folder to a backup folder with the ".res" suffix.
+    After the calculations are finished, the backup folder will be deleted.
+
     Input:
        foldername (str): the foldername to restart from
+
+    Returns:
+         restart_backup (str): the name of the backup folder if it exists, otherwise None
     """
     restart_backup = None
     if os.path.isdir(foldername):
@@ -68,6 +82,10 @@ def handle_restart(foldername) -> Optional[str]:
         print("RESTART: The folder specified for restart does not exist, starting from scratch")
     return restart_backup
 
+
+# =====================================================================
+# Handling of reading in trajectories and coordinates, and creating the fragments
+# =====================================================================
 
 def ReadIRCPath(f, tag, offset):
     # split all data into different block each of which represent one molecular structure in IRC
@@ -132,6 +150,93 @@ def ParseIRCFile(ircCoordFile: str) -> List[List[List[str]]]:
     return ircRawList
 
 
+def load_molecule_from_str(molecule_block: str | list[str]) -> Molecule:
+    """Load a molecule from a string by adding atoms and coordinates explicitly.
+
+    Args:
+        molecule_block (str | list[str]): The molecule block as a string or list of strings.
+
+    Returns:
+        Molecule: A PLAMS Molecule object.
+    """
+    if isinstance(molecule_block, str):
+        molecule_block = molecule_block.split("\n")
+
+    # Remove empty lines and strip whitespace
+    molecule_block = [line.strip() for line in molecule_block if line.strip()]
+
+    # Create a new Molecule object
+    mol = Molecule()
+
+    # Iterate over the lines in the molecule block
+    for line in molecule_block:
+        parts = line.split()
+        if len(parts) >= 4:
+            # Example line: "O 0.000000 0.000000 0.000000 region=O.adf"
+            atom_symbol: str = parts[0]
+            coordinates: list[float] = [float(coord) for coord in parts[1:4]]
+            atom = Atom(symbol=atom_symbol, coords=coordinates)
+            mol.add_atom(atom)
+
+            if len(parts) > 4:
+                atom.properties.suffix = " ".join(parts[4:])
+    return mol
+
+
+def is_header_line(line: list[str] | str) -> bool:
+    """Check if the line of the block is a header line such as in .amv files:
+
+    Geometry 1, Name: O_SC1_E_c1, Energy: -4528.147256459182 Ha
+
+    which is a header line for the first molecule in the block.
+
+    Args:
+        str_block (list[str]): A list of strings representing the lines in the block.
+    Returns:
+        bool: True if the first line is a header line, False otherwise.
+    """
+
+    if not line:
+        return True
+
+    parts = line.split() if isinstance(line, str) else line
+    # Check if the first line is in the [str, float, float, float, [*other]] format
+    try:
+        # Check if the first part is a string (name) and the rest are floats (coordinates)
+        (_, _, _, _) = parts[0], float(parts[1]), float(parts[2]), float(parts[3])
+        return False
+    except (ValueError, IndexError):
+        # If conversion to float fails, there is a header line
+        return True
+
+
+def load_molecules(file_path: pl.Path) -> list[Molecule]:
+    with open(file_path, "r") as f:
+        file_content = f.read()
+
+    # Extract the blocks which are seperated by empty lines
+    blocks = re.split(r"\n\s*\n", file_content.strip())
+
+    molecule_strings: list[list[str]] = []
+    for mol_block in blocks:
+        # Check if the line is a header line
+        lines = mol_block.splitlines()
+
+        # Skip empty lines
+        if not lines:
+            continue
+
+        if is_header_line(lines[0]):
+            # If the first line is a header line, we need to skip it and add the rest of the lines
+            lines = lines[1:]
+
+        molecule_strings.append(lines)
+
+    molecules = [load_molecule_from_str(mol_str) for mol_str in molecule_strings]
+
+    return molecules
+
+
 def GetIRCFragmentList(ircStructures: List[List[List[str]]], fragDefinition: Dict[str, List[int]]):
     """
     #ircStructures  = from ParseIRCFile
@@ -153,6 +258,11 @@ def GetIRCFragmentList(ircStructures: List[List[List[str]]], fragDefinition: Dic
     return ircList
 
 
+# =====================================================================
+# Handling of optimising the fragments if no strain energy is specified for the fragments
+# =====================================================================
+
+
 def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: Settings, frag2Settings: Settings) -> List[AMSResults]:
     """Optimizes the fragments if requested by the user. Returns a list of AMSResults with a length of two."""
     job_names = ["frag1_opt", "frag2_opt"]
@@ -166,14 +276,22 @@ def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: 
     [CleanUpCalculationFolder(job) for job in opt_jobs]
     return opt_results
 
+# =====================================================================
+# Writing the results (see PyFrag section) in table format to a file
+# =====================================================================
+
 
 def get_output_data(data: Dict[str, Any]):
     """
     This function takes a dictionary and converts it into a format where each value in a list
-    is associated with a unique key. For example, it converts {'overlap': [1.55, 1.99]} into
+    is associated with a unique key.
+
+    For example, it converts {'overlap': [1.55, 1.99]} into
     {'overlap_1': 1.55, 'overlap_2':1.99}.
     """
     output_table = {}
+
+    pprint(data)
 
     for key, value in data.items():
         # If the value is a list with more than one item, create a new key for each item
@@ -248,6 +366,11 @@ def PrintTable(cellList, widthlist, bar):
         print(line)
 
 
+# =====================================================================
+# Cleaning up the calculation folders (complex.xxx and fragment[x].xxx folders) to remove unnecessary files (and save disk space)
+# =====================================================================
+
+
 def CleanUpCalculationFolder(job: AMSJob):
     """
     Removes unnecessary files from the calculation folder
@@ -261,6 +384,9 @@ def CleanUpCalculationFolder(job: AMSJob):
             r._clean(["-", f"t21.*.{atom.symbol}"])
         job.pickle()  # this will update the .dill file which is used to restart the job and extract results when using plams
 
+# =====================================================================
+# Main function to run the PyFrag calculations
+# =====================================================================
 
 def PyFragDriver(inputKeys, frag1Settings: Settings, frag2Settings: Settings, complexSettings: Settings):
     # main pyfrag driver used for fragment and complex calculation.
