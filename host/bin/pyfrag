@@ -32,10 +32,9 @@ then
     echo " "
     echo "       -h          : print this information"
     echo "       -x command  : start the executable named command"
-    echo "                   : command include adf, which use adf as engine"
-    echo "                   : newopen, which use adf as engine but do open shell EDA"
+    echo "                   : command include adf, which use adf as engine (for both open and closed shell calculations)"
     echo "                   : openorb, which print the real orbital energy from the open shell calculation"
-	echo "                   : single, which use adf as engine to do a series of SP calculation"
+    echo "                   : single, which use adf as engine to do a series of SP calculation"
     echo "                   : gaussian, which use gaussian as engine"
     echo "                   : orca, which use orca as engine"
     echo "                   : turbomole, use turbomole as engine"
@@ -48,7 +47,22 @@ then
     exit 1
 fi
 
+# Mapping of deprecated executables to their replacements
+declare -A DEPRECATED_EXECUTABLES
+DEPRECATED_EXECUTABLES=(
+    ["newopen"]="adf"
+    ["new_open"]="adf"
+)
 
+# ----------------------
+# Check if the executable is deprecated and update it
+# ----------------------
+if [ ! -z "$EXECUTABLE" ]; then
+    if [ "${DEPRECATED_EXECUTABLES[$EXECUTABLE]+_}" ]; then
+        echo "Warning: The executable '$EXECUTABLE' is deprecated and will be replaced with '${DEPRECATED_EXECUTABLES[$EXECUTABLE]}'."
+        EXECUTABLE="${DEPRECATED_EXECUTABLES[$EXECUTABLE]}"
+    fi
+fi
 
 if test -x "$HOSTPYFRAG/bin/$EXECUTABLE.sh";
 then
@@ -58,4 +72,3 @@ else
     echo "Using the adf engine as default engine"
     exec "$HOSTPYFRAG/bin/adf.sh"  "$@"
 fi
-
