@@ -1,0 +1,5 @@
+{
+    "python.analysis.include": [
+        "${workspaceFolder}/host/standalone",
+    ]
+}
