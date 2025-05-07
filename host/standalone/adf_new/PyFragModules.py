@@ -1,20 +1,22 @@
 import logging
-import os
-from pprint import pprint
-
-# from scm.libbase import InputParser  # type: ignore
-# from scm.plams.core.functions import parse_heredoc
+import pathlib as pl
 import re
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
-from scm.plams import AMSJob, AMSResults, Atom, KFFile, Molecule, Settings, Units, load_all
+import constants as const
+from errors import FragmentOptimizationError
+from input import InputKeys
+from mol_handling import create_pyfrag_trajectory_from_coord_file, update_fragment_indices
+from result_classes import get_pyfrag_results
+from scm.plams import AMSJob, AMSResults, Molecule, Settings, load_all
 
-# from plams import *
+logger = logging.getLogger("PyFragDriver")
 
 
 # =====================================================================
 # Handling of input files and settings
 # =====================================================================
+
 
 def settings_from_inputfile(inputfile: str) -> Settings:
     """
@@ -54,208 +56,35 @@ def settings_from_inputfile(inputfile: str) -> Settings:
 # Handling of restarting the PyFrag Calculations
 # =====================================================================
 
-def handle_restart(foldername: str) -> Optional[str]:
+
+def handle_restart(foldername: Union[str, pl.Path]) -> Optional[str]:
     """
-    Copied mostly from the [plams routine on restarting jobs](https://github.com/SCM-NV/PLAMS/blob/master/scripts/plams).
-    The main idea is to check if the foldername exists (which implies that the calculations have already been computed) and rename that folder to a backup folder with the ".res" suffix.
-    After the calculations are finished, the backup folder will be deleted.
+    Handles restarting by checking if the folder exists, renaming it to a backup folder with a ".res" suffix,
+    and returning the backup folder name. Supports both string and pathlib.Path inputs.
 
     Input:
-       foldername (str): the foldername to restart from
+       foldername (Union[str, pl.Path]): The foldername to restart from.
 
     Returns:
-         restart_backup (str): the name of the backup folder if it exists, otherwise None
+         Optional[str]: The name of the backup folder if it exists, otherwise None.
     """
+    foldername = pl.Path(foldername)  # Ensure foldername is a pathlib.Path object
     restart_backup = None
-    if os.path.isdir(foldername):
-        foldername = foldername.rstrip("/")
-        if os.listdir(foldername):
-            restart_backup = f"{foldername}.res"
+
+    if foldername.is_dir():
+        foldername = foldername.resolve()  # Resolve to an absolute path
+        if any(foldername.iterdir()):  # Check if the folder is not empty
+            restart_backup = foldername.with_suffix(".res")
             n = 1
-            while os.path.exists(restart_backup):
+            while restart_backup.exists():
                 n += 1
-                restart_backup = f"{foldername}.res{str(n)}"
-            os.rename(foldername, restart_backup)
+                restart_backup = foldername.with_suffix(f".res{n}")
+            foldername.rename(restart_backup)
             print(f"RESTART: Moving {foldername} to {restart_backup} and restarting from it")
     else:
-        restart_backup = None
         print("RESTART: The folder specified for restart does not exist, starting from scratch")
-    return restart_backup
 
-
-# =====================================================================
-# Handling of reading in trajectories and coordinates, and creating the fragments
-# =====================================================================
-
-def ReadIRCPath(f, tag, offset):
-    # split all data into different block each of which represent one molecular structure in IRC
-    if f.read(tag, "PathStatus").strip() == "DONE" or f.read(tag, "PathStatus").strip() == "EXEC":
-        nEntry = f.read(tag, "CurrentPoint") * offset
-        tmpList = f.read(tag, "xyz")
-        return [tmpList[i : i + offset] for i in range(0, nEntry, offset)]
-    return []
-
-
-def GetAtom(kf) -> Tuple[int, List[str]]:
-    # preparations: get geometry info, atomic symbols in the right order
-    nAtoms = kf.read("Geometry", "nr of atoms")
-    aAtoms = kf.read("Geometry", "fragment and atomtype index")[nAtoms:]
-    xAtoms = str(kf.read("Geometry", "atomtype")).split()
-    oAtoms = kf.read("Geometry", "atom order index")[nAtoms:]
-    sAtoms = [xAtoms[order - 1] for numb, order in sorted(zip(oAtoms, aAtoms))]
-    # sAtoms = [xAtoms[aAtoms[order-1]-1] for order in f.read('Geometry', 'atom order index')[nAtoms:]]
-    return nAtoms, sAtoms
-
-
-def ReadIRCt21(fileName, fileName2=None):
-    f = KFFile(fileName)
-    nAtoms, sAtoms = GetAtom(f)
-    bwdIRC = ReadIRCPath(f, "IRC_Backward", 3 * nAtoms)
-    # append forward and backward coordinates
-    if (len(bwdIRC) == 0) and (fileName2 is not None):
-        bwdIRC = ReadIRCPath(KFFile(fileName2), "IRC_Backward", 3 * nAtoms)
-    fwdIRC = ReadIRCPath(f, "IRC_Forward", 3 * nAtoms)
-    if (len(fwdIRC) == 0) and (fileName2 is not None):
-        fwdIRC = ReadIRCPath(KFFile(fileName2), "IRC_Forward", 3 * nAtoms)
-    fwdIRC.reverse()
-    # transition state geometry
-    cenIRC = [f.read("IRC", "xyz")]
-    return [[[s, x, y, z] for s, x, y, z in zip(sAtoms, xyzBlock[0::3], xyzBlock[1::3], xyzBlock[2::3])] for xyzBlock in fwdIRC + cenIRC + bwdIRC]
-
-
-def ReadLTt21(fileName):
-    # read LT coordinates which is similar to IRC
-    f = KFFile(fileName)
-    nAtoms, sAtoms = GetAtom(f)
-    tmpList = f.read("LT", "xyz")
-    matrixLT = [tmpList[i : i + 3 * nAtoms] for i in range(0, len(tmpList), 3 * nAtoms)]
-    return [[[s, x, y, z] for s, x, y, z in zip(sAtoms, xyzBlock[0::3], xyzBlock[1::3], xyzBlock[2::3])] for xyzBlock in matrixLT]
-
-
-def ParseIRCFile(ircCoordFile: str) -> List[List[List[str]]]:
-    # read xyz file like amv file exported from adfinput
-    ircFile = open(str(ircCoordFile))
-    ircRaw = [[]]
-    for line in ircFile:
-        llist = line.split()
-        lllen = len(llist)
-        if lllen == 4:
-            # append coordinate
-            ircRaw[-1].append(llist)
-        else:
-            # initiate new coordinate block
-            ircRaw.append([])
-    ircRawList = [_f for _f in ircRaw if _f]
-    ircFile.close()
-    return ircRawList
-
-
-def load_molecule_from_str(molecule_block: str | list[str]) -> Molecule:
-    """Load a molecule from a string by adding atoms and coordinates explicitly.
-
-    Args:
-        molecule_block (str | list[str]): The molecule block as a string or list of strings.
-
-    Returns:
-        Molecule: A PLAMS Molecule object.
-    """
-    if isinstance(molecule_block, str):
-        molecule_block = molecule_block.split("\n")
-
-    # Remove empty lines and strip whitespace
-    molecule_block = [line.strip() for line in molecule_block if line.strip()]
-
-    # Create a new Molecule object
-    mol = Molecule()
-
-    # Iterate over the lines in the molecule block
-    for line in molecule_block:
-        parts = line.split()
-        if len(parts) >= 4:
-            # Example line: "O 0.000000 0.000000 0.000000 region=O.adf"
-            atom_symbol: str = parts[0]
-            coordinates: list[float] = [float(coord) for coord in parts[1:4]]
-            atom = Atom(symbol=atom_symbol, coords=coordinates)
-            mol.add_atom(atom)
-
-            if len(parts) > 4:
-                atom.properties.suffix = " ".join(parts[4:])
-    return mol
-
-
-def is_header_line(line: list[str] | str) -> bool:
-    """Check if the line of the block is a header line such as in .amv files:
-
-    Geometry 1, Name: O_SC1_E_c1, Energy: -4528.147256459182 Ha
-
-    which is a header line for the first molecule in the block.
-
-    Args:
-        str_block (list[str]): A list of strings representing the lines in the block.
-    Returns:
-        bool: True if the first line is a header line, False otherwise.
-    """
-
-    if not line:
-        return True
-
-    parts = line.split() if isinstance(line, str) else line
-    # Check if the first line is in the [str, float, float, float, [*other]] format
-    try:
-        # Check if the first part is a string (name) and the rest are floats (coordinates)
-        (_, _, _, _) = parts[0], float(parts[1]), float(parts[2]), float(parts[3])
-        return False
-    except (ValueError, IndexError):
-        # If conversion to float fails, there is a header line
-        return True
-
-
-def load_molecules(file_path: pl.Path) -> list[Molecule]:
-    with open(file_path, "r") as f:
-        file_content = f.read()
-
-    # Extract the blocks which are seperated by empty lines
-    blocks = re.split(r"\n\s*\n", file_content.strip())
-
-    molecule_strings: list[list[str]] = []
-    for mol_block in blocks:
-        # Check if the line is a header line
-        lines = mol_block.splitlines()
-
-        # Skip empty lines
-        if not lines:
-            continue
-
-        if is_header_line(lines[0]):
-            # If the first line is a header line, we need to skip it and add the rest of the lines
-            lines = lines[1:]
-
-        molecule_strings.append(lines)
-
-    molecules = [load_molecule_from_str(mol_str) for mol_str in molecule_strings]
-
-    return molecules
-
-
-def GetIRCFragmentList(ircStructures: List[List[List[str]]], fragDefinition: Dict[str, List[int]]):
-    """
-    #ircStructures  = from ParseIRCFile
-    #fragDefinition = {"Frag1":[1,2,4], "Frag1":[3,5,6]}
-    #final result will look like {'frag1':atom coordinate block, 'frag2': atom coordinate block ....}
-    """
-    ircList = []
-    nAtoms = sum([len(fragList) for fragList in list(fragDefinition.values())])
-    for coordBlock in ircStructures:
-        if nAtoms != len(coordBlock):
-            raise RuntimeError("nAtoms in fragment definition does not match length if IRC coordinates\n")
-        # loop over IRC points
-        ircList.append(dict([(fragTag, Molecule()) for fragTag in list(fragDefinition.keys())]))
-        for fragTag in list(fragDefinition.keys()):
-            # loop over fragments
-            for iAtom in fragDefinition[fragTag]:
-                # grab individual atoms from block according to current fragment definition
-                ircList[-1][fragTag].add_atom(Atom(symbol=coordBlock[iAtom - 1][0], coords=tuple([float(xyz) for xyz in coordBlock[iAtom - 1][1:4]])))
-    return ircList
+    return str(restart_backup) if restart_backup else None
 
 
 # =====================================================================
@@ -263,7 +92,17 @@ def GetIRCFragmentList(ircStructures: List[List[List[str]]], fragDefinition: Dic
 # =====================================================================
 
 
-def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: Settings, frag2Settings: Settings) -> List[AMSResults]:
+def update_fragment_strain_energies(input_keys: "InputKeys", fragment_jobs: Sequence[AMSJob]) -> "InputKeys":
+    """Update the strain energies of the fragments in the input keys dictionary."""
+    for i, job in enumerate(fragment_jobs, start=1):
+        if job.results.ok():
+            input_keys["fragment_energies"][f"frag{i}"] = job.results.get_energy(unit="kcal/mol")
+        else:
+            raise FragmentOptimizationError(f"Fragment {i} optimization failed. Please check the log and out file.")
+    return input_keys
+
+
+def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: Settings, frag2Settings: Settings) -> List[AMSJob]:
     """Optimizes the fragments if requested by the user. Returns a list of AMSResults with a length of two."""
     job_names = ["frag1_opt", "frag2_opt"]
     opt_jobs = []
@@ -272,16 +111,17 @@ def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: 
         frag_settings.input.ams.GeometryOptimization.Convergence.Gradients = "1e-4"
         job = AMSJob(molecule=frag_mol, settings=frag_settings, name=job_names.pop(0))
         opt_jobs.append(job)
-    opt_results = [job.run() for job in opt_jobs]
+    [job.run() for job in opt_jobs]
     [CleanUpCalculationFolder(job) for job in opt_jobs]
-    return opt_results
+    return opt_jobs
+
 
 # =====================================================================
 # Writing the results (see PyFrag section) in table format to a file
 # =====================================================================
 
 
-def get_output_data(data: Dict[str, Any]):
+def convert_output_data_into_seperate_keys(data: Dict[str, Any]):
     """
     This function takes a dictionary and converts it into a format where each value in a list
     is associated with a unique key.
@@ -290,8 +130,6 @@ def get_output_data(data: Dict[str, Any]):
     {'overlap_1': 1.55, 'overlap_2':1.99}.
     """
     output_table = {}
-
-    pprint(data)
 
     for key, value in data.items():
         # If the value is a list with more than one item, create a new key for each item
@@ -310,54 +148,87 @@ def get_output_data(data: Dict[str, Any]):
     return output_table
 
 
-def write_key(file, value, pform=r"%7.5f", ljustwidth=16):
-    # write all data into a file.Keep 7 digits and 5 decimals and the width of each entry is 16
-    for val in value:
-        if val is None:
-            file.write(str.ljust("  ---", ljustwidth))
-        else:
-            if isinstance(val, float):
-                file.write(str.ljust(pform % (val), ljustwidth))
-            else:
-                file.write(str.ljust(str(val), ljustwidth))
-    file.write("\n")
+def find_coordinates_axis(headers: Sequence[str]) -> Union[str, None]:
+    """
+    Find the coordinate axis on which the EDA is plotted on. It scans for the first header that starts with "bondlength", or "angle" if it exists.
+    """
+    for header in headers:
+        if header.startswith("bondlength"):
+            return header
+        elif header.startswith("angle"):
+            return header
+
+    return None
+
+
+def sort_molecule_by_indices(molecule: Molecule, indices: List[int]) -> Molecule:
+    """Sorts the molecule by the given indices which is used to map the atoms from the additional of the two fragments to the original molecule"""
+
+    # Create a new molecule with the atoms sorted by the given indices
+    sorted_molecule = Molecule()
+    for index in indices:
+        if index < len(molecule) + 1:
+            sorted_molecule.add_atom(molecule[index])
+
+    return sorted_molecule
+
+
+def natural_sort_key(key: str) -> list:
+    """
+    Generate a natural sort key for strings containing numbers.
+    For example, "bondlength_10" will be sorted after "bondlength_2".
+    """
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r"(\d+)", key)]
 
 
 def write_table(data_rows: List[Dict[str, Union[str, float]]], output_file_name: str):
-    logging.debug(msg=f"Table values: {data_rows}")
+    logger.debug(msg=f"Table values: {data_rows}")
+    top_string = "PyFrag results | EDA/ASM terms in kcal/mol | Orbital energies in eV | Bondlengths in Angstrom | Angles in degrees | VDD charges in millielectrons"
+    standard_headers = ["#IRC", "EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "StrainTotal", "frag1Strain", "frag2Strain"]
+
+    coordinate_axis = find_coordinates_axis(list(data_rows[0].keys()))
 
     with open(f"pyfrag_{output_file_name}.txt", "w") as output_file:
-        all_headers_sorted = sorted(data_rows[0])
+        all_headers_sorted = sorted(data_rows[0], key=natural_sort_key)
 
-        selected_headers = [
-            header for header in all_headers_sorted if header not in ("#IRC", "bondlength_1", "EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "StrainTotal", "frag1Strain", "frag2Strain")
-        ]
-        headers = ["#IRC", "bondlength_1", "EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "StrainTotal", "frag1Strain", "frag2Strain"] + selected_headers
+        if coordinate_axis is not None:
+            standard_headers.insert(1, coordinate_axis)
 
-        write_key(output_file, headers)
+        selected_headers = [header for header in all_headers_sorted if header not in standard_headers]
+        headers = standard_headers + selected_headers
+
+        # Calculate column widths dynamically based on the maximum length of headers and data
+        column_widths = [max(len(header), max(len(str(data_row.get(header, ""))) for data_row in data_rows)) + 2 for header in headers]
+        column_widths = [max(width, 9) for width in column_widths]  # Ensure minimum width of 9 to have short headers, but longer float data. This depends on the pform formatting in the write_key function
+
+        # Write top string
+        output_file.write(f"{top_string}\n")
+
+        # Write headers
+        write_key(output_file, headers, ljustwidths=column_widths)
+
+        # Write data rows
         for data_row in data_rows:
-            sorted_data_row = [data_row[header] for header in headers]
-            write_key(output_file, sorted_data_row)
+            sorted_data_row = [data_row.get(header, "---") for header in headers]
+            write_key(output_file, sorted_data_row, ljustwidths=column_widths)
 
 
-def WriteFailFiles(failStructures, fileName):
-    structureFile = open(f"pyfragfailed_{fileName}.xyz", "w")
-    for structure in failStructures:
-        keys = list(structure.keys())
-        structureFile.write(" " + keys[0] + " ")
-        structureFile.write("\n")
-        for atom in list(structure.values()):
-            for coordinate in atom:
-                for term in coordinate:
-                    structureFile.write(" " + term + " ")
-                structureFile.write("\n")
-        structureFile.write("\n")
-    structureFile.close()
+def write_key(file, value, ljustwidths: Sequence[int], pform=r"%7.5f"):
+    # Write all data into a file with dynamic column widths
+    for val, width in zip(value, ljustwidths):
+        if val is None:
+            file.write(str.ljust("  ---", width))
+        else:
+            if isinstance(val, float):
+                file.write(str.ljust(pform % (val), width))
+            else:
+                file.write(str.ljust(str(val), width))
+    file.write("\n")
 
 
 def PrintTable(cellList, widthlist, bar):
+    line = "-" * (sum(widthlist) + 4 * len(widthlist) + 6)
     if bar:
-        line = "-" * (sum(widthlist) + 4 * len(widthlist) + 6)
         print("\n", line)
     for i, entry in enumerate(cellList):
         print("  " + str(entry).ljust(widthlist[i]) + "  ", end=" ")
@@ -379,372 +250,123 @@ def CleanUpCalculationFolder(job: AMSJob):
     r: AMSResults = job.results
     if r.ok():
         mol = r.get_main_molecule()
-        r._clean(["-", "$JN.err", "$JN.run", "CreateAtoms.out", "t12.rel", "output.xyz"])
+        r._clean(["-", "$JN.err", "$JN.run", "CreateAtoms.out", "t12.rel"])
         for atom in set(mol.atoms):
             r._clean(["-", f"t21.*.{atom.symbol}"])
         job.pickle()  # this will update the .dill file which is used to restart the job and extract results when using plams
 
-# =====================================================================
-# Main function to run the PyFrag calculations
-# =====================================================================
+    # =====================================================================
+    # Main function to run the PyFrag calculations
+    # =====================================================================
 
-def PyFragDriver(inputKeys, frag1Settings: Settings, frag2Settings: Settings, complexSettings: Settings):
+
+def PyFragDriver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings: Settings, complexSettings: Settings) -> Tuple[List[Dict[str, Union[str, float]]], "InputKeys"]:
+    """
+    Main function to run the PyFrag calculations. It will read in the input keys and settings, optimize the fragments if needed, and run the calculations for each point in the trajectory.
+    It will return a dictionary with the updated input keys (such as the fragment indices and strain energies).
+    """
     # main pyfrag driver used for fragment and complex calculation.
     # read coordinates from IRC or LT t21 file. Other choice is xyz file generated from other tools.
-    if inputKeys["jobstate"] is not None:
-        load_all(inputKeys["jobstate"])
-
-    for key, val in list(inputKeys["coordFile"].items()):
-        if key == "irct21":
-            ircStructures = ReadIRCt21(val)
-            exec('complexSettings.input.UNITS.length="Bohr"')
-        elif key == "irct21two":
-            ircStructures = ReadIRCt21(val[0], val[1])
-            exec('complexSettings.input.UNITS.length="Bohr"')
-        elif key == "lt":
-            ircStructures = ReadLTt21(val)
-            exec('complexSettings.input.UNITS.length="Bohr"')
-        else:
-            ircStructures = ParseIRCFile(val)
+    load_all(inputKeys["jobstate"]) if inputKeys["jobstate"] is not None else None
 
     resultsTable = []
-    failCases = []
-    successCases = []
-    failStructures = []
 
-    irc_structures = GetIRCFragmentList(ircStructures, inputKeys["fragment"])
+    molecule_trajectory: List[List[Molecule]] = create_pyfrag_trajectory_from_coord_file(coord_file=inputKeys["coordFile"], fragment_indices=list(inputKeys["fragment_indices"].values()))
+    # update the fragment indices in the settings to match the indices in the trajectory
+
+    updated_fragment_indices: List[List[int]] = update_fragment_indices(fragment_indices=list(inputKeys["fragment_indices"].values()))
+    # Transform the list of lists into a dictionary with "frag1" and "frag2" as keys
+    inputKeys["fragment_indices"] = {f"frag{i + 1}": frag_indices for i, frag_indices in enumerate(updated_fragment_indices)}
+
+    length_of_trajectory: int = len(molecule_trajectory[0])
 
     # Optimize fragments if the strain energy of both or one of the fragments is not given
-    logging.log(level=logging.INFO, msg="Checking if fragments need to be optimized")
-    if len(inputKeys["strain"]) != 2:
-        logging.log(level=logging.INFO, msg="Optimizing fragments")
-        frag1_mol, frag2_mol = irc_structures[0]["frag1"], irc_structures[0]["frag2"]
-        results_optimized_frags = optimize_fragments(frag1_mol, frag2_mol, frag1Settings.copy(), frag2Settings.copy())  # copy settings to avoid changing the original settings
-        inputKeys["strain"]["frag1"] = results_optimized_frags[0].get_energy(unit="kcal/mol")
-        inputKeys["strain"]["frag2"] = results_optimized_frags[1].get_energy(unit="kcal/mol")
-        logging.log(level=logging.INFO, msg=f"Optimization of fragments finished with energies (kcal/mol): {inputKeys['strain']['frag1']} and {inputKeys['strain']['frag2']}")
+    logger.info(msg="Checking if fragments need to be optimized")
+    if len(inputKeys["fragment_energies"]) != 2:
+        logger.info(msg="Optimizing fragments")
+        frag1_mol, frag2_mol = molecule_trajectory[1][0], molecule_trajectory[2][0]
+        optimized_frag_jobs = optimize_fragments(frag1_mol, frag2_mol, frag1Settings.copy(), frag2Settings.copy())  # copy settings to avoid changing the original settings
+        logger.info("Updating strain energies of fragments")
+        update_fragment_strain_energies(inputKeys, optimized_frag_jobs)
     else:
-        logging.log(level=logging.INFO, msg="Fragments strain energies are given, no need to optimize fragments")
+        logger.info(msg="Fragment strain energies are given, no need to optimize fragments")
 
-    for ircIndex, ircFrags in enumerate(irc_structures):
-        logging.log(level=logging.INFO, msg=f"Starting calculations for IRC point {ircIndex+1}/{len(ircStructures)}")
-        logging.log(level=logging.DEBUG, msg="\n".join(str(ircFrags[fragtag]) for fragtag in sorted(list(ircFrags.keys()))))
+    for path_index in range(1, len(molecule_trajectory[0]) + 1):
+        logger.info(msg=f"Starting calculations for IRC point {path_index}/{length_of_trajectory}")
+        # Iterate over all the first entries complex, frag1, frag2) with the second entry given by path_index (the point in the trajectory)
+        # The first entry is the complex, the second entry is frag1 and the third entry is frag2
+        for system_name, molecule in zip(const.SYSTEM_NAMES, [trajectory[path_index - 1] for trajectory in molecule_trajectory]):
+            logger.debug(msg=f"{system_name}: {molecule}")
+
         outputData = {}
         outputData["StrainTotal"] = 0
-        ircTag = "." + str(ircIndex + 1).zfill(5)
-        for fragTag in sorted(list(ircFrags.keys())):
-            success = True
-            if fragTag == "frag1":
-                fragmentSettings = frag1Settings
-            else:
-                fragmentSettings = frag2Settings
-            for coorKey, coorVal in list(inputKeys["coordFile"].items()):
-                if coorKey != "ircpath":
-                    exec('fragmentSettings.input.UNITS.length="Bohr"')
-            if fragTag == "frag1":
-                jobFrag1 = AMSJob(molecule=ircFrags[fragTag], settings=fragmentSettings, name=fragTag + ircTag)
-                jobFrag1.run()
-                frag1Molecule = ircFrags[fragTag]
 
-                # check if the calculation is successful and log error message if not
-                if not jobFrag1.results.ok():
-                    logging.critical(msg=f"Fragment calculation for {fragTag} failed, please check your input settings")
+        fragment_settings = [frag1Settings.copy(), frag2Settings.copy()]
+        frag_jobs: List[AMSJob] = []
 
-                outputData[fragTag + "Strain"] = jobFrag1.results.get_energy(unit="kcal/mol") - inputKeys["strain"][fragTag]
-                outputData["StrainTotal"] += outputData[fragTag + "Strain"]
-                CleanUpCalculationFolder(jobFrag1)
-            else:
-                jobFrag2 = AMSJob(molecule=ircFrags[fragTag], settings=fragmentSettings, name=fragTag + ircTag)
-                jobFrag2.run()
-                frag2Molecule = ircFrags[fragTag]
+        # First consider the fragments, starting from frag1 and frag2 (which are the second and third elements in the const.SYSTEM_NAMES list)
+        for frag_index, base_fragment_name in enumerate(const.SYSTEM_NAMES[1:], start=1):
+            # Goes from frag1 -> frag1.xxxx1
+            fragment_name = f"{base_fragment_name}.{str(path_index).zfill(5)}"
 
-                # check if the calculation is successful and log error message if not
-                if not jobFrag2.results.ok():
-                    logging.critical(msg=f"Fragment calculation for {fragTag} failed, please check your input settings")
+            frag_mol: Molecule = molecule_trajectory[frag_index][path_index - 1]
+            frag_job = AMSJob(molecule=frag_mol.copy(), settings=fragment_settings[frag_index - 1], name=fragment_name)
+            frag_job.run()
 
-                outputData[fragTag + "Strain"] = jobFrag2.results.get_energy(unit="kcal/mol") - inputKeys["strain"][fragTag]
-                outputData["StrainTotal"] += outputData[fragTag + "Strain"]
-                CleanUpCalculationFolder(jobFrag2)
+            # check if the calculation is successful and log error message if not
+            if not frag_job.results.ok():
+                logger.critical(msg=f"Fragment calculation for {fragment_name} failed with error message: {frag_job.get_errormsg()}")
 
-            # disable the result check because ADF print a lot of error message
-            # if jobFrag.check():
-            if True:
-                ircFrags.pop(fragTag)
-            else:
-                failCases.append(ircIndex)
-                success = False
-                break
-        if success:  # succes if always true, needs to be fixed
-            for at in frag1Molecule:
-                at.properties.suffix = "adf.f=frag1"
+            outputData[base_fragment_name + "Strain"] = frag_job.results.get_energy(unit="kcal/mol") - inputKeys["fragment_energies"][base_fragment_name]
+            outputData["StrainTotal"] += outputData[base_fragment_name + "Strain"]
+            CleanUpCalculationFolder(frag_job)
+            frag_jobs.append(frag_job)
 
-            for at in frag2Molecule:
-                at.properties.suffix = "adf.f=frag2"
+        # Now consider the complex, which is the first element in the const.SYSTEM_NAMES list
 
-            complexMolecule = frag1Molecule + frag2Molecule
-            complexSettings.input.adf.fragments.frag1 = (jobFrag1, "adf")
-            complexSettings.input.adf.fragments.frag2 = (jobFrag2, "adf")
-            jobComplex = AMSJob(molecule=complexMolecule, settings=complexSettings, name="complex" + ircTag)
-            logging.info(msg=f"Running complex {ircIndex+1}")
-            jobComplex.run()
+        for frag_index, frag_job in enumerate(frag_jobs, start=1):
+            if frag_job.molecule is not None:
+                for at in frag_job.molecule:
+                    at.properties.suffix = f"adf.f=frag{frag_index}"  # type: ignore  # properties is a Settings instance which does not have explicit type hints
 
-            if not jobComplex.results.ok():
-                logging.critical(msg="Complex calculationfailed, please check your input settings")
+        complexMolecule = frag_jobs[0].molecule.copy() + frag_jobs[1].molecule.copy()  # type: ignore  # The addition is always between two molecules
+        # Resort complexMolecule to match the original molecule (the one that is used to create the trajectory)
+        complexMolecule = sort_molecule_by_indices(complexMolecule, updated_fragment_indices[0] + updated_fragment_indices[1])
 
-            # disable the result check because ADF print a lot of useless message
-            if True:
-                # if jobComplex.check():
-                successCases.append(ircIndex)
-                # collect all data and put it in a list
-                outputData["#IRC"] = str(ircIndex + 1)
-                # collect all data that need to be printed
-                pyfragResult = PyFragResult(jobComplex.results, inputKeys)
-                # convert multiple value into a dict
-                outputLine = pyfragResult.GetOutputData(complexMolecule, outputData, inputKeys)
-                # collect updated informaiton of each point calculation and print it on screen
-                firstIndex = successCases.pop(0)
-                if ircIndex == firstIndex:
-                    headerList = sorted(outputLine.keys())
-                    a = headerList.pop(headerList.index("#IRC"))
-                    b = headerList.pop(headerList.index("EnergyTotal"))
-                    headerList = [a, b] + headerList
-                valuesList = [str(outputLine[i]) for i in headerList]
-                widthlist = [max(len(str(valuesList[_])), len(str(headerList[_]))) for _ in range(len(valuesList))]
-                PrintTable(headerList, widthlist, False)
-                PrintTable(valuesList, widthlist, False)
-                resultsTable.append(outputLine)
-                CleanUpCalculationFolder(jobComplex)
-                logging.info(msg=f"IRC point {ircIndex+1}/{len(ircStructures)} finished")
-            else:
-                success = False
-        if not success:
-            failStructures.append({str(ircIndex): ircStructures[ircIndex]})
-            # Write faulty IRCpoints for later recovery
-            if len(resultsTable) > 0:
-                outputLine = {key: "None" for key in list(resultsTable[0].keys())}
-                outputLine.update({"#IRC": str(ircIndex + 1)})
-                resultsTable.append(outputLine)
+        complexSettings.input.adf.fragments.frag1 = (frag_jobs[0], "adf")
+        complexSettings.input.adf.fragments.frag2 = (frag_jobs[1], "adf")
+        jobComplex = AMSJob(molecule=complexMolecule, settings=complexSettings, name=f"{const.SYSTEM_NAMES[0]}.{str(path_index).zfill(5)}")
+        logger.info(msg=f"Running complex {path_index}")
+        jobComplex.run()
+
+        if not jobComplex.results.ok():
+            logger.critical(msg="Complex calculation has failed, please check your input settings")
+
+        # disable the result check because ADF print a lot of useless message
+        if jobComplex.ok():
+            # collect all data and put it in a list
+            outputData["#IRC"] = str(path_index)
+            # collect all data that need to be printed
+            pyfragResult = get_pyfrag_results(jobComplex, inputKeys)
+            # convert multiple value into a dict. NOTE: here we take the original complex molecule as the above addition (frag1_mol + frag2_mol) reorders the atoms
+            outputLine = pyfragResult.GetOutputData(complexMolecule, outputData, inputKeys)
+            # collect updated informaiton of each point calculation and print it on screen
+
+            headerList = sorted(outputLine.keys())
+            a = headerList.pop(headerList.index("#IRC"))
+            b = headerList.pop(headerList.index("EnergyTotal"))
+            headerList = [a, b] + headerList
+
+            valuesList = [str(outputLine[i]) for i in headerList]
+            widthlist = [max(len(str(valuesList[_])), len(str(headerList[_]))) for _ in range(len(valuesList))]
+            PrintTable(headerList, widthlist, False)
+            PrintTable(valuesList, widthlist, False)
+            resultsTable.append(outputLine)
+            CleanUpCalculationFolder(jobComplex)
+            logger.info(msg=f"IRC point {path_index}/{length_of_trajectory} finished")
+        else:
+            logger.critical(msg=f"Complex calculation for {path_index} failed with error message: {jobComplex.get_errormsg()}")
+
     if len(resultsTable) == 0:
         raise RuntimeError("Calculations for all points failed, please check your input settings")
-    return resultsTable, inputKeys["filename"], failStructures  # return this as result only (only construct it here but use it outside)
-
-
-class PyFragResult:
-    def __init__(self, complexResult, inputKeys):  # __init__(self, complexJob, inputKeys)
-        # 1. needed for output requested by user 2. complexJob.check passes
-        self.complexResult = complexResult
-        # Pauli energy
-        self.Pauli = complexResult.readrkf("Energy", "Pauli Total", file="adf")
-        # Electrostatic energy
-        self.Elstat = complexResult.readrkf("Energy", "Electrostatic Interaction", file="adf")
-        # total OI which is usually not equal to the sum of all irrep OI
-        self.OI = complexResult.readrkf("Energy", "Orb.Int. Total", file="adf")
-        # energy of total complex which is the sum of Pauli, Elstat and OI
-        self.Int = complexResult.readrkf("Energy", "Bond Energy", file="adf")
-        # Dispersion Energy
-        self.Disp = complexResult.readrkf("Energy", "Dispersion Energy", file="adf")
-        # irrep label for symmetry of complex
-        self.irrepType = str(complexResult.readrkf("Symmetry", "symlab", file="adf")).split()
-
-        for key in list(inputKeys.keys()):
-            if key == "overlap" or key == "population" or key == "orbitalenergy" or key == "irrepOI":
-                # orbital numbers according to the symmetry of each fragment and the orbitals belonging to the same symmetry in different fragments
-                self.fragOrb = complexResult.readrkf("SFOs", "ifo", file="adf")
-                # symmetry for each orbital of fragments
-                self.fragIrrep = str(complexResult.readrkf("SFOs", "subspecies", file="adf")).split()
-                # the fragment label for each orbital
-                self.orbFragment = complexResult.readrkf("SFOs", "fragment", file="adf")
-
-                # energy for each orbital of spin A and B (escale is only if relativistic corrections are used)
-                try:
-                    logging.log(level=logging.DEBUG, msg="Reading relativistic orbital energies")
-                    self.orbEnergy = complexResult.readrkf("SFOs", "escale", file="adf")
-                except KeyError:
-                    logging.log(level=logging.DEBUG, msg="Reading non-relativistic orbital energies")
-                    self.orbEnergy = complexResult.readrkf("SFOs", "energy", file="adf")
-
-                # occupation of each orbitals which is either 0 or 2
-                self.orbOccupation = complexResult.readrkf("SFOs", "occupation", file="adf")
-                # number of orbitals for each symmetry for complex
-                self.irrepOrbNumber = complexResult.readrkf("Symmetry", "norb", file="adf")
-                # number of core orbitals for each symmetry for complex
-                self.coreOrbNumber = complexResult.readrkf("Symmetry", "ncbs", file="adf")
-
-    def ConvertList(self, obj) -> List[Any]:
-        # single number in adf t21 is number fommat which is need to convert list
-        if isinstance(obj, list):
-            return obj
-        else:
-            return [obj]
-
-    def GetFaIrrep(self):
-        # append complex irrep label to each orbital, if symmetry is A, convert self.irrepOrbNum which is float type into list
-        irreporbNum = self.ConvertList(self.irrepOrbNumber)
-        faIrrepone = [[irrep for i in range(number)] for irrep, number in zip(self.irrepType, irreporbNum)]
-        return [irrep for sublist in faIrrepone for irrep in sublist]
-
-    def GetOrbNum(self):
-        # GetOrbNumbers including frozen core orbitals, this is necessary to read population, list like [3,4,5,12,13,14,15,23,24,26]
-        # core orbital number corresponding to each irrep of complex symmetry
-        coreOrbNum = self.ConvertList(self.coreOrbNumber)
-        irrepOrbNum = self.ConvertList(self.irrepOrbNumber)
-        orbNumbers = []
-        orbSum = 0
-        for nrShell, nrCore in zip(irrepOrbNum, coreOrbNum):
-            orbSum += nrShell + nrCore
-            orbNumbers.extend(list(range(orbSum - nrShell + 1, orbSum + 1)))
-        return orbNumbers
-
-    def GetFragOrbNum(self):
-        # GetOrbNumbers including frozen core orbitals, this is necessary to read population, list like [3,4,5,12,13,14,15,23,24,26]
-        # core orbital number corresponding to each irrep of complex symmetry
-        coreOrbNum = self.ConvertList(self.coreOrbNumber)
-        irrepOrbNum = self.ConvertList(self.irrepOrbNumber)
-        orbNumbers = []
-        for nrShell, nrCore in zip(irrepOrbNum, coreOrbNum):
-            orbNumbers.extend(range(nrCore + 1, nrShell + nrCore + 1))
-        return orbNumbers
-
-    def GetAtomNum(self, fragmentList, atoms) -> List[int]:
-        # change atom number in old presentation of a molecule into atom number in new presentation that formed by assembling fragments
-        atomList = [atomNum for key in sorted(list(fragmentList.keys())) for atomNum in list(fragmentList[key])]
-        return [atomList.index(i) + 1 for i in atoms]
-
-    def GetFragNum(self, frag: str) -> int:
-        # change frag type like 'frag1' into number like "1" recorded in t21
-        # append fragmenttype(like 1 or 2) to each orbital
-        fragType = str(self.complexResult.readrkf("Geometry", "fragmenttype", file="adf")).split()
-        return fragType.index(frag) + 1
-
-    def GetFrontIndex(self, orbSign) -> Dict[str, str]:
-        # convert HOMO/LUMO/HOMO-1/LUMO+1/INDEX into dict {'holu': 'HOMO', 'num': -1}
-        for matchString in [r"HOMO(.*)", r"LUMO(.*)", r"INDEX"]:
-            matchObj = re.match(matchString, orbSign)
-            if matchObj:
-                holu = re.sub(r"(.[0-9]+)", "", matchObj.group())
-                num = re.sub(r"([a-zA-Z]+)", "", matchObj.group())
-                if num:
-                    return {"holu": holu, "num": num}
-                else:
-                    return {"holu": holu, "num": 0}
-
-    def GetOrbitalIndex(self, orbDescriptor):
-        # orbDescriptor = {'type' = "HOMO/LUMO/INDEX", 'frag'='#frag', 'irrep'='irrepname', 'index'=i}
-        fragOrbnum = self.GetFragNum(orbDescriptor["frag"])  # get fragment number
-        orbIndex = 0
-        if self.GetFrontIndex(orbDescriptor["type"])["holu"] == "HOMO":
-            orbIndex = sorted(range(len(self.orbEnergy)), key=lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] != 0 else -1.0e100, reverse=True)[
-                -int(self.GetFrontIndex(orbDescriptor["type"])["num"])
-            ]
-        elif self.GetFrontIndex(orbDescriptor["type"])["holu"] == "LUMO":
-            orbIndex = sorted(range(len(self.orbEnergy)), key=lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] == 0 else +1.0e100)[
-                int(self.GetFrontIndex(orbDescriptor["type"])["num"])
-            ]
-        elif self.GetFrontIndex(orbDescriptor["type"])["holu"] == "INDEX":
-            for i in range(len(self.orbEnergy)):
-                if self.orbFragment[i] == fragOrbnum and self.fragIrrep[i] == orbDescriptor["irrep"] and self.fragOrb[i] == int(orbDescriptor["index"]):
-                    orbIndex = i
-                    break
-        return orbIndex
-
-    def ReadOverlap(self, index_1, index_2) -> float:
-        # orbital numbers according to the symmetry of the complex
-        faOrb = self.GetFragOrbNum()
-        faIrrep = self.GetFaIrrep()
-        maxIndex = max(faOrb[index_1], faOrb[index_2])
-        minIndex = min(faOrb[index_1], faOrb[index_2])
-        index = maxIndex * (maxIndex - 1) / 2 + minIndex - 1
-        if faIrrep[index_1] == faIrrep[index_2]:
-            self.overlap_matrix = self.complexResult.readrkf(faIrrep[index_1], "S-CoreSFO", file="adf")
-            return abs(self.overlap_matrix[int(index)])
-        else:
-            return 0
-
-    def ReadFragorbEnergy(self, index):
-        return self.complexResult.readrkf("Ftyp " + str(self.orbFragment[index]) + self.fragIrrep[index], "eps", file="adf")[self.fragOrb[index] - 1]
-
-    def CheckIrrepOI(self) -> List[Dict[str, str]]:
-        """Checks whether OI irreps are present that can be included. Returns a list of dictionaries with irreps that can be included."""
-        # Split degenerate irreps (e.g., E1:1, E1:2) into one entry per irrep (e.g., E1) as these are stored in the kf file
-        irreps = set([irrep if ":" not in irrep else irrep.split(":")[0] for irrep in self.irrepType])
-        logging.info(msg=f"Found irreps {', '.join(irreps)} in complex that will be included in OI")
-        irreps = [{"irrep": irrep} for irrep in irreps]
-
-        return irreps
-
-    def ReadIrrepOI(self, irrep) -> float:
-        irreps = set([irrep if ":" not in irrep else irrep.split(":")[0] for irrep in self.irrepType])
-        irrepOI = [self.complexResult.readrkf("Energy", "Orb.Int. " + irrep, file="adf") for irrep in irreps]
-        fitCoefficient = self.OI / sum(irrepOI)  # MetaGGAs have a scaling factor that needs to be applied
-        return fitCoefficient * Units.convert(self.complexResult.readrkf("Energy", "Orb.Int. " + irrep, file="adf"), "hartree", "kcal/mol")
-
-    def ReadPopulation(self, index) -> float:
-        orbNumbers = self.GetOrbNum()
-        # populations of all orbitals
-        sfoPopul = self.complexResult.readrkf("SFO popul", "sfo_grosspop", file="adf")
-        return sfoPopul[orbNumbers[index] - 1]
-
-    def ReadVDD(self, atomList) -> List[float]:
-        vddList = []
-        for atom in atomList:
-            vddScf = self.complexResult.readrkf("Properties", "AtomCharge_SCF Voronoi", file="adf")[int(atom) - 1]
-            vddInit = self.complexResult.readrkf("Properties", "AtomCharge_initial Voronoi", file="adf")[int(atom) - 1]
-            vddList.append(vddScf - vddInit)
-        return vddList
-
-    def ReadHirshfeld(self, fragment) -> float:
-        valueHirshfeld = self.complexResult.readrkf("Properties", "FragmentCharge Hirshfeld", file="adf")
-        return valueHirshfeld[self.GetFragNum(fragment) - 1]
-
-    def GetOutputData(self, complexMolecule, outputData, inputKeys):
-        # collect default energy parts for activation strain analysis
-        outputData["Pauli"] = Units.convert(self.Pauli, "hartree", "kcal/mol")
-        outputData["Elstat"] = Units.convert(self.Elstat, "hartree", "kcal/mol")
-        outputData["OI"] = Units.convert(self.OI, "hartree", "kcal/mol")
-        outputData["Int"] = Units.convert(self.Int, "hartree", "kcal/mol")
-        outputData["Disp"] = Units.convert(self.Disp, "hartree", "kcal/mol")
-        outputData["EnergyTotal"] = Units.convert(self.Int, "hartree", "kcal/mol") + outputData["StrainTotal"]
-
-        # check for unspecified options such as irrep printing if not specified by user
-        if "irrepOI" not in inputKeys and len(self.irrepType) != 1:
-            inputKeys["irrepOI"] = self.CheckIrrepOI()
-
-        # collect user defined data
-        for key, val in list(inputKeys.items()):
-            value = []
-            if key == "overlap":
-                outputData[key] = [self.ReadOverlap(self.GetOrbitalIndex(od1), self.GetOrbitalIndex(od2)) for od1, od2 in val]
-
-            elif key == "population":
-                outputData[key] = [self.ReadPopulation(self.GetOrbitalIndex(od)) for od in val]
-
-            elif key == "orbitalenergy":
-                outputData[key] = [self.ReadFragorbEnergy(self.GetOrbitalIndex(od)) for od in val]
-
-            elif key == "irrepOI":
-                outputData[key] = [self.ReadIrrepOI(od["irrep"]) for od in val]
-
-            elif key == "hirshfeld":
-                outputData[key] = [self.ReadHirshfeld(od["frag"]) for od in val]
-
-            elif key == "VDD":
-                outputData[key] = self.ReadVDD(val["atomList"])
-
-            elif key == "bondlength":
-                for od in val:
-                    atoms = self.GetAtomNum(inputKeys["fragment"], od["bondDef"])
-                    # coordinate read directly from t21 is in bohr while from .amv is in amstrom
-                    for coorKey, coorVal in list(inputKeys["coordFile"].items()):
-                        if coorKey == "ircpath":
-                            value.append(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]) - od["oriVal"])
-                            # print ('bondlength', complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]) )
-                        else:
-                            value.append(Units.convert(complexMolecule[atoms[0]].distance_to(complexMolecule[atoms[1]]), "bohr", "angstrom") - od["oriVal"])
-                outputData[key] = value
-
-            elif key == "angle":
-                for od in val:
-                    atoms = self.GetAtomNum(inputKeys["fragment"], od["angleDef"])
-                    value.append(Units.convert((complexMolecule[atoms[0]].angle(complexMolecule[atoms[1]], complexMolecule[atoms[2]])), "rad", "deg") - od["oriVal"])
-                outputData[key] = value
-        return get_output_data(outputData)
+    return resultsTable, inputKeys  # return this as result only (only construct it here but use it outside)
