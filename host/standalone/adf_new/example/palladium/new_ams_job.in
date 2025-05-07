@@ -6,13 +6,13 @@ JOBSUB
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -t 00:10:00
-#SBATCH --ntasks-per-node=16
+#SBATCH --ntasks-per-node=32
 #SBATCH --partition=tc
 #SBATCH --output=new_ams_job.out
 #SBATCH --error=new_ams_job.err
 
 # TC
-# module load ams/2024.102
+# module load ams/2023.101
 
 # Snellius
 # module load 2022
@@ -23,32 +23,33 @@ JOBSUB END
 
 
 PyFrag
-name symmetry_job
-ircpath nh3_bh3.xyz
-fragment  1 2 3 4
-fragment  5 6 7 8
-bondlength 1 5  1.625
-bondlength 1 5  0
-log_level debug
+name new_ams_job
+coordfile *.xyz
+frag1_indices  2
+frag2_indices  1 3-6
+frag1_energy    0
+frag2_energy   -554.09
 
-VDD 1 2 3 4 5 6 7
+bondlength 1 6 1.133
+bondlength 1 2 2.257
 
-orbitalenergy frag1 HOMO
-orbitalenergy frag2 LUMO
-orbitalenergy frag1 LUMO
-orbitalenergy frag2 HOMO
-orbitalenergy A1 frag1 2
-orbitalenergy A1 frag2 2
+angle 2 1 6 58.1
 
 overlap frag1 HOMO frag2 LUMO
 overlap frag2 HOMO frag1 LUMO
 
-overlap A1 frag1 2 A1 frag2 2
+orbitalenergy frag1 HOMO
+orbitalenergy frag1 LUMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 LUMO
 
 population frag1 HOMO
-population frag2 LUMO
 population frag1 LUMO
 population frag2 HOMO
+population frag2 LUMO
+
+
+log_level debug
 
 PyFrag END
 
@@ -59,20 +60,18 @@ Task SinglePoint
 Engine adf
   basis
     core Small
-    type TZP
+    type TZ2P
   End
 
-#  eprint
-#    sfo EIG OVL
-#  End
+  eprint
+    sfo EIG OVL
+  End
 
-  numericalquality normal
+  numericalquality Normal
 
   xc
     gga OPBE
   End
-
-  Symmetry C(3V)
 EndEngine
 
 AMS END

@@ -7,17 +7,17 @@ JOBSUB
 #SBATCH -N 1
 #SBATCH -t 00:10:00
 #SBATCH --ntasks-per-node=16
-#SBATCH --partition=genoa
+#SBATCH --partition=tc
 #SBATCH --output=new_ams_job.out
 #SBATCH --error=new_ams_job.err
 
-# TC 
+# TC
 # module load ams/2023.101
 
 # Snellius
-module load 2022
-module load AMS/2023.101-intelmpi
-module list
+# module load 2022
+# module load AMS/2023.101-intelmpi
+# module list
 
 JOBSUB END
 
@@ -25,20 +25,37 @@ JOBSUB END
 PyFrag
 name symmetry_job
 ircpath $SLURM_SUBMIT_DIR/*xyz
-fragment  1 2 3 4
-fragment  5 6 7
+fragment  1 2 3    4
+fragment  5 6     7  # This is the second fragment
 strain   -194.83
 strain   -317.86
 bondlength 1 4  0.00
 log_level debug
-overlap frag1 HOMO frag2 LUMO
-overlap frag2 HOMO frag1 LUMO
 
 VDD 1 2 3 4 5 6 7
+hirshfeld frag1 frag2
 
+overlap frag1 HOMO frag2 LUMO
+overlap frag2 HOMO frag1 LUMO
+overlap AA frag1 4 AA frag2 3
+
+orbitalenergy AA frag1 4
+orbitalenergy AA frag2 3
 orbitalenergy frag1 HOMO
 orbitalenergy frag2 LUMO
 orbitalenergy frag1 LUMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO
 orbitalenergy frag2 HOMO
 
 population frag1 HOMO
@@ -48,27 +65,19 @@ population frag2 HOMO
 
 PyFrag END
 
-fragment1 EXTRA
-System
-  charge 1
-End
-fragment1 EXTRA END
-
 fragment2 EXTRA
 System
   charge 0
 End
 fragment2 EXTRA END
 
-complex EXTRA
-System
-  charge 1
-End
-complex EXTRA END
-
 AMS
 
 Task SinglePoint
+
+System
+  charge 1
+End
 
 Engine adf
   basis
