@@ -212,9 +212,7 @@ def write_table(data_rows: List[Dict[str, Union[str, float]]], output_file_name:
     with open(f"pyfrag_{output_file_name}.txt", "w") as output_file:
         all_headers_sorted = sorted(data_rows[0])
 
-        selected_headers = [
-            header for header in all_headers_sorted if header not in ("#IRC", "bondlength_1", "EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "StrainTotal", "frag1Strain", "frag2Strain")
-        ]
+        selected_headers = [header for header in all_headers_sorted if header not in ("#IRC", "bondlength_1", "EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "StrainTotal", "frag1Strain", "frag2Strain")]
         headers = ["#IRC", "bondlength_1", "EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "StrainTotal", "frag1Strain", "frag2Strain"] + selected_headers
 
         write_key(output_file, headers)
@@ -522,9 +520,7 @@ class PyFragResult:
 
         # for spin A
         if self.GetFrontIndex(orbDescriptor["type"])["holu"] == "HOMO":
-            orbIndex_AB = sorted(range(len(self.orbEnergy) * 2), key=lambda x: orbEnergy[x] if (orbFragment[x] == fragOrbnum) and orbOccupation[x] != 0 else -1.0e100, reverse=True)[
-                -int(self.GetFrontIndex(orbDescriptor["type"])["num"])
-            ]
+            orbIndex_AB = sorted(range(len(self.orbEnergy) * 2), key=lambda x: orbEnergy[x] if (orbFragment[x] == fragOrbnum) and orbOccupation[x] != 0 else -1.0e100, reverse=True)[-int(self.GetFrontIndex(orbDescriptor["type"])["num"])]
 
             if orbIndex_AB <= len(self.orbEnergy) - 1:
                 orbIndex = orbIndex_AB
@@ -534,9 +530,7 @@ class PyFragResult:
                 spin = "B"
 
         elif self.GetFrontIndex(orbDescriptor["type"])["holu"] == "LUMO":
-            orbIndex_AB = sorted(range(len(self.orbEnergy) * 2), key=lambda x: orbEnergy[x] if (orbFragment[x] == fragOrbnum) and orbOccupation[x] == 0 else +1.0e100)[
-                int(self.GetFrontIndex(orbDescriptor["type"])["num"])
-            ]
+            orbIndex_AB = sorted(range(len(self.orbEnergy) * 2), key=lambda x: orbEnergy[x] if (orbFragment[x] == fragOrbnum) and orbOccupation[x] == 0 else +1.0e100)[int(self.GetFrontIndex(orbDescriptor["type"])["num"])]
 
             if orbIndex_AB <= len(self.orbEnergy) - 1:
                 orbIndex = orbIndex_AB
