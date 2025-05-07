@@ -1,0 +1,64 @@
+[project]
+name = "PyFrag"
+authors = [
+    { name = "X. Sun" },
+    { name = "J. Poater" },
+    { name = "T. A. Hamlin" },
+    { name = "F. M. Bickelhaupt" },
+    { name = "S.J. Lekanne Deprez", email = "s.j.lekanne.deprez@vu.nl" },
+]
+description = "Automation of fragment calculations of the AMS package in quantum chemistry"
+readme = { file = "README.md", content-type = "text/markdown" }
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.8",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+dynamic = ["version"]
+license = { file = "LICENSE.md" }
+dependencies = [
+    "numpy>=1.20.0",
+    "gitpython>=3.1.24",
+    "attrs>=21.2.0",
+    "pandas>=1.4.0",
+    "plams",
+]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+docs = ["sphinx>=4.0.0"]
+dev = ["pytest>=6.0.0"]
+
+# [project.scripts]
+# # Uncomment the following line to enable the console script
+# pyfrag-dev = "pyfrag.main_parser:main"
+# pyfrag-driver = "pyfrag.main_program:main"
+
+# [tool.setuptools.packages.find]
+# where = ["src"] # list of folders that contain the packages (["."] by default)
+# include = [
+#     "pyfrag*",
+# ] # package names should match these glob patterns (["*"] by default)
+# exclude = [
+#     "tests*",
+#     "docs*",
+# ] # exclude packages matching these glob patterns (empty by default)
+
+[tool.setuptools-git-versioning]
+enabled = true
+template = "{tag}"
+dev_template = "{tag}"
+dirty_template = "{tag}"
+
+[tool.setuptools.dynamic]
+version = { attr = "pyfrag.__version__" }
+
+[tool.pytest.ini_options]
+pythonpath = "host/standalone/adf_new"
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"

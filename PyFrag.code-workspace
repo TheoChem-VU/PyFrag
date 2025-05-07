@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.analysis.include": [
+			"${workspaceFolder}/host/standalone",
+		]
+	}
+}
