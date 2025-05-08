@@ -201,9 +201,6 @@ def write_table(data_rows: List[Dict[str, Union[str, float]]], output_file_name:
         column_widths = [max(len(header), max(len(str(data_row.get(header, ""))) for data_row in data_rows)) + 2 for header in headers]
         column_widths = [max(width, 9) for width in column_widths]  # Ensure minimum width of 9 to have short headers, but longer float data. This depends on the pform formatting in the write_key function
 
-        # Write top string
-        output_file.write(f"{top_string}\n")
-
         # Write headers
         write_key(output_file, headers, ljustwidths=column_widths)
 
