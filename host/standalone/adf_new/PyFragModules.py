@@ -183,7 +183,7 @@ def natural_sort_key(key: str) -> list:
 
 def write_table(data_rows: List[Dict[str, Union[str, float]]], output_file_name: str):
     logger.debug(msg=f"Table values: {data_rows}")
-    top_string = "PyFrag results | EDA/ASM terms in kcal/mol | Orbital energies in eV | Bondlengths in Angstrom | Angles in degrees | VDD charges in millielectrons"
+    logger.info("Writing PyFrag results | EDA/ASM terms in kcal/mol | Orbital energies in eV | Bondlengths in Angstrom | Angles in degrees | VDD charges in millielectrons")
     standard_headers = ["#IRC", "EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "StrainTotal", "frag1Strain", "frag2Strain"]
 
     coordinate_axis = find_coordinates_axis(list(data_rows[0].keys()))
