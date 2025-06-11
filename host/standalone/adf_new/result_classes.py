@@ -2,11 +2,12 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Sequence, Tuple, Union
 
-import constants as const
 import numpy as np
-from input import InputKeys
 from scm.plams import AMSJob, AMSResults, Molecule, Units
 from scm.plams.mol.atom import Atom
+
+import constants as const
+from input import InputKeys
 
 logger = logging.getLogger("PyFragResults")
 
@@ -33,11 +34,11 @@ def convert_output_data_into_seperate_keys(data: Dict[str, Any]):
         # If the value is a list with more than one item, create a new key for each item
         if isinstance(value, list) and len(value) > 1:
             for index, item in enumerate(value, start=1):
-                new_key = f"{key}_{index}"
+                new_key = f"{key}{index}"
                 output_table[new_key] = item
         # If the value is a list with one item or not a list, keep the original key
         elif isinstance(value, list) and len(value) == 1 and key in ("bondlength", "angle"):
-            new_key = f"{key}_1"
+            new_key = f"{key}1"
             output_table[new_key] = value[0]
 
         else:
@@ -214,13 +215,14 @@ def make_orbital_label(orbital: "OrbitalDefition", include_frag: bool = False) -
         irrep = orbital["irrep"]
 
         # If the index contains an underscore, it means the spin is included
-        index, spin = orbital["index"].split("_")
+        if "_" in orbital["index"]:
+            index, spin = orbital["index"].split("_")
 
-        if spin is not None:
-            irrep = f"{irrep}-{spin}"
-        label.append(f"{index}{irrep}")
+            if spin is not None:
+                irrep = f"{irrep}-{spin}"
+            label.append(f"{index}{irrep}")
 
-        return "-".join(label)
+            return "-".join(label)
 
     return f"{orbital['frag']}"
 
@@ -262,7 +264,6 @@ class PyFragRestrictedResult:
 
     def GetOrbitalIndex(self, orbDescriptor: "OrbitalDefition"):
         # orbDescriptor = {'type' = "HOMO/LUMO/INDEX", 'frag'='#frag', 'irrep'='irrepname', 'index'=i}
-        print(orbDescriptor)
         fragOrbnum: int = GetFragNum(self.complexResult, orbDescriptor["frag"])  # get fragment number
         orbIndex = 0
         if GetFrontIndex(orbDescriptor["type"])["holu"] == "HOMO":
@@ -339,14 +340,14 @@ class PyFragRestrictedResult:
             for i, od in enumerate(inputKeys["bondlength"], start=1):
                 atom_indices = GetAtomNum(inputKeys["fragment_indices"], od["bond_definition"])
                 atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]]]
-                label = f"bondlength_{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
+                label = f"bondlength{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
                 outputData[label] = atoms[0].distance_to(atoms[1]) - od["original_value"]
 
         if inputKeys["angle"]:
             for i, od in enumerate(inputKeys["angle"], start=1):
                 atom_indices = GetAtomNum(inputKeys["fragment_indices"], od["angle_definition"])
                 atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]], complexMolecule[atom_indices[2]]]
-                label = f"angle_{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
+                label = f"angle{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
                 outputData["angle"] = atoms[0].angle(atoms[1], atoms[2]) - od["original_value"]
 
         return convert_output_data_into_seperate_keys(outputData)
@@ -521,14 +522,14 @@ class PyFragUnrestrictedResult:
             for i, od in enumerate(inputKeys["bondlength"], start=1):
                 atom_indices = GetAtomNum(inputKeys["fragment_indices"], od["bond_definition"])
                 atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]]]
-                label = f"bondlength_{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
+                label = f"bondlength{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
                 outputData[label] = atoms[0].distance_to(atoms[1]) - od["original_value"]
 
         if inputKeys["angle"]:
             for i, od in enumerate(inputKeys["angle"], start=1):
                 atom_indices = GetAtomNum(inputKeys["fragment_indices"], od["angle_definition"])
                 atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]], complexMolecule[atom_indices[2]]]
-                label = f"angle_{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
+                label = f"angle{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
                 outputData["angle"] = atoms[0].angle(atoms[1], atoms[2]) - od["original_value"]
 
         return convert_output_data_into_seperate_keys(outputData)

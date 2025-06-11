@@ -1,14 +1,15 @@
 import logging
 import pathlib as pl
 import re
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
+
+from scm.plams import AMSJob, AMSResults, Molecule, Settings, load_all
 
 import constants as const
 from errors import FragmentOptimizationError
 from input import InputKeys
 from mol_handling import create_pyfrag_trajectory_from_coord_file, update_fragment_indices
 from result_classes import get_pyfrag_results
-from scm.plams import AMSJob, AMSResults, Molecule, Settings, load_all
 
 logger = logging.getLogger("PyFragDriver")
 
@@ -121,33 +122,6 @@ def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: 
 # =====================================================================
 
 
-def convert_output_data_into_seperate_keys(data: Dict[str, Any]):
-    """
-    This function takes a dictionary and converts it into a format where each value in a list
-    is associated with a unique key.
-
-    For example, it converts {'overlap': [1.55, 1.99]} into
-    {'overlap_1': 1.55, 'overlap_2':1.99}.
-    """
-    output_table = {}
-
-    for key, value in data.items():
-        # If the value is a list with more than one item, create a new key for each item
-        if isinstance(value, list) and len(value) > 1:
-            for index, item in enumerate(value, start=1):
-                new_key = f"{key}_{index}"
-                output_table[new_key] = item
-        # If the value is a list with one item or not a list, keep the original key
-        elif isinstance(value, list) and len(value) == 1 and key in ("bondlength", "angle"):
-            new_key = f"{key}_1"
-            output_table[new_key] = value[0]
-
-        else:
-            output_table[key] = value[0] if isinstance(value, list) else value
-
-    return output_table
-
-
 def find_coordinates_axis(headers: Sequence[str]) -> Union[str, None]:
     """
     Find the coordinate axis on which the EDA is plotted on. It scans for the first header that starts with "bondlength", or "angle" if it exists.
@@ -176,9 +150,12 @@ def sort_molecule_by_indices(molecule: Molecule, indices: List[int]) -> Molecule
 def natural_sort_key(key: str) -> list:
     """
     Generate a natural sort key for strings containing numbers.
-    For example, "bondlength_10" will be sorted after "bondlength_2".
+    For example, "bondlength10_xxx" will be sorted after "bondlength2_xxx", so the order will be: bondlength1_xxx, bondlength2_xxx, ..., bondlength10_xxx, bondlength11_xxx, ...
+    The key may contain other numbers after the underscore which should be ignored.
     """
-    return [int(text) if text.isdigit() else text.lower() for text in re.split(r"(\d+)", key)]
+    if "_" in key:
+        key = key.split("_")[0]
+    return [int(part) if part.isdigit() else part for part in re.split(r"(\d+)", key)]
 
 
 def write_table(data_rows: List[Dict[str, Union[str, float]]], output_file_name: str):
