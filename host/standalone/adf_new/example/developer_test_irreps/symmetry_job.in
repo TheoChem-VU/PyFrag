@@ -8,8 +8,8 @@ JOBSUB
 #SBATCH -t 00:10:00
 #SBATCH --ntasks-per-node=16
 #SBATCH --partition=tc
-#SBATCH --output=new_ams_job.out
-#SBATCH --error=new_ams_job.err
+#SBATCH --output=symmetry_job.out
+#SBATCH --error=symmetry_job.err
 
 # TC
 # module load ams/2024.102
@@ -24,10 +24,26 @@ JOBSUB END
 
 PyFrag
 name symmetry_job
-ircpath nh3_bh3.xyz
+coordfile nh3_bh3.xyz
 fragment  1 2 3 4
 fragment  5 6 7 8
+
 bondlength 1 5  1.625
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
+bondlength 1 5  0
 bondlength 1 5  0
 log_level debug
 
@@ -41,6 +57,14 @@ orbitalenergy A1 frag1 2
 orbitalenergy A1 frag2 2
 
 overlap frag1 HOMO frag2 LUMO
+overlap frag2 HOMO frag1 LUMO
+overlap frag2 HOMO frag1 LUMO
+overlap frag2 HOMO frag1 LUMO
+overlap frag2 HOMO frag1 LUMO
+overlap frag2 HOMO frag1 LUMO
+overlap frag2 HOMO frag1 LUMO
+overlap frag2 HOMO frag1 LUMO
+overlap frag2 HOMO frag1 LUMO
 overlap frag2 HOMO frag1 LUMO
 
 overlap A1 frag1 2 A1 frag2 2

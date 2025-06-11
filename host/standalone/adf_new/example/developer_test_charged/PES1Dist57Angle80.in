@@ -21,6 +21,7 @@ module list
 JOBSUB END
 
 PyFrag
+
 ircpath PES1normdist57ang80.ams.amv
 fragment  1 2 3 4 5 6 7 8 9 10
 fragment  11 12
@@ -31,6 +32,21 @@ bondlength 12 5
 log_level debug
 
 PyFrag END
+
+AMS
+Task SinglePoint
+Engine ADF
+  XC
+    GGA OLYP
+  END
+  NumericalQuality normal
+  BASIS
+    TYPE DZP
+    CORE None
+  END
+
+EndEngine
+AMS END
 
 fragment1 EXTRA
 System
@@ -49,20 +65,3 @@ System
   Charge -1
 End
 complex EXTRA END
-
-
-AMS
-Task SinglePoint
-Engine ADF
-  XC
-    GGA OLYP
-  END
-  NumericalQuality normal
-  BASIS
-    TYPE DZP
-    CORE None
-  END
-
-EndEngine
-AMS END
-
