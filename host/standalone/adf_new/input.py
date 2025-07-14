@@ -1,7 +1,12 @@
 import logging
 import pathlib as pl
 import re
-from typing import Dict, List, Sequence, Tuple, TypedDict, Union
+from typing import Dict, List, Sequence, Tuple, Union
+
+try:
+    from typing import TypedDict
+except ImportError:
+    from typing_extensions import TypedDict
 
 logger = logging.getLogger("PyFrag Parser")
 
