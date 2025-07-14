@@ -11,6 +11,8 @@ description = "Automation of fragment calculations of the AMS package in quantum
 readme = { file = "README.md", content-type = "text/markdown" }
 classifiers = [
     "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -25,8 +27,9 @@ dependencies = [
     "attrs>=21.2.0",
     "pandas>=1.4.0",
     "plams",
+    "typing_extensions>=3.7.4; python_version<'3.8'",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.6"
 
 [project.optional-dependencies]
 docs = ["sphinx>=4.0.0"]
