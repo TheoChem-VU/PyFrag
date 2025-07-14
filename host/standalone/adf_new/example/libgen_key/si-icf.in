@@ -35,7 +35,7 @@ Engine ADF
    Libxc HYB_GGA_XC_WB97X_D
   END
 
-  NumericalQuality excellent
+  NumericalQuality normal
 
   EPRINT
     SFO EIG OVL
@@ -47,11 +47,13 @@ AMS END
 
 PyFrag
 name si-icf
-ircpath coord.xyz
-fragment 1 2 3 4 5 6 7 8 9 10 11 12 13 14
-fragment 15 16 17 18 19
-strain   -2355.87
-strain   -901.91
+coordfile coord.xyz
+
+frag1_indices  1-14
+frag2_indices  15-19
+frag1_energy   -2355.87
+frag2_energy   -901.91
+
 bondlength 5 15
 log_level debug
 

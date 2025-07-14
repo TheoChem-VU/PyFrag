@@ -6,16 +6,17 @@ JOBSUB
 #SBATCH --ntasks-per-node=32
 #SBATCH --partition=tc
 
-# module load ams/2024.102
+module load ams/2024.102
 
 JOBSUB END
 
 PyFrag
-ircpath $SLURM_SUBMIT_DIR/*xyz
-fragment  5
-fragment  1 2 3 4 6
-strain -89.21
-strain -473.04
+name job_regions
+coordfile $SLURM_SUBMIT_DIR/*xyz
+frag1_indices  5
+frag2_indices  1-4 6
+frag1_energy -89.21
+frag2_energy -473.04
 bondlength 1 5 0
 bondlength 1 5 2.153
 
@@ -31,8 +32,6 @@ orbitalenergy frag2 LUMO
 
 PyFrag END
 
-# Note: the fragment and complex blocks are CASE-SENSITIVE (at the moment): "fragment" should be lower-case, and "EXTRA END" uppercase
-# If you don't need to add EXTRA settings for the fragments and/or complex, feel free to remove these blocks.
 fragment1 EXTRA
 
 System
@@ -87,7 +86,7 @@ Engine ADF
     PerRegion Region=rest Type=AUG/ATZ2P
   End
 
-  numericalquality VeryGood
+  numericalquality Normal
 
   xc
     gga OLYP
@@ -95,7 +94,7 @@ Engine ADF
 
   Symmetry NoSym
 
-  # Use this block for open-shell systems, and call the pyfrag with "pyfrag -x new_open job.in"
+  # Use this block for open-shell systems
   # Spinpolarization 0
   # UnrestrictedFragments
   # Unrestricted Yes/No

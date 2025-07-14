@@ -12,12 +12,10 @@ JOBSUB
 #SBATCH --error=methane.err
 
 # TC
+module load 2025
 module load shared
-module load ams/2024.102-zen  # Put most recent version here!
+module load ams/2021.102-zen  # Put most recent version here!
 module list
-
-export SCM_TMPDIR=/scratch/${SLURM_JOB_ID}
-# srun mkdir -p $SCM_TMPDIR
 
 # Snellius
 # module load 2022
@@ -79,6 +77,8 @@ orbitalenergy A1 frag2 1_A
 
 population frag1 HOMO
 population frag2 HOMO
+population A1 frag1 3_A
+population A frag2 1_A
 
 PyFrag END
 

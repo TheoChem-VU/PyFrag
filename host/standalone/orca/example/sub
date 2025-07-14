@@ -3,11 +3,12 @@
 #SBATCH -t 5:00
 #SBATCH -N 1
 #SBATCH --tasks-per-node=16
-#SBATCH --partition=short
+#SBATCH --partition=tc
 #SBATCH -o job-%j.stdout
 #SBATCH -e job-%j.stderr
 
-module load orca
+module load shared
+module load orca/6.0.0
 
 export NSCM=16
 
