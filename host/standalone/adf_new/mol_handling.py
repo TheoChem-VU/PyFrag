@@ -244,11 +244,10 @@ def extract_molecules_from_coord_file(coord_files: Sequence[pl.Path]) -> List[Mo
 
 def update_fragment_indices(fragment_indices: Sequence[Sequence[Union[int, str]]]) -> List[List[int]]:
     """
-    Given a list of fragment indices which may contain the [-1] option or range options (e.g., "3-7"),
+    Given a list of fragment indices which may contain the range option (e.g., "3-7"),
     this function updates the fragment indices to include all atoms that are not specified in the list.
 
     Example:
-        fragment_indices = [[1, 2], [-1]] will be updated to [[1, 2], [3, 4, 5, ...]]
         fragment_indices = [[1, 2], ["3-7"]] will be updated to [[1, 2], [3, 4, 5, 6, 7]]
 
     Args:
