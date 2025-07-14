@@ -25,9 +25,9 @@ function jobsubargue {
           continue
       fi
 
-      # Remove inline comments (e.g., #, ;, or /) but preserve the line if it starts with #SBATCH or #!/  (e.g., shebang)
+      # Remove inline comments only if separated by a space (e.g., ' #', ' ;', ' /')
       if [[ ! "$line" =~ ^#SBATCH && ! "$line" =~ ^#!/ ]]; then
-          line=$(echo "$line" | sed -E 's/[#;/].*$//' | sed '/^\s*$/d')
+          line=$(echo "$line" | sed -E 's/\s[#;].*$//' | sed '/^\s*$/d')
       fi
 
       # Process non-empty lines
@@ -73,7 +73,7 @@ sed -n '/^fragment1 EXTRA$/I,/^fragment1 EXTRA END$/I{//!p;}' $input > fragment1
 sed -n '/^fragment2 EXTRA$/I,/^fragment2 EXTRA END$/I{//!p;}' $input > fragment2_EXTRA
 sed -n '/^complex EXTRA$/I,/^complex EXTRA END$/I{//!p;}' $input > complex_EXTRA
 
-submit="amspython \$HOSTPYFRAG/standalone/adf_new/PyFrag.py \\"
+submit="amspython \${HOSTPYFRAG}/standalone/adf_new/PyFrag.py \\"
 
 jobsubargue jobsub.txt                                      >> ./sub
 echo $submit                                                >> ./sub
