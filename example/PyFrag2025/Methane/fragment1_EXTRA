@@ -1,0 +1,15 @@
+
+Engine ADF
+
+  Spinpolarization 1
+  unrestricted
+
+  IrrepOccupations
+    E1 2//2
+    A1 3//2
+  END
+
+  Symmetry C(3V)
+
+EndEngine
+

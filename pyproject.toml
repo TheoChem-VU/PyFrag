@@ -26,29 +26,29 @@ dependencies = [
     "gitpython>=3.1.24",
     "attrs>=21.2.0",
     "pandas>=1.4.0",
-    "plams",
+    "plams[ams]",
     "typing_extensions>=3.7.4; python_version<'3.8'",
 ]
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 
 [project.optional-dependencies]
 docs = ["sphinx>=4.0.0"]
 dev = ["pytest>=6.0.0"]
 
-# [project.scripts]
-# # Uncomment the following line to enable the console script
-# pyfrag-dev = "pyfrag.main_parser:main"
-# pyfrag-driver = "pyfrag.main_program:main"
+[project.scripts]
+# Console scripts for PyFrag
+pyfrag = "pyfrag.main:main"
+pyfrag-cluster = "pyfrag.cluster_runner:main"
 
-# [tool.setuptools.packages.find]
-# where = ["src"] # list of folders that contain the packages (["."] by default)
-# include = [
-#     "pyfrag*",
-# ] # package names should match these glob patterns (["*"] by default)
-# exclude = [
-#     "tests*",
-#     "docs*",
-# ] # exclude packages matching these glob patterns (empty by default)
+[tool.setuptools.packages.find]
+where = ["src"] # list of folders that contain the packages (["."] by default)
+include = [
+    "pyfrag*",
+] # package names should match these glob patterns (["*"] by default)
+exclude = [
+    "tests*",
+    "docs*",
+] # exclude packages matching these glob patterns (empty by default)
 
 [tool.setuptools-git-versioning]
 enabled = true
@@ -60,7 +60,7 @@ dirty_template = "{tag}"
 version = { attr = "pyfrag.__version__" }
 
 [tool.pytest.ini_options]
-pythonpath = "host/standalone/adf_new"
+pythonpath = "src/pyfrag/host/standalone/adf_new"
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]

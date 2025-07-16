@@ -1,0 +1,3 @@
+[console_scripts]
+pyfrag = pyfrag.main:main
+pyfrag-cluster = pyfrag.cluster_runner:main

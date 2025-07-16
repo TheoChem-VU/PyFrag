@@ -1,0 +1,22 @@
+
+Task SinglePoint
+System
+    Charge 0
+End
+
+Engine ADF
+
+  XC
+    GGA BLYP
+    DISPERSION Grimme3 BJDAMP
+  END
+
+  NumericalQuality Normal
+
+  BASIS
+    TYPE TZ2P
+    CORE None
+  END
+
+EndEngine
+

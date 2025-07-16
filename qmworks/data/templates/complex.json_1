@@ -1,9 +1,0 @@
-{
-    "specific": {
-        "complex": {
-            "basis": {"type": "TZ2P"},
-            "scf": {
-                "converge": 1e-6,
-                "iterations": 100} }
-                }
-}

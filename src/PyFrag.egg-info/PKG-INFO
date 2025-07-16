@@ -1,0 +1,41 @@
+Metadata-Version: 2.4
+Name: PyFrag
+Version: 2025.1.0
+Summary: Automation of fragment calculations of the AMS package in quantum chemistry
+Home-page: https://github.com/sunxb05/PyFrag
+Author: X. Sun, J. Poater, T. A. Hamlin, F. M. Bickelhaupt
+Author-email: "S.J. Lekanne Deprez" <s.j.lekanne.deprez@vu.nl>
+License: Copyright (c) 2019 X. Sun, T. M. Soini, J. Poater, T. A. Hamlin and F. M. Bickelhaupt
+        
+        PyFrag 2019 is an Open Source project supported by the Vrije Universiteit Amsterdam and Software for Chemistry & Materials BV (SCM). The terms of the [LGPL-3.0 license]* apply. As an exception to the LGPL-3.0 license, you agree to grant SCM a [BSD 3-Clause license]** to the contributions you commit on this Github or provide to SCM in another manner.
+        
+        \* https://opensource.org/licenses/LGPL-3.0
+        
+        ** https://opensource.org/licenses/BSD-3-Clause
+        
+        [LGPL-3.0 license]:  https://opensource.org/licenses/LGPL-3.0 "LGPL-3.0 license"
+        [BSD 3-Clause license]: https://opensource.org/licenses/BSD-3-Clause  "BSD 3-Clause license"
+        
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 3 - Alpha
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: gitpython>=3.1.24
+Requires-Dist: attrs>=21.2.0
+Requires-Dist: pandas>=1.4.0
+Requires-Dist: plams[ams]
+Requires-Dist: typing_extensions>=3.7.4; python_version < "3.8"
+Provides-Extra: docs
+Requires-Dist: sphinx>=4.0.0; extra == "docs"
+Provides-Extra: dev
+Requires-Dist: pytest>=6.0.0; extra == "dev"
+Dynamic: home-page
+Dynamic: license-file

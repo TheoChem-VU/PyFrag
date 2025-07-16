@@ -1,0 +1,11 @@
+
+Engine ADF
+  Spinpolarization -1
+  Unrestricted
+
+  IrrepOccupations
+    A 0//1
+  END
+
+EndEngine
+
