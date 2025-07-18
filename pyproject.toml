@@ -14,13 +14,12 @@ classifiers = [
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Development Status :: 3 - Alpha",
     "Topic :: Scientific/Engineering :: Chemistry",
 ]
 dynamic = ["version"]
-license = { file = "LICENSE.md" }
+license = "LGPL-3.0"
 dependencies = [
     "numpy>=1.20.0",
     "gitpython>=3.1.24",
@@ -30,15 +29,20 @@ dependencies = [
     "typing_extensions>=3.7.4; python_version<'3.8'",
 ]
 requires-python = ">=3.8"
-
 [project.optional-dependencies]
 docs = ["sphinx>=4.0.0"]
 dev = ["pytest>=6.0.0"]
 
+[project.urls]
+Homepage = "https://github.com/TheoChem-VU/PyFrag"
+
 [project.scripts]
 # Console scripts for PyFrag
 pyfrag = "pyfrag.main:main"
-pyfrag-cluster = "pyfrag.cluster_runner:main"
+
+[tool.setuptools]
+# Install shell scripts as executable files
+script-files = ["src/pyfrag/pyfrag.sh"]
 
 [tool.setuptools.packages.find]
 where = ["src"] # list of folders that contain the packages (["."] by default)
