@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 PyFrag main entry point module.
 
@@ -9,98 +8,165 @@ handling command line arguments and dispatching to appropriate executables.
 import argparse
 import subprocess
 import sys
+from pathlib import Path
+from typing import Dict, Tuple, Union
 
 from pyfrag.config import get_config
+from pyfrag.parser_factory import ExecutableType, get_parser_from_executable
 
 
-def get_executable_path(executable_name):
+def get_executable_path(executable_name: str) -> Union[Path, None]:
     """Get the path to a PyFrag executable."""
+    executable_name = executable_name.lower()
     config = get_config()
 
-    # First check in host/bin (new location)
-    host_bin_path = config.get_executables_path() / f"{executable_name}.sh"
+    host_bin_path = config.get_executables_path(executable_name)
     if host_bin_path.exists():
         return host_bin_path
-
-    # Then check in main bin directory
-    main_bin_path = config.get_scripts_path() / f"{executable_name}.sh"
-    if main_bin_path.exists():
-        return main_bin_path
 
     return None
 
 
-def print_help():
+def validate_executable(value: str) -> ExecutableType:
+    """Validate and convert string to ExecutableType."""
+    try:
+        return ExecutableType(value.lower())
+    except ValueError:
+        valid_types = [e.value for e in ExecutableType]
+        raise argparse.ArgumentTypeError(f"Invalid executable '{value}'. Valid options are: {', '.join(valid_types)}")
+
+
+def get_jobsub_section_from_input_file(input_file_sections: Dict[str, str]) -> Tuple[str, bool]:
+    """Extracts the jobsub section from the input file sections.
+
+    Args:
+        input_file_sections (Dict[str, str]): Dictionary containing sections of the input file.
+
+    Returns:
+        Tuple[str, bool]: The jobsub section content and a boolean indicating if it uses a job scheduler.
+    """
+    jobsub_key = "jobsub"
+    jobsub_content = input_file_sections.get(jobsub_key, "")
+
+    if not jobsub_content:
+        return "!/bin/bash", False
+
+    return jobsub_content, True
+
+
+def prepare_run_script(job_sub_content: str, input_file: Path, venv_path: Union[Path, None], executable: ExecutableType) -> Path:
+    """Makes a .run file for the job script and runs it.
+
+    Example job script content:
+    [JOBSUB SECTION]
+    If use SLURM or similar job scheduler, the job script might look like this:
+        #!/bin/bash
+        #SBATCH --job-name=pyfrag_job
+        #SBATCH --output=pyfrag_job.out
+        #SBATCH --error=pyfrag_job.err
+        #SBATCH --time=01:00:00
+        #SBATCH --ntasks=1
+        #SBATCH --cpus-per-task=4
+
+    else no job scheduler is used:
+        #!/bin/bash
+
+    [PYTHON ENVIRONMENT SECTION]
+    if ADF, use amspython (for the InputParser that calls the compiled libbase InputParser of the AMS package):
+        amspython /path/to/pyfrag/[executable].py input_file.in
+    else use the virtual Python environment:
+        source /path/to/venv/bin/activate  # Activate virtual environment if needed
+        python /path/to/pyfrag/[executable].py input_file.in
+
+    """
+    job_script_file = input_file.with_suffix(".run")
+
+    if executable == ExecutableType.ADF:
+        python_environment_line = f"amspython {get_executable_path(executable.value)} {input_file}"
+    else:
+        if venv_path:
+            python_environment_line = f"source {venv_path}/bin/activate && python {get_executable_path(executable.value)} {input_file}"
+        else:
+            python_environment_line = f"python {get_executable_path(executable.value)} {input_file}"
+
+    job_script_content = f"{job_sub_content}\n\n{python_environment_line}\n"
+
+    with open(job_script_file, "w") as f:
+        f.write(job_script_content)
+
+    # Ensure the job script is executable
+    job_script_file.chmod(0o755)
+
+    print(f"Run script created: {job_script_file}")
+    return job_script_file
+
+
+def print_help() -> None:
     """Print help information."""
-    help_text = """
-Usage: pyfrag [-h] [-s] [-x command] [...]
+    valid_executables = ", ".join([e.value for e in ExecutableType])
+    help_text = f"""
+Python interface for the PyFrag package.
 
-       -h          : print this information
-       -x command  : start the executable named command
-                   : command include adf, which use adf as engine (for both open and closed shell calculations)
-                   : openorb, which print the real orbital energy from the open shell calculation
-                   : single, which use adf as engine to do a series of SP calculation
-                   : gaussian, which use gaussian as engine
-                   : orca, which use orca as engine
-                   : turbomole, use turbomole as engine
-                   : adfold, which use ADF before 2020
-                   : default command is adf itself
+Usage: pyfrag <input_file> [options]
 
-The example command is like as follow, in which job.in is job input
-pyfrag job.in
-or
-pyfrag -x gaussian job.in
+The script automatically detects cluster mode if a JOBSUB section is present in the input file.
+
+Positional arguments:
+    input_file          Path to the input file (required)
+
+Options:
+    -h, --help          Show this help message and exit
+    -x, --executable    Specify the executable to run (default: 'adf')
+                        Valid options: {valid_executables}
+
+Examples:
+    # Direct mode (no JOBSUB section)
+    pyfrag job.in
+    pyfrag job.in -x gaussian
+
+    # Cluster mode (JOBSUB section present in input file)
+    pyfrag job_with_jobsub.in
+    pyfrag job_with_jobsub.in -x adf
+
 """
     print(help_text)
 
 
 def main():
-    """Main entry point for PyFrag."""
+    """Main Python-based entry point for PyFrag."""
     parser = argparse.ArgumentParser(add_help=False)  # We'll handle help ourselves
     parser.add_argument("-h", "--help", action="store_true", help="Show help message")
-    parser.add_argument("-x", "--executable", default="adf", help="Specify executable to run")
-    parser.add_argument("-s", "--silence", action="store_true", help="Run silently")
-    parser.add_argument("args", nargs="*", help="Arguments to pass to the executable")
+    parser.add_argument("-x", "--executable", default="adf", help=f"Specify executable to run. Available options are {list(ExecutableType)}.")
+    parser.add_argument("input_file", help="Input file path")
 
     args, unknown_args = parser.parse_known_args()
+    validated_executable = validate_executable(args.executable)
 
     if args.help:
         print_help()
         sys.exit(0)
 
-    # Set up PyFrag environment
-    config = get_config()
-    env = config.setup_environment()
-
-    # Get the executable path
-    executable_path = get_executable_path(args.executable)
-
-    if not executable_path:
-        # Fallback to pyfrag.sh
-        fallback_path = config.get_scripts_path() / "pyfrag.sh"
-        if fallback_path.exists():
-            executable_path = fallback_path
-        else:
-            print(f"Error: Cannot find executable for '{args.executable}'", file=sys.stderr)
-            sys.exit(1)
-
-    # Prepare command
-    cmd = [str(executable_path)] + args.args + unknown_args
-
-    print(f"Running command: {' '.join(cmd)}", file=sys.stderr)
-
-    try:
-        if args.silence:
-            # Run silently
-            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, env=env)
-        else:
-            # Run normally
-            subprocess.run(cmd, check=True, env=env)
-    except subprocess.CalledProcessError as e:
-        sys.exit(e.returncode)
-    except FileNotFoundError:
-        print(f"Error: Cannot execute {executable_path}", file=sys.stderr)
+    # Validate input file exists
+    input_file_path = Path(args.input_file)
+    if not input_file_path.exists():
+        print(f"Error: Input file '{args.input_file}' does not exist", file=sys.stderr)
         sys.exit(1)
+
+    # Prepare the run file and execute the job script
+    parser = get_parser_from_executable(validated_executable)
+    input_file_sections = parser(str(input_file_path))
+    jobsub_section, use_job_scheduler = get_jobsub_section_from_input_file(input_file_sections)
+    venv_path = get_config().virtual_env
+
+    prepare_run_script(jobsub_section, input_file_path, venv_path, validated_executable)
+
+    # Execute the job script if a job scheduler is used
+    if use_job_scheduler:
+        print(f"Submitting job script: {input_file_path.with_suffix('.run')}")
+        subprocess.run(["sbatch", str(input_file_path.with_suffix(".run"))], check=True)
+    else:
+        print(f"Running directly: {input_file_path.with_suffix('.run')}")
+        subprocess.run([str(input_file_path.with_suffix(".run"))], check=True)
 
 
 if __name__ == "__main__":

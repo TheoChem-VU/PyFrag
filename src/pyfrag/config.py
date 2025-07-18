@@ -83,17 +83,13 @@ class PyFragConfig:
             os.environ["VIRTUAL_ENV"] = str(self.virtual_env)
             os.environ["PATH"] = f"{self.virtual_env / 'bin'}:{os.environ.get('PATH', '')}"
 
-    def get_adf_new_path(self) -> Path:
-        """Get the path to the adf_new module."""
-        return self.pyfrag_home / "src" / "pyfrag" / "host" / "standalone" / "adf_new"
-
     def get_host_path(self) -> Path:
         """Get the path to the host module."""
-        return self.pyfrag_home / "src" / "pyfrag" / "host"
+        return self.pyfrag_home / "src" / "pyfrag"
 
-    def get_executables_path(self) -> Path:
+    def get_executables_path(self, executable: str) -> Path:
         """Get the path to the executables (former host/bin)."""
-        return self.get_host_path() / "bin"
+        return self.get_host_path() / "executables" / executable / f"{executable}.py"
 
     def get_scripts_path(self) -> Path:
         """Get the path to the main scripts."""
