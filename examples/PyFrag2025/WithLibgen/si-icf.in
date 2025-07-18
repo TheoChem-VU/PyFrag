@@ -1,0 +1,96 @@
+JOBSUB
+
+#!/bin/bash
+#SBATCH -J si-icf
+#SBATCH -N 1
+#SBATCH -t 240:00:00
+#SBATCH --ntasks-per-node=32
+#SBATCH --partition=tc
+#SBATCH --output=%job.stdout
+#SBATCH --error=%job.stdout
+
+module load ams/2022.103
+
+module list
+
+JOBSUB END
+
+AMS
+
+Task SinglePoint
+
+Engine ADF
+  BASIS
+   type TZ2P
+   core none
+  END
+
+  Relativity
+   level Scalar
+  End
+
+  SYMMETRY nosym
+
+  XC
+   Libxc HYB_GGA_XC_WB97X_D
+  END
+
+  NumericalQuality normal
+
+  EPRINT
+    SFO EIG OVL
+  end
+
+EndEngine
+
+AMS END
+
+PyFrag
+name si-icf
+coordfile coord.xyz
+
+frag1_indices  1-14
+frag2_indices  15-19
+frag1_energy   -2355.87
+frag2_energy   -901.91
+
+bondlength 5 15
+log_level debug
+
+orbitalenergy A frag1 25
+orbitalenergy A frag1 24
+orbitalenergy A frag1 23
+orbitalenergy A frag1 19
+
+orbitalenergy A frag2 44
+orbitalenergy A frag2 43
+orbitalenergy A frag2 42
+orbitalenergy A frag2 41
+
+population A frag1 25
+population A frag1 24
+population A frag1 23
+population A frag1 19
+
+population A frag2 44
+population A frag2 43
+population A frag2 42
+population A frag2 41
+
+overlap A frag1 19 A frag2 44
+overlap A frag1 25 A frag2 43
+overlap A frag1 25 A frag2 42
+overlap A frag1 25 A frag2 41
+overlap A frag1 24 A frag2 43
+overlap A frag1 24 A frag2 42
+overlap A frag1 24 A frag2 41
+overlap A frag1 23 A frag2 43
+overlap A frag1 23 A frag2 42
+overlap A frag1 23 A frag2 41
+
+
+PyFrag END
+
+
+
+

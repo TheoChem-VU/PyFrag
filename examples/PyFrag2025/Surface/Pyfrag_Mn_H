@@ -1,0 +1,86 @@
+JOBSUB
+
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 240:00:00
+#SBATCH --ntasks 32
+#SBATCH --ntasks-per-core 1
+#SBATCH --partition=tc
+
+echo "== Starting run at $(date)"
+echo "== Job ID: ${SLURM_JOBID}"
+echo "== Node list: ${SLURM_NODELIST}"
+echo "== Submit dir. : ${SLURM_SUBMIT_DIR}"
+echo "== Scratch dir. : ${TMPDIR}"
+
+
+module load 2022
+module load ams/2023.101
+
+JOBSUB END
+
+PyFrag
+name pyfrag_job
+ircpath $SLURM_SUBMIT_DIR/*.xyz
+fragment  1-57
+fragment  58
+strain   -9864.26
+strain   -25.74
+bondlength 27 58  1.526
+PyFrag END
+
+
+fragment1 EXTRA
+
+Engine ADF
+    SpinPolarization  3.0
+EndEngine
+
+fragment1 EXTRA END
+
+fragment2 EXTRA
+
+Engine ADF
+    SpinPolarization  -1.0
+EndEngine
+
+fragment2 EXTRA END
+
+complex EXTRA
+
+Engine ADF
+    SpinPolarization  2.0
+EndEngine
+
+complex EXTRA END
+
+
+AMS
+Task SinglePoint
+
+
+Engine ADF
+
+    Basis
+        Type TZP
+        Core None
+    End
+
+    NumericalQuality Good
+
+    XC
+        GGA PBE
+        DISPERSION GRIMME3 BJDAMP
+    End
+
+    Unrestricted yes
+    unrestrictedfragments
+
+    Symmetry C(2V)
+
+    SCF
+       ITERATIONS 999
+
+    END
+EndEngine
+AMS END
