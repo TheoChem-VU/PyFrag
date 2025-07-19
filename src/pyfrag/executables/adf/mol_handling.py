@@ -96,8 +96,8 @@ def load_molecule_from_str(molecule_block: Union[str, Sequence[str]]) -> Molecul
 
             # Check if there are additional properties (e.g., region details) which need to be added to the suffix key in the atom.properties Settings
             # Example: "region=O.adf"
-            # if len(parts) > 4:
-            #     atom.properties.suffix = " ".join(parts[4:])
+            if len(parts) > 4:
+                atom.properties.suffix = " ".join(parts[4:])
     return mol
 
 
