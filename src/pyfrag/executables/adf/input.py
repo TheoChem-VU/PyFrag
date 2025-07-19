@@ -378,7 +378,7 @@ TList = TypeVar("TList", bound=List[Union[int, str, float]])
 
 def _flatten_list(input_list: TList) -> TList:
     """Flatten nested lists into a single list."""
-    flat_list: TList = []
+    flat_list: TList = []  # type: ignore  # This type definition is not correct since we make a new list insread of updating the input_list
     for item in input_list:
         if isinstance(item, list):
             flat_list.extend(_flatten_list(item))
@@ -399,10 +399,6 @@ def process_user_input(input_file_path: str) -> InputKeys:
     """
     # Extract sections from the input file
     input_file_sections = extract_sections(input_file_path)
-
-    print("Extracted sections from input file:")
-    for section in input_file_sections:
-        print(f" - {section}")
 
     # Set default values
     inputKeys: InputKeys = InputKeys(
@@ -555,5 +551,9 @@ def process_user_input(input_file_path: str) -> InputKeys:
             inputKeys[section_name.lower()] = section_content
         elif section_name.lower() == "ams":
             inputKeys["adfinputfile"] = section_content
+
+    logger.debug("Processed input keys:")
+    for key, value in inputKeys.items():
+        logger.debug(f" - {key}: {value}") if key not in ["adfinputfile", "old_adfinputfile", "fragment1_extra", "fragment2_extra", "complex_extra"] else None
 
     return inputKeys
