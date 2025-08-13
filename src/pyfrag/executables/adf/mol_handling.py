@@ -4,9 +4,18 @@ import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Sequence, Union
 
 import numpy as np
-from constants import BOHR_TO_ANGSTROM
-from errors import FragmentIndicesError, PyFragCoordFileError
 from scm.plams import AMSJob, Atom, KFHistory, KFReader, Molecule
+
+# Since we use amspython (from the AMS pacakge) as python environment, we cannot install the pyfrag package.
+# However, when performing tests with pytest, we install the pyfrag package and then the "." needs to be added.
+# Therefore, we include this try ... except block.
+try:
+    from .constants import BOHR_TO_ANGSTROM
+    from .errors import FragmentIndicesError, PyFragCoordFileError
+except ImportError:
+    from constants import BOHR_TO_ANGSTROM
+    from errors import FragmentIndicesError, PyFragCoordFileError
+
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -21,7 +30,7 @@ logger.setLevel(logging.DEBUG)
 # =============================================================================
 
 
-def _find_files_with_wildcard_option(coord_files: Sequence[pl.Path]) -> List[pl.Path]:
+def find_files_with_wildcard_option(coord_files: Sequence[pl.Path]) -> List[pl.Path]:
     """
     Find files with the * option ("wildcard") in the path.
     """
@@ -220,7 +229,7 @@ def extract_molecules_from_coord_file(coord_files: Sequence[pl.Path]) -> List[Mo
     Supported file types are .xyz, .amv, .rkf
     """
 
-    coord_files = _find_files_with_wildcard_option(coord_files)
+    coord_files = find_files_with_wildcard_option(coord_files)
 
     if not all(coord_file.exists() for coord_file in coord_files):
         raise PyFragCoordFileError(f"File(s) not found: {coord_files}")
