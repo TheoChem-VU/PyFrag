@@ -4,8 +4,17 @@ import pathlib as pl
 import re
 from typing import Any, Dict, List, Sequence, Tuple, TypeVar, Union
 
-from adf_parser import extract_sections
-from errors import PyFragCoordFileError, PyFragSectionInputError
+# Since we use amspython (from the AMS pacakge) as python environment, we cannot install the pyfrag package.
+# However, when performing tests with pytest, we install the pyfrag package and then the "." needs to be added.
+# Therefore, we include this try ... except block.
+try:
+    from .adf_parser import extract_sections
+    from .errors import PyFragCoordFileError, PyFragSectionInputError
+    from .mol_handling import find_files_with_wildcard_option
+except ImportError:
+    from adf_parser import extract_sections
+    from errors import PyFragCoordFileError, PyFragSectionInputError
+    from mol_handling import find_files_with_wildcard_option
 
 logger = logging.getLogger("Input Reader-ADF")
 
@@ -493,6 +502,9 @@ def process_user_input(input_file_path: str) -> InputKeys:
 
                 # First handle environment variables such as "$SLURM_SUBMIT_DIR"
                 inputKeys["coordFile"] = [expandvars_backslash(path) for path in inputKeys["coordFile"]]
+
+                # Then, expand the wildcard option
+                inputKeys["coordFile"] = find_files_with_wildcard_option(inputKeys["coordFile"])
 
                 # Check if all coordinate files exist.
                 if not all(path.exists() for path in inputKeys["coordFile"]):
