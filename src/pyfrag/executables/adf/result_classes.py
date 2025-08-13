@@ -140,8 +140,20 @@ def get_fragment_orbital_irrep(irrepType: Sequence[str], irrep_orb_number: Seque
 
 
 def GetOrbNum(irrep_orb_number: Sequence[int], core_orb_number: Sequence[int]) -> List[int]:
-    # GetOrbNumbers including frozen core orbitals, this is necessary to read population, list like [3,4,5,12,13,14,15,23,24,26]
-    # core orbital number corresponding to each irrep of complex symmetry
+    """
+    Returns the global orbital indices for all orbitals (including frozen core orbitals) in the complex, across all irreps.
+
+    This function is used to map the full list of orbital indices (1-based) for the entire complex, including both core and valence orbitals, as required for population analysis and other properties that refer to the full set of orbitals.
+
+    Example output: [1,2,3,4,5,6,7,8,9,...] (all orbitals, core+valence, in order by irrep)
+
+    Args:
+        irrep_orb_number (Sequence[int]): Number of valence orbitals per irrep.
+        core_orb_number (Sequence[int]): Number of core orbitals per irrep.
+
+    Returns:
+        List[int]: List of global orbital indices (1-based) for all orbitals in the complex.
+    """
     orbNumbers = []
     orbSum = 0
     for nrShell, nrCore in zip(irrep_orb_number, core_orb_number):
@@ -151,8 +163,20 @@ def GetOrbNum(irrep_orb_number: Sequence[int], core_orb_number: Sequence[int]) -
 
 
 def GetFragOrbNum(irrep_orb_number: Sequence[int], core_orb_number: Sequence[int]) -> List[int]:
-    # GetOrbNumbers including frozen core orbitals, this is necessary to read population, list like [3,4,5,12,13,14,15,23,24,26]
-    # core orbital number corresponding to each irrep of complex symmetry
+    """
+    Returns the orbital indices for valence (non-core) orbitals only, skipping frozen core orbitals, for all irreps.
+
+    This function is used to map the indices of fragment orbitals (SFOs) that are relevant for fragment-based properties, such as orbital overlaps and fragment populations. The indices start after the core orbitals for each irrep.
+
+    Example output: [core+1, core+2, ..., core+valence] for each irrep, concatenated.
+
+    Args:
+        irrep_orb_number (Sequence[int]): Number of valence orbitals per irrep.
+        core_orb_number (Sequence[int]): Number of core orbitals per irrep.
+
+    Returns:
+        List[int]: List of orbital indices (1-based) for valence (non-core) orbitals only, for all irreps.
+    """
     orbNumbers = []
     for nrShell, nrCore in zip(irrep_orb_number, core_orb_number):
         orbNumbers.extend(range(nrCore + 1, nrShell + nrCore + 1))
@@ -160,7 +184,7 @@ def GetFragOrbNum(irrep_orb_number: Sequence[int], core_orb_number: Sequence[int
 
 
 def get_atom_indices(atom_indices_per_fragment: Mapping[str, Sequence[int]], atom_indices: Sequence[int]) -> List[int]:
-    # change atom number in old presentation of a molecule into atom number in new presentation that formed by assembling fragments
+    """Change atom number in old presentation of a molecule into atom number in new presentation that formed by assembling fragments"""
     original_fragment_indices = [atomNum for key in sorted(list(atom_indices_per_fragment.keys())) for atomNum in list(atom_indices_per_fragment[key])]
     reordered_indices = [original_fragment_indices.index(i) + 1 for i in atom_indices]
     return reordered_indices
@@ -182,6 +206,21 @@ def split_homo_lumo_index(orbSign: str) -> Dict[str, Union[str, int]]:
     result = match_pattern(patterns, orbSign, group_replacements)
     result["num"] = int(result["num"]) if str(result["num"]).isdigit() else 0
     return result
+
+
+def get_vdd_output_results(fragment_index_mapping, vdd_indices: Sequence[int], complex_mol: Molecule, complex_result: AMSResults) -> Dict[str, float]:
+    """Get VDD output results for each fragment.
+
+    Returns:
+        Dict[str, float]: VDD charges for each fragment.
+    """
+    outputData = {}
+    atom_indices = get_atom_indices(fragment_index_mapping, vdd_indices)
+    atoms = [complex_mol[atom_index] for atom_index in atom_indices]
+    vdd_charges = get_vdd_charges(complex_result, atom_indices)
+    for i, charge in enumerate(vdd_charges, start=1):
+        outputData[f"VDD_{atoms[i - 1].symbol}{i}"] = charge
+    return outputData
 
 
 # ======================================================================
@@ -328,7 +367,7 @@ class PyFragRestrictedResult:
                 outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complexResult, self.irrepType, od["irrep"], outputData["OI"])
 
         if inputKeys["VDD"]:
-            outputData["VDD"] = get_vdd_charges(self.complexResult, get_atom_indices(inputKeys["fragment_indices"], inputKeys["VDD"]))
+            outputData.update(get_vdd_output_results(inputKeys["fragment_indices"], inputKeys["VDD"], complexMolecule, self.complexResult))
 
         if inputKeys["hirshfeld"]:
             outputData["hirshfeld"] = [get_hirshfeld_charges(self.complexResult, get_fragment_number(self.complexResult, fragment_specifier)) for fragment_specifier in inputKeys["hirshfeld"]]
@@ -510,7 +549,7 @@ class PyFragUnrestrictedResult:
                 outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complexResult, self.irrepType, od["irrep"], outputData["OI"])
 
         if inputKeys["VDD"]:
-            outputData["VDD"] = get_vdd_charges(self.complexResult, get_atom_indices(inputKeys["fragment_indices"], inputKeys["VDD"]))
+            outputData.update(get_vdd_output_results(inputKeys["fragment_indices"], inputKeys["VDD"], complexMolecule, self.complexResult))
 
         if inputKeys["hirshfeld"]:
             outputData["hirshfeld"] = [get_hirshfeld_charges(self.complexResult, get_fragment_number(self.complexResult, fragment_specifier)) for fragment_specifier in inputKeys["hirshfeld"]]
