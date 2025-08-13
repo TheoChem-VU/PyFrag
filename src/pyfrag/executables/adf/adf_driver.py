@@ -25,7 +25,13 @@ def settings_from_ams_block(ams_block: str) -> Settings:
     Adapted from the AMSJob.from_inputfile method to read in the settings from a file and return a Settings object
     Reason for adapting was because the AMSJob.from_inputfile method does remove the ams block from the settings object
     """
-    pre_calc_job: AMSJob = AMSJob.from_input(ams_block)
+
+    # Temporarily make an input file with solely the ams input block due to PLAMS2021 compatibility (it does not have the "from_input" method)
+    with pl.Path("ams_input.tmp").open("w") as f:
+        f.write(ams_block)
+        f.flush()
+        pre_calc_job: AMSJob = AMSJob.from_inputfile("ams_input.tmp")
+    pl.Path("ams_input.tmp").unlink()  # Remove the temporary file after reading it
 
     # This does not include the "System" block; it does include the "Task" and "Engine" block
     settings = pre_calc_job.settings
