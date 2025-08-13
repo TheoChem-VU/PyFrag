@@ -24,12 +24,13 @@ JOBSUB END
 
 PyFrag
 name symmetry_job
-ircpath $SLURM_SUBMIT_DIR/*xyz
-fragment  1 2 3    4
-fragment  5 6     7  # This is the second fragment
-strain   -194.83
-strain   -317.86
-bondlength 1 4  0.00
+coordfile $SLURM_SUBMIT_DIR/*xyz
+
+frag1_indices  1-4
+frag2_indices  5-7
+frag1_energy   -194.83
+frag2_energy   -317.86
+bondlength     1 4 0.00
 log_level debug
 
 VDD 1 2 3 4 5 6 7
@@ -45,18 +46,18 @@ orbitalenergy frag1 HOMO
 orbitalenergy frag2 LUMO
 orbitalenergy frag1 LUMO
 orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
-orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO-2
+orbitalenergy frag2 HOMO-3
+orbitalenergy frag2 HOMO-4
+orbitalenergy frag2 HOMO-5
+orbitalenergy frag2 HOMO-6
+orbitalenergy frag2 HOMO-7
+orbitalenergy frag2 HOMO-8
+orbitalenergy frag2 HOMO-9
+orbitalenergy frag2 HOMO-10
+orbitalenergy frag2 HOMO-11
+orbitalenergy frag2 HOMO-12
+orbitalenergy frag2 HOMO-13
 
 population frag1 HOMO
 population frag2 LUMO

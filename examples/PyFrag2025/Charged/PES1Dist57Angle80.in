@@ -22,11 +22,11 @@ JOBSUB END
 
 PyFrag
 
-ircpath PES1normdist57ang80.amv
-fragment  1-10
-fragment  11 12
-strain    0
-strain    0
+coordfile PES1normdist57ang80.amv
+frag1_indices  1-10 # Put here the atom indices of the first fragment (start with 1)
+frag2_indices  11 12 # Put here the atom indices of the second fragment (start with 1)
+frag1_energy   0 # Put here the optimized energy of the first fragment (in kcal/mol)
+frag2_energy   0 # Put here the optimized energy of the second fragment (in kcal/mol)
 bondlength 11 5
 bondlength 12 5
 log_level debug
