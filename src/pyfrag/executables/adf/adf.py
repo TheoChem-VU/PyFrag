@@ -41,8 +41,12 @@ parser.add_argument("input_file", type=Path, help="Input file containing PyFrag 
 args = parser.parse_args()
 inputKeys = process_user_input(args.input_file)
 
+
 # Set up logging
 logger = setup_logging(inputKeys["job_name"], inputKeys["log_level"], args.input_file)
+logger.debug("Processed input keys:")
+for key, value in inputKeys.items():
+    logger.debug(f" - {key}: {value}") if key not in ["adfinputfile", "old_adfinputfile", "fragment1_extra", "fragment2_extra", "complex_extra"] else None
 
 # Handle restart | job_name is the name of the restart directory
 inputKeys["jobstate"] = handle_restart(inputKeys["job_name"])
@@ -77,7 +81,7 @@ for extra_input, extra_settings in zip(["fragment1_extra", "fragment2_extra", "c
         extra_settings.update(settings_from_ams_block(extra_input))
 
 # Logging settings
-for system, specific_sett in zip(["All systems", "Frag1", "Frag2", "Complex"], [settings_general, frag1_settings, frag2_settings, complex_settings]):
+for system, specific_sett in zip(["all systems", "Frag1", "Frag2", "Complex"], [settings_general, frag1_settings, frag2_settings, complex_settings]):
     logger.info(f"Settings for {system}:\n" + str(specific_sett))
 
 # Execute PyFrag calculations: for each point on the IRC/LT, perform single point calculations for the fragments and the complex
@@ -90,4 +94,5 @@ write_table(tableValue, inputKeys["job_name"])
 if inputKeys["jobstate"] is not None:
     shutil.rmtree(inputKeys["jobstate"])
 finish()
+
 logging.info("PyFrag finished")
