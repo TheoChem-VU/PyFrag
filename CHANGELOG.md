@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
  * A logger which level is determined by the “log_level”, resulting in a “[calculation_name].log” file. Try to specify “log_level debug” in you input within the PyFrag section to see all the details of the calculation. The log file is saved in the same folder as the input file.
  * A top line header in the output table which contains information about the units of the keys. For example, the key "bondlength" now contains the unit "Angstrom" in the header.
  * The keys "frag1_indices", "frag2_indices", "frag1_energy", "frag2_energy" as these are more informative than the previous keys "fragment" and "strain" which were not clear about the meaning of the numbers. The old keys are still available for backward compatibility.
+ * Testing infrastructure for the ADF calculations including tests for reading the PyFrag input for ADF jobs and splitting molecular trajectories into fragments.
+ * Python packaging and virtual environment support for installing and running the PyFrag program using uv. Now, PyFrag can be installed on the cluster through `uv sync` which creates a venv. PyFrag can also installed as a pure python package using `pip install PyFrag`.
 
 ### Changed
  * Inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams.
@@ -23,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
  * Removed the IrrepOI input key as it prints now automatically the orbital interactions decomposed into symmetry irreps (if symmetry is used) [#10](https://github.com/TheoChem-VU/PyFrag/issues/10)
  * The input keys "ircpath", "lt", "irctwo" are now deprecated and replaced by the general "coordfile" key. The program decides now automatically if the file is a coordinate file or an irc path based on the file extension. The program raises a warning if the deprecated keys are used.
  * The "newopen" executable (`pyfrag -x newopen`) is now deprecated and replaced by the "adf" executable. The program raises a warning if the deprecated key is used.
+ * The old parser infrastructure with a lot of duplication has been removed.
 
 ### Fixed
  * Ordering of the header in the output table (pyfrag_[jobname].txt) with correct spacing. Keys such as "bondlength10" will not be printed before "bondlength2" anymore, but after "bondlength9". So, applying a natural order scheme instead of the default ordering of the sorted python function [#14](https://github.com/TheoChem-VU/PyFrag/issues/14).
