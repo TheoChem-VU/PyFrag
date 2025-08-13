@@ -1,12 +1,28 @@
 import logging
+import os
 import pathlib as pl
 import re
-from typing import Any, Dict, List, Sequence, Tuple, TypedDict, TypeVar, Union
+from typing import Any, Dict, List, Sequence, Tuple, TypeVar, Union
 
 from adf_parser import extract_sections
-from errors import PyFragSectionInputError
+from errors import PyFragCoordFileError, PyFragSectionInputError
 
 logger = logging.getLogger("Input Reader-ADF")
+
+
+# For Python 3.7, which is used by AMS2021 and older, we cannot use the TypedDict implementation since it's not supported (only in Python 3.8 and later)
+try:
+    from typing import TypedDict  # type: ignore # Nasty import but necessary for compatibility
+except ImportError:
+    # Minimal fallback for Python <3.8 without typing-extensions
+    class TypedDict(dict):
+        pass
+
+
+def expandvars_backslash(path: pl.Path) -> pl.Path:
+    """Short function to expand environment variables such as $SLURM_SUBMIT_DIR"""
+    expanded_pathstring = re.sub(r"(?<!\\)\$[A-Za-z_][A-Za-z0-9_]*", "", os.path.expandvars(path))
+    return pl.Path(expanded_pathstring)
 
 
 # =============================================================================
@@ -14,24 +30,24 @@ logger = logging.getLogger("Input Reader-ADF")
 # =============================================================================
 
 
-class OrbitalDescription(TypedDict, total=True):
+class OrbitalDescription(TypedDict):
     type: str  # The type of the orbital energy (e.g. "INDEX", "HOMO", "LUMO")
     frag: str  # The fragment specifier (e.g. "frag1", "frag2")
     irrep: Union[str, None]  # The irreducible representation if applicable (only when the format "[irrep] [frag] [index]" is used)
     index: Union[str, None]  # The index of the orbital if applicable (only when the format "[irrep] [frag] [index]" is used)
 
 
-class BondLength(TypedDict, total=True):
+class BondLength(TypedDict):
     bond_definition: List[int]  # The indices of the atoms involved in the bond
     original_value: float  # The original value of the bond length if applicable
 
 
-class Angle(TypedDict, total=True):
+class Angle(TypedDict):
     angle_definition: List[int]  # The indices of the atoms involved in the angle
     original_value: float  # The original value of the angle if applicable
 
 
-class InputKeys(TypedDict, total=True):
+class InputKeys(TypedDict):
     jobstate: Union[str, None]  # The name of the restart directory
     job_name: str  # The name of the output file
     log_level: int  # The log level for the program
@@ -315,7 +331,7 @@ read_functions = {
 }
 
 
-def extract_pyfrag_section(pyfrag_section: str, input_file_dir: pl.Path) -> Dict[str, Any]:
+def extract_pyfrag_section(pyfrag_section: str) -> Dict[str, Any]:
     """Extracts extra specifications from the PyFrag input file.
 
     This function takes the PyFrag input file as an argument and extracts extra specifications such as orbitalenergy, overlap, population of a certain fragment and MO.
@@ -355,6 +371,7 @@ def extract_pyfrag_section(pyfrag_section: str, input_file_dir: pl.Path) -> Dict
             elif key in ["name", "job_name", "jobname"]:
                 input_keys["job_name"] = parts[1]
             elif key == "log_level":
+                print("Log level set to:", parts[1].upper())
                 input_keys["log_level"] = parts[1].upper()
             elif key.startswith("frag") and key.endswith("_indices"):
                 # Handle frag1_indices, frag2_indices, etc.
@@ -428,7 +445,7 @@ def process_user_input(input_file_path: str) -> InputKeys:
 
     # Process the PyFrag section if it exists
     if "pyfrag" in input_file_sections:
-        pyfrag_data = extract_pyfrag_section(input_file_sections["pyfrag"], input_file_dir)
+        pyfrag_data = extract_pyfrag_section(input_file_sections["pyfrag"])
 
         # Process the extracted data
         for key, val in pyfrag_data.items():
@@ -473,6 +490,13 @@ def process_user_input(input_file_path: str) -> InputKeys:
                     inputKeys["coordFile"] = [input_file_dir / coord_file for coord_file in val]
                 else:
                     inputKeys["coordFile"] = [input_file_dir / val]
+
+                # First handle environment variables such as "$SLURM_SUBMIT_DIR"
+                inputKeys["coordFile"] = [expandvars_backslash(path) for path in inputKeys["coordFile"]]
+
+                # Check if all coordinate files exist.
+                if not all(path.exists() for path in inputKeys["coordFile"]):
+                    raise PyFragCoordFileError("One or more coordinate files do not exist. Please check the paths.", inputKeys["coordFile"])
 
             # Handle fragment indices
             elif key_lower == "fragment" or key_lower == "fragment_indices":
@@ -551,9 +575,5 @@ def process_user_input(input_file_path: str) -> InputKeys:
             inputKeys[section_name.lower()] = section_content
         elif section_name.lower() == "ams":
             inputKeys["adfinputfile"] = section_content
-
-    logger.debug("Processed input keys:")
-    for key, value in inputKeys.items():
-        logger.debug(f" - {key}: {value}") if key not in ["adfinputfile", "old_adfinputfile", "fragment1_extra", "fragment2_extra", "complex_extra"] else None
 
     return inputKeys
