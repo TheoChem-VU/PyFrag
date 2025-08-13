@@ -13,17 +13,11 @@ Classifier: Programming Language :: Python :: 3.8
 Classifier: Operating System :: OS Independent
 Classifier: Development Status :: 3 - Alpha
 Classifier: Topic :: Scientific/Engineering :: Chemistry
-Requires-Python: >=3.8
+Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 License-File: LICENSE.md
 Requires-Dist: numpy>=1.20.0
 Requires-Dist: gitpython>=3.1.24
 Requires-Dist: attrs>=21.2.0
-Requires-Dist: pandas>=1.4.0
-Requires-Dist: plams[ams]
-Requires-Dist: typing_extensions>=3.7.4; python_version < "3.8"
-Provides-Extra: docs
-Requires-Dist: sphinx>=4.0.0; extra == "docs"
-Provides-Extra: dev
-Requires-Dist: pytest>=6.0.0; extra == "dev"
+Requires-Dist: plams>=2024.107
 Dynamic: license-file

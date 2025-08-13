@@ -1,2 +1,2 @@
 [console_scripts]
-pyfrag-cluster = pyfrag.cluster_runner:main
+pyfrag = pyfrag.main:main
