@@ -12,7 +12,7 @@ JOBSUB
 #SBATCH --error=symmetry_job.err
 
 # TC
-module load ams/2024.102
+module load ams/2021.102
 
 # Snellius
 # module load 2022
