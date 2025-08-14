@@ -6,7 +6,11 @@ on:
     types: [opened, synchronize, reopened]
 
   push:
-    # And pushing new version tags e.g. 2024.103
+    # Run on pushing to the development branch
+    branches:
+      - development
+
+    # And pushing new version tags e.g. [year].[major][minor][patch]
     tags:
       - '20[0-9]{2}\.[0-9]{3}'
 
