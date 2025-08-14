@@ -11,6 +11,9 @@
 # ADF/AMS related result files
 **adf.rkf
 
+# Versioning
+version.py
+
 # Distribution / packaging
 .Python
 build/
