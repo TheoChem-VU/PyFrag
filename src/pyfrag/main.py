@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict, Tuple, Union
 
 from pyfrag.config import get_config
+from pyfrag.executables.adf.errors import ExecutableNotSupportedError
 from pyfrag.parser_factory import ExecutableType, get_parser_from_executable
 
 
@@ -33,7 +34,7 @@ def validate_executable(value: str) -> ExecutableType:
         return ExecutableType(value.lower())
     except ValueError:
         valid_types = [e.value for e in ExecutableType]
-        raise argparse.ArgumentTypeError(f"Invalid executable '{value}'. Valid options are: {', '.join(valid_types)}")
+        raise ExecutableNotSupportedError(value, valid_types)
 
 
 def get_jobsub_section_from_input_file(input_file_sections: Dict[str, str]) -> Tuple[str, bool]:

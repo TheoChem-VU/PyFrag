@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 # =============================================================================
 # Base PyFrag error
@@ -7,6 +7,20 @@ from typing import Optional
 
 class PyFragError(Exception):
     """Base class for PyFrag errors."""
+
+
+# =============================================================================
+# Unsupported executable error
+# =============================================================================
+
+
+class ExecutableNotSupportedError(PyFragError):
+    """Error raised when an unsupported executable is requested."""
+
+    def __init__(self, executable: str, valid_executables: List[str]):
+        self.executable = executable
+        self.valid_executables = valid_executables
+        super().__init__(f"Executable '{executable}' is not supported. Valid options are: {', '.join(valid_executables)}")
 
 
 # =============================================================================
