@@ -4,6 +4,16 @@ import pyfrag.executables.adf.input as input_reader
 from pyfrag.executables.adf.errors import PyFragSectionInputError
 
 
+def test_line_with_commas_to_spaces():
+    """Note: commas are not supported in the input and are hence replaced with spaces. All the other functions below assume that the input is space-separated and hence are only tested for that."""
+    pyfrag_section = """
+vdd 0,1,2,3,4
+"""
+    expected_output = {"vdd": [[0, 1, 2, 3, 4]]}
+
+    assert input_reader.extract_pyfrag_section(pyfrag_section) == expected_output
+
+
 def test_check_commented_line_valid():
     line1 = "bondlength 1 2 1.5  # With a comment"
     line2 = "bondlength 1 2 1.5  ! With another comment"
@@ -69,26 +79,26 @@ def test_read_bondlength_line_with_bondlength():
 
 
 def test_read_bondangle_line_no_angle():
-    line = "angle 1 2"
-    expected_output = (1, 2, 0.0)
+    line = "angle 1 2 3"
+    expected_output = (1, 2, 3, 0.0)
     assert input_reader._read_bondangle_line(line) == expected_output
 
 
 def test_read_bondangle_line_with_angle():
-    line = "angle 1 2 120.0"
-    expected_output = (1, 2, 120.0)
+    line = "angle 1 2 3 120.0"
+    expected_output = (1, 2, 3, 120.0)
     assert input_reader._read_bondangle_line(line) == expected_output
 
 
 def test_read_dihedral_angle_no_angle():
-    line = "dihedral 1 2 3"
-    expected_output = (1, 2, 3, 0.0)
+    line = "dihedral 1 2 3 4"
+    expected_output = (1, 2, 3, 4, 0.0)
     assert input_reader._read_dihedral_angle(line) == expected_output
 
 
 def test_read_dihedral_angle_with_angle():
-    line = "dihedral 1 2 3 45.0"
-    expected_output = (1, 2, 3, 45.0)
+    line = "dihedral 1 2 3 4 45.0"
+    expected_output = (1, 2, 3, 4, 45.0)
     assert input_reader._read_dihedral_angle(line) == expected_output
 
 
