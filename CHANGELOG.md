@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
  * The keys "frag1_indices", "frag2_indices", "frag1_energy", "frag2_energy" as these are more informative than the previous keys "fragment" and "strain" which were not clear about the meaning of the numbers. The old keys are still available for backward compatibility.
  * Testing infrastructure for the ADF calculations including tests for reading the PyFrag input for ADF jobs and splitting molecular trajectories into fragments.
  * Python packaging and virtual environment support for installing and running the PyFrag program using uv. Now, PyFrag can be installed on the cluster through `uv sync` which creates a venv. PyFrag can also installed as a pure python package using `pip install PyFrag`.
+ * Dihedral angles are now supported which are printed in degrees (see the log file that is created when running the calculation for units)
+ * Custom errors for better error handling and debugging.
 
 ### Changed
  * Inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams.
@@ -32,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
  * Reading in charges in the Systems block goes correctly now [#11](https://github.com/TheoChem-VU/PyFrag/issues/11)
  * Getting an error when multiple bondlengths were specified in the input file.
  * Reading in .amv files which would have (by accident) an header line that splits in exactly four parts, which would correspond to a "atom line" such as "C 0.0000 0.0000 0.0000" [#6](https://github.com/TheoChem-VU/PyFrag/issues/6)
+ * The atom ordering from fragment to complex indices are now fixed. The error would arise when the fragment 1 and 2 indices were [2], and [1, 3, 4, 5, 6] which got sorted into [2 -> 1, 1 -> 2, 3 -> 3, 4 -> 4, 5 -> 5, 6 -> 6].
 
 ## PyFrag2019 - 19/10/2018
 
