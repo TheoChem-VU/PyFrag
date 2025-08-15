@@ -1,5 +1,12 @@
 {
     "python.analysis.include": [
         "${workspaceFolder}/host/standalone",
+    ],
+    "python-envs.pythonProjects": [
+        {
+            "path": "",
+            "envManager": "ms-python.python:conda",
+            "packageManager": "ms-python.python:conda"
+        }
     ]
 }
