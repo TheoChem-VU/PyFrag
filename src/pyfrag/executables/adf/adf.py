@@ -44,12 +44,12 @@ inputKeys = process_user_input(args.input_file)
 
 # Set up logging
 logger = setup_logging(inputKeys["job_name"], inputKeys["log_level"], args.input_file)
-logger.debug("Processed input keys:")
+logger.info("Processed input keys:")
 for key, value in inputKeys.items():
-    logger.debug(f" - {key}: {value}") if key not in ["adfinputfile", "old_adfinputfile", "fragment1_extra", "fragment2_extra", "complex_extra"] else None
+    logger.info(f" - {key}: {value}") if key not in ["adfinputfile", "old_adfinputfile", "fragment1_extra", "fragment2_extra", "complex_extra"] else None
 
 # Handle restart | job_name is the name of the restart directory
-inputKeys["jobstate"] = handle_restart(inputKeys["job_name"])
+inputKeys["restart_dir_name"] = handle_restart(inputKeys["job_name"])
 
 init(folder=inputKeys["job_name"])
 workdir_path = config.default_jobmanager.workdir
@@ -91,8 +91,8 @@ logger.info("Writing table to file and removing extra files")
 write_table(tableValue, inputKeys["job_name"])
 
 # Remove the restart directory if it exists.
-if inputKeys["jobstate"] is not None:
-    shutil.rmtree(inputKeys["jobstate"])
+if inputKeys["restart_dir_name"] is not None:
+    shutil.rmtree(inputKeys["restart_dir_name"])
 finish()
 
 logging.info("PyFrag finished")
