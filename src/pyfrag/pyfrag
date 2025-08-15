@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# ==================================================================
+# This script is a wrapper around the "main.py" script.
+# For this wrapper to work, the PYTHONPATH must include the directory
+# containing the "pyfrag" package.
+# ==================================================================
+
+function activate_venv() {
+    local venv_folder="${1:-venv}"
+    source "${venv_folder}/bin/activate"
+}
+
+# ==================================================================
+# Ensuring the virtual environment is activated
+# ==================================================================
+
+# Activate the virtual environment
+# Get the root directory of PyFrag package
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYFRAGHOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Now use PYFRAGHOME for paths
+VENV_PATH="$PYFRAGHOME/.venv"
+if [[ -d "$VENV_PATH" ]]; then
+    activate_venv "$VENV_PATH"
+else
+    echo "Critical: Virtual environment not found at $VENV_PATH. Please make sure that 1. the HOSTPYFRAG environment variable is set to the root path of the PyFrag package, and 2. the virtual environment folder (.venv) is present in the root folder of the package."
+    exit 1
+fi
+
+# ==================================================================
+# Main script execution
+# ==================================================================
+
+echo "Starting PyFrag..."
+python -m pyfrag.main "$@"
