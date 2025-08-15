@@ -7,7 +7,7 @@ from scm.input_parser import InputParser  # noqa: F401  # type: ignore  # This i
 from scm.plams import AMSJob, Atom, Molecule, Settings
 
 
-def main_converter(file: str) -> Settings:
+def main_converter(content: str, is_file: bool = False) -> Settings:
     """
     Module designed to convert an ADF inputfile (before 2019) to the new AMS inputfile format (>2019)
     Argument:
@@ -21,8 +21,11 @@ def main_converter(file: str) -> Settings:
     print("# ==================================================")
     print()
 
-    with open(file, "r") as f:
-        adf_input = "".join(f.readlines()).strip()
+    if is_file:
+        with open(content, "r") as f:
+            adf_input = "".join(f.readlines()).strip()
+    else:
+        adf_input = content
 
     # In case one calls "$ADFBIN/adf -n 1 << eor", as it sometimes done for create runs...
     adf_input = adf_input.lstrip("1")

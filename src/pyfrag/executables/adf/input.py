@@ -606,5 +606,7 @@ def process_user_input(input_file_path: str) -> InputKeys:
             inputKeys[section_name.lower()] = section_content
         elif section_name.lower() == "ams":
             inputKeys["adfinputfile"] = section_content
+        elif section_name.lower() == "adf":
+            inputKeys["old_adfinputfile"] = section_content
 
     return inputKeys

@@ -10,8 +10,6 @@ from adf_to_ams_converter import main_converter
 from input import process_user_input
 from scm.plams import config, finish, init
 
-sys.path.append(str(pl.Path(__file__).parent.parent.parent))  # path to the adf_to_ams_input_converter.py file
-
 """
 Pyfrag-ADF module
 Authors: Xiaobo Sun; Thomas Soini; Siebe Lekanne Deprez
@@ -46,7 +44,7 @@ inputKeys = process_user_input(args.input_file)
 logger = setup_logging(inputKeys["job_name"], inputKeys["log_level"], args.input_file)
 logger.info("Processed input keys:")
 for key, value in inputKeys.items():
-    logger.info(f" - {key}: {value}") if key not in ["adfinputfile", "old_adfinputfile", "fragment1_extra", "fragment2_extra", "complex_extra"] else None
+    logger.info(f" - {key}: {value}") if key not in ["adfinputfile", "old_adfinputfile", "fragment1_extra", "fragment2_extra", "complex_extra"] else logger.debug(f" - {key}")
 
 # Handle restart | job_name is the name of the restart directory
 inputKeys["restart_dir_name"] = handle_restart(inputKeys["job_name"])
