@@ -5,8 +5,13 @@ from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Sequence, Tuple, Uni
 import constants as const
 import numpy as np
 from input import InputKeys
-from scm.plams import AMSJob, AMSResults, Molecule, Units
+from scm.plams import AMSJob, AMSResults, Molecule, Units, dihedral
 from scm.plams.mol.atom import Atom
+
+try:
+    from .input import Angle, BondLength, Dihedral
+except ImportError:
+    from input import Angle, BondLength, Dihedral
 
 logger = logging.getLogger("PyFragResults-ADF")
 
@@ -183,11 +188,11 @@ def GetFragOrbNum(irrep_orb_number: Sequence[int], core_orb_number: Sequence[int
     return orbNumbers
 
 
-def get_atom_indices(atom_indices_per_fragment: Mapping[str, Sequence[int]], atom_indices: Sequence[int]) -> List[int]:
+def selected_atom_indices_in_ordered_complex(atom_indices_per_fragment: Mapping[str, Sequence[int]], atom_indices: Sequence[int]) -> List[int]:
     """Change atom number in old presentation of a molecule into atom number in new presentation that formed by assembling fragments"""
     original_fragment_indices = [atomNum for key in sorted(list(atom_indices_per_fragment.keys())) for atomNum in list(atom_indices_per_fragment[key])]
-    reordered_indices = [original_fragment_indices.index(i) + 1 for i in atom_indices]
-    return reordered_indices
+    selected_indices = [i for i in atom_indices if i in original_fragment_indices]
+    return selected_indices
 
 
 def get_fragment_number(complex_result: AMSResults, frag: str) -> int:
@@ -208,6 +213,94 @@ def split_homo_lumo_index(orbSign: str) -> Dict[str, Union[str, int]]:
     return result
 
 
+# -----------------------------------------------------------------------------
+# Shared results printing functions for obtaining the outputData dictionary.
+# This dictionary contains all the results obtained from the inputKeys and
+# will be printed in an output table
+# -----------------------------------------------------------------------------
+
+
+def get_bondlength_results(bond_lengths: Sequence[BondLength], fragment_indices: Mapping[str, Sequence[int]], complexMolecule: Molecule) -> Dict[str, float]:
+    """Get bond length results for the specified bond lengths.
+
+    Arguments:
+        bond_lengths (Sequence[BondLength]): The bond lengths to process.
+        fragment_indices (Mapping[str, Sequence[int]]): The mapping of fragment indices.
+        complexMolecule (Molecule): The complex molecule to reference.
+
+    Returns:
+        Dict[str, float]: The label and its corresponding bond length result (in angstroms).
+
+    Example:
+        {
+            "bondlength1_1C-2C": 0.1,
+            "bondlength2_1C-3C": -0.2
+        }
+    """
+    outputData = {}
+    for i, bond_length in enumerate(bond_lengths, start=1):
+        atom_indices = selected_atom_indices_in_ordered_complex(fragment_indices, bond_length["atom_indices"])
+        atoms: List[Atom] = [complexMolecule[atom_index] for atom_index in atom_indices]
+        label = f"bondlength{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
+        outputData[label] = atoms[0].distance_to(atoms[1]) - bond_length["original_value"]
+    return outputData
+
+
+def get_angle_results(angles: Sequence[Angle], fragment_indices: Mapping[str, Sequence[int]], complexMolecule: Molecule) -> Dict[str, float]:
+    """Get angle results for the specified angles.
+
+    Arguments:
+        angles (Sequence[Angle]): The angles to process.
+        fragment_indices (Mapping[str, Sequence[int]]): The mapping of fragment indices.
+        complexMolecule (Molecule): The complex molecule to reference.
+
+    Returns:
+        Dict[str, float]: The label and its corresponding angle result (in degrees).
+
+    Important: the `atom.angle()` method takes the middle atom as the reference
+
+    Example:
+        {
+            "angle1_1C-2C-3C": 5.0,
+            "angle2_1C-2C-3C": -3.0
+        }
+    """
+    outputData = {}
+    for i, angle in enumerate(angles, start=1):
+        atom_indices = selected_atom_indices_in_ordered_complex(fragment_indices, angle["atom_indices"])
+        atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]], complexMolecule[atom_indices[2]]]
+        label = f"angle{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
+        outputData[label] = atoms[1].angle(atoms[0], atoms[2], result_unit="degree") - angle["original_value"]
+    return outputData
+
+
+def get_dihedral_results(dihedrals: Sequence[Dihedral], fragment_indices: Mapping[str, Sequence[int]], complexMolecule: Molecule) -> Dict[str, float]:
+    """
+    Get dihedral results for the specified dihedrals.
+
+    Arguments:
+        dihedrals (Sequence[Dihedral]): The dihedrals to process.
+        fragment_indices (Mapping[str, Sequence[int]]): The mapping of fragment indices.
+        complexMolecule (Molecule): The complex molecule to reference.
+
+    Returns:
+        Dict[str, float]: The label and its corresponding dihedral result (in degrees).
+
+    Example:
+        {
+            "dihedral1_1C-2C-3C-4C": 5.0,
+            "dihedral2_1C-2C-3C-4C": -3.0
+        }
+    """
+    outputData = {}
+    for i, dihedral_angle in enumerate(dihedrals, start=1):
+        atom_indices = selected_atom_indices_in_ordered_complex(fragment_indices, dihedral_angle["atom_indices"])
+        atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]], complexMolecule[atom_indices[2]], complexMolecule[atom_indices[3]]]
+        label = f"dihedral{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
+        outputData[label] = dihedral(atoms[0], atoms[1], atoms[2], atoms[3], unit="degree") - dihedral_angle["original_value"]
+    return outputData
+
+
 def get_vdd_output_results(fragment_index_mapping, vdd_indices: Sequence[int], complex_mol: Molecule, complex_result: AMSResults) -> Dict[str, float]:
     """Get VDD output results for each fragment.
 
@@ -215,11 +308,11 @@ def get_vdd_output_results(fragment_index_mapping, vdd_indices: Sequence[int], c
         Dict[str, float]: VDD charges for each fragment.
     """
     outputData = {}
-    atom_indices = get_atom_indices(fragment_index_mapping, vdd_indices)
+    atom_indices = selected_atom_indices_in_ordered_complex(fragment_index_mapping, vdd_indices)
     atoms = [complex_mol[atom_index] for atom_index in atom_indices]
     vdd_charges = get_vdd_charges(complex_result, atom_indices)
     for i, charge in enumerate(vdd_charges, start=1):
-        outputData[f"VDD_{atoms[i - 1].symbol}{i}"] = charge
+        outputData[f"VDD{i}_{atoms[i - 1].symbol}{atom_indices[i - 1]}"] = charge
     return outputData
 
 
@@ -235,6 +328,8 @@ def make_orbital_label(orbital: "OrbitalDescription", include_frag: bool = False
         (with HOMO/LUMO specification): "{type}"
         (with irrep/index specification): "{index} {irrep}"
 
+    The `input_frag` argument is used to distinguish between `overlaps` (always printed in the order fragment 1 - fragment 2), and other types of orbital labels such as `orbitalenergy` and `population`.
+
     """
     label: List[str] = []
 
@@ -247,21 +342,24 @@ def make_orbital_label(orbital: "OrbitalDescription", include_frag: bool = False
         return "-".join(label)
 
     # Irrep/index specification
-
     if orbital["index"] is not None and orbital["irrep"] is not None:
-        irrep = orbital["irrep"]
+        irrep: str = orbital["irrep"]
+        index: str = orbital["index"]
+        spin: Union[str, None] = None
 
         # If the index contains an underscore, it means the spin is included
-        if "_" in orbital["index"]:
-            index, spin = orbital["index"].split("_")
+        # For example, "2_A"
+        if "_" in index:
+            index, spin = index.split("_")
 
-            if spin is not None:
-                irrep = f"{irrep}-{spin}"
-            label.append(f"{index}{irrep}")
+        if spin is not None:
+            irrep = f"{irrep}-{spin}"
 
-            return "-".join(label)
+        label.append(f"{index}{irrep}")
 
-    return f"{orbital['frag']}"
+        return "-".join(label)
+
+    raise ValueError(f"Invalid orbital description: {orbital}")
 
 
 # ======================================================================
@@ -373,18 +471,13 @@ class PyFragRestrictedResult:
             outputData["hirshfeld"] = [get_hirshfeld_charges(self.complexResult, get_fragment_number(self.complexResult, fragment_specifier)) for fragment_specifier in inputKeys["hirshfeld"]]
 
         if inputKeys["bondlength"]:
-            for i, od in enumerate(inputKeys["bondlength"], start=1):
-                atom_indices = get_atom_indices(inputKeys["fragment_indices"], od["bond_definition"])
-                atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]]]
-                label = f"bondlength{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
-                outputData[label] = atoms[0].distance_to(atoms[1]) - od["original_value"]
+            outputData.update(get_bondlength_results(inputKeys["bondlength"], inputKeys["fragment_indices"], complexMolecule))
 
         if inputKeys["angle"]:
-            for i, od in enumerate(inputKeys["angle"], start=1):
-                atom_indices = get_atom_indices(inputKeys["fragment_indices"], od["angle_definition"])
-                atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]], complexMolecule[atom_indices[2]]]
-                label = f"angle{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
-                outputData["angle"] = atoms[0].angle(atoms[1], atoms[2]) - od["original_value"]
+            outputData.update(get_angle_results(inputKeys["angle"], inputKeys["fragment_indices"], complexMolecule))
+
+        if inputKeys["dihedral"]:
+            outputData.update(get_dihedral_results(inputKeys["dihedral"], inputKeys["fragment_indices"], complexMolecule))
 
         return convert_output_data_into_seperate_keys(outputData)
 
@@ -555,18 +648,13 @@ class PyFragUnrestrictedResult:
             outputData["hirshfeld"] = [get_hirshfeld_charges(self.complexResult, get_fragment_number(self.complexResult, fragment_specifier)) for fragment_specifier in inputKeys["hirshfeld"]]
 
         if inputKeys["bondlength"]:
-            for i, od in enumerate(inputKeys["bondlength"], start=1):
-                atom_indices = get_atom_indices(inputKeys["fragment_indices"], od["bond_definition"])
-                atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]]]
-                label = f"bondlength{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
-                outputData[label] = atoms[0].distance_to(atoms[1]) - od["original_value"]
+            outputData.update(get_bondlength_results(inputKeys["bondlength"], inputKeys["fragment_indices"], complexMolecule))
 
         if inputKeys["angle"]:
-            for i, od in enumerate(inputKeys["angle"], start=1):
-                atom_indices = get_atom_indices(inputKeys["fragment_indices"], od["angle_definition"])
-                atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]], complexMolecule[atom_indices[2]]]
-                label = f"angle{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
-                outputData["angle"] = atoms[0].angle(atoms[1], atoms[2]) - od["original_value"]
+            outputData.update(get_angle_results(inputKeys["angle"], inputKeys["fragment_indices"], complexMolecule))
+
+        if inputKeys["dihedral"]:
+            outputData.update(get_dihedral_results(inputKeys["dihedral"], inputKeys["fragment_indices"], complexMolecule))
 
         return convert_output_data_into_seperate_keys(outputData)
 
