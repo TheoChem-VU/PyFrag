@@ -47,26 +47,32 @@ class OrbitalDescription(TypedDict):
 
 
 class BondLength(TypedDict):
-    bond_definition: List[int]  # The indices of the atoms involved in the bond
+    atom_indices: List[int]  # The indices of the atoms involved in the bond
     original_value: float  # The original value of the bond length if applicable
 
 
 class Angle(TypedDict):
-    angle_definition: List[int]  # The indices of the atoms involved in the angle
+    atom_indices: List[int]  # The indices of the atoms involved in the angle
     original_value: float  # The original value of the angle if applicable
 
 
+class Dihedral(TypedDict):
+    atom_indices: List[int]  # The indices of the atoms involved in the dihedral
+    original_value: float  # The original value of the dihedral if applicable
+
+
 class InputKeys(TypedDict):
-    jobstate: Union[str, None]  # The name of the restart directory
+    restart_dir_name: Union[str, None]  # The name of the restart directory
     job_name: str  # The name of the output file
     log_level: int  # The log level for the program
-    fragment_energies: Dict[str, float]  # The equilibrium energy for each fragment
     coordFile: List[pl.Path]  # The coordinate file(s) to be considered for reading in the trajectory
+    fragment_energies: Dict[str, float]  # The equilibrium energy for each fragment
     fragment_indices: Dict[str, List[int]]  # collection of fragment indices, e.g. {"frag1": [1, 2], "frag2": [3, 4]}
-    VDD: Sequence[int]  # Atom numbers for which VDD charges are printed
-    hirshfeld: Sequence[str]  # Fragment specifiers (e.g. "frag1", "frag2") for which Hirshfeld charges are printed
     bondlength: List[BondLength]  # Atom indices (and optionally the original value) for which bond lengths are printed
     angle: List[Angle]  # Atom indices (and optionally the original value) for which angles are printed
+    dihedral: List[Dihedral]  # Atom indices (and optionally the original value) for which dihedrals are printed
+    VDD: Sequence[int]  # Atom numbers for which VDD charges are printed
+    hirshfeld: Sequence[str]  # Fragment specifiers (e.g. "frag1", "frag2") for which Hirshfeld charges are printed
     irrepOI: List[Dict[str, str]]  # Irreps for which Orbital Interactions (OI) energies are printed
     population: List[OrbitalDescription]  # Orbital populations for each fragment
     overlap: List[Tuple[OrbitalDescription, OrbitalDescription]]  # Overlap between two fragment orbitals
@@ -133,40 +139,40 @@ def _read_bondlength_line(line: str) -> Tuple[int, int, float]:
     return int(atom1), int(atom2), float(bondlength)
 
 
-def _read_bondangle_line(line: str) -> Tuple[int, int, float]:
+def _read_bondangle_line(line: str) -> Tuple[int, int, int, float]:
     """Reads the line containing the "angle" keyword. The correct format for the line is:
 
-    angle atom1 atom2 [angle] (optional)
+    angle atom1 atom2 atom3 [angle] (optional)
 
     """
-    line_content: List[str] = _check_line_length(line, "angle", (3, 4))
+    line_content: List[str] = _check_line_length(line, "angle", (4, 5))
 
     # Two atoms without angle
-    if len(line_content) == 3:
-        atom1, atom2 = line_content[1:]
-        return int(atom1), int(atom2), 0.0
-
-    # Two atoms with angle
-    atom1, atom2, angle = line_content[1:]
-    return int(atom1), int(atom2), float(angle)
-
-
-def _read_dihedral_angle(line: str) -> Tuple[int, int, int, float]:
-    """Reads the line containing the "dihedral" keyword. The correct format for the line is:
-
-    dihedral atom1 atom2 atom3 [dihedral_angle] (optional)
-
-    """
-    line_content: List[str] = _check_line_length(line, "dihedral", (4, 5))
-
-    # Three atoms without angle
     if len(line_content) == 4:
         atom1, atom2, atom3 = line_content[1:]
-        return int(atom1), int(atom2), int(atom3), 0.0
+        return (int(atom1), int(atom2), int(atom3), 0.0)
+
+    # Two atoms with angle
+    atom1, atom2, atom3, angle = line_content[1:]
+    return int(atom1), int(atom2), int(atom3), float(angle)
+
+
+def _read_dihedral_angle(line: str) -> Tuple[int, int, int, int, float]:
+    """Reads the line containing the "dihedral" keyword. The correct format for the line is:
+
+    dihedral atom1 atom2 atom3 atom4 [dihedral_angle] (optional)
+
+    """
+    line_content: List[str] = _check_line_length(line, "dihedral", (5, 6))
+
+    # Three atoms without angle
+    if len(line_content) == 5:
+        atom1, atom2, atom3, atom4 = line_content[1:]
+        return (int(atom1), int(atom2), int(atom3), int(atom4), 0.0)
 
     # Three atoms with angle
-    atom1, atom2, atom3, dihedral_angle = line_content[1:]
-    return int(atom1), int(atom2), int(atom3), float(dihedral_angle)
+    atom1, atom2, atom3, atom4, dihedral_angle = line_content[1:]
+    return int(atom1), int(atom2), int(atom3), int(atom4), float(dihedral_angle)
 
 
 def _read_overlap_line(line: str) -> Union[Tuple[str, str, str, str, str, str], Tuple[str, str, str, str]]:
@@ -368,6 +374,9 @@ def extract_pyfrag_section(pyfrag_section: str) -> Dict[str, Any]:
             if line_lower.startswith(key):
                 raise PyFragSectionInputError(message, key)
 
+        # Replace all commas with spaces since commas are not allowed in the input
+        line = line.replace(",", " ")
+
         # Handle simple key-value pairs
         if " " in line_lower:
             parts = line_lower.split()
@@ -380,7 +389,6 @@ def extract_pyfrag_section(pyfrag_section: str) -> Dict[str, Any]:
             elif key in ["name", "job_name", "jobname"]:
                 input_keys["job_name"] = parts[1]
             elif key == "log_level":
-                print("Log level set to:", parts[1].upper())
                 input_keys["log_level"] = parts[1].upper()
             elif key.startswith("frag") and key.endswith("_indices"):
                 # Handle frag1_indices, frag2_indices, etc.
@@ -428,9 +436,9 @@ def process_user_input(input_file_path: str) -> InputKeys:
 
     # Set default values
     inputKeys: InputKeys = InputKeys(
-        jobstate=None,
+        restart_dir_name=None,
         job_name="PyFragJob",
-        log_level=logging.DEBUG,
+        log_level=logging.INFO,
         fragment_energies={},
         fragment_indices={},
         coordFile=[],
@@ -438,6 +446,7 @@ def process_user_input(input_file_path: str) -> InputKeys:
         hirshfeld=[],
         bondlength=[],
         angle=[],
+        dihedral=[],
         irrepOI=[],
         population=[],
         overlap=[],
@@ -546,20 +555,30 @@ def process_user_input(input_file_path: str) -> InputKeys:
                 inputValue = []
                 for term in val:
                     if len(term) == 2:
-                        inputValue.append(BondLength(bond_definition=[term[0], term[1]], original_value=0.0))
+                        inputValue.append(BondLength(atom_indices=[term[0], term[1]], original_value=0.0))
                     else:
-                        inputValue.append(BondLength(bond_definition=[term[0], term[1]], original_value=term[2]))
+                        inputValue.append(BondLength(atom_indices=[term[0], term[1]], original_value=term[2]))
                 inputKeys["bondlength"] = inputValue
 
             # Handle angle
             elif key_lower == "angle":
                 inputValue = []
                 for term in val:
-                    if len(term) == 2:
-                        inputValue.append(Angle(angle_definition=[term[0], term[1]], original_value=0.0))
+                    if len(term) == 3:
+                        inputValue.append(Angle(atom_indices=[term[0], term[1], term[2]], original_value=0.0))
                     else:
-                        inputValue.append(Angle(angle_definition=[term[0], term[1]], original_value=term[2]))
+                        inputValue.append(Angle(atom_indices=[term[0], term[1], term[2]], original_value=term[3]))
                 inputKeys["angle"] = inputValue
+
+            # Handle dihedral angles
+            elif key_lower == "dihedral":
+                inputValue = []
+                for term in val:
+                    if len(term) == 4:
+                        inputValue.append(Dihedral(atom_indices=[term[0], term[1], term[2], term[3]], original_value=0.0))
+                    else:
+                        inputValue.append(Dihedral(atom_indices=[term[0], term[1], term[2], term[3]], original_value=term[4]))
+                inputKeys["dihedral"] = inputValue
 
             # Handle ADF input files
             elif key_lower in ["adfinputfile", "old_adfinputfile", "fragment1_extra", "fragment2_extra", "complex_extra"]:
