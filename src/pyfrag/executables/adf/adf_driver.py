@@ -4,7 +4,7 @@ import re
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import constants as const
-from errors import FragmentOptimizationError
+from errors import FragmentOptimizationError, PyFragSortComplexMoleculeError
 from input import InputKeys
 from mol_handling import create_pyfrag_trajectory_from_coord_file, update_fragment_indices
 from result_classes import get_pyfrag_results
@@ -143,12 +143,12 @@ def sort_molecule_by_indices(molecule: Molecule, indices: List[int]) -> Molecule
     zero_based_indices = [idx - 1 if idx > 0 else idx for idx in indices_copy]
 
     if any(index >= n_atoms or index < 0 for index in zero_based_indices):
-        raise ValueError(f"Indices {indices_copy} are out of bounds for the molecule with {n_atoms} atoms.")
+        raise PyFragSortComplexMoleculeError(f"Indices {indices_copy} are out of bounds for the molecule with {n_atoms} atoms.")
 
     # Create a mapping from original position to desired position
     index_map = {original_idx: new_idx for new_idx, original_idx in enumerate(zero_based_indices)}
 
-    # Sort the atoms based on the desired order
+    # Sort the atoms based on the desired order specified by the fragment atom indices definitions (i.e., frag1_indices and frag2_indices keys)
     mol_copy.atoms = sorted(mol_copy.atoms, key=lambda atom: index_map.get(mol_copy.atoms.index(atom), float("inf")))
 
     return mol_copy
@@ -166,8 +166,7 @@ def natural_sort_key(key: str) -> list:
 
 
 def write_table(data_rows: List[Dict[str, Union[str, float]]], output_file_name: str):
-    logger.debug(msg=f"Table values: {data_rows}")
-    logger.info("Writing PyFrag results | EDA/ASM terms in kcal/mol | Orbital energies in eV | Bondlengths in Angstrom | Angles in degrees | VDD charges in millielectrons")
+    logger.info("Writing PyFrag results | EDA/ASM terms in kcal/mol | Orbital energies in eV | Bondlengths in Angstrom | (Dihedral) angles in degrees | VDD charges in millielectrons")
     standard_headers = ["#IRC", "EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "StrainTotal", "frag1Strain", "frag2Strain"]
 
     coordinate_axis = find_coordinates_axis(list(data_rows[0].keys()))
@@ -248,7 +247,7 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
     """
     # main pyfrag driver used for fragment and complex calculation.
     # read coordinates from IRC or LT t21 file. Other choice is xyz file generated from other tools.
-    load_all(inputKeys["jobstate"]) if inputKeys["jobstate"] is not None else None
+    load_all(inputKeys["restart_dir_name"]) if inputKeys["restart_dir_name"] is not None else None
 
     resultsTable = []
 
