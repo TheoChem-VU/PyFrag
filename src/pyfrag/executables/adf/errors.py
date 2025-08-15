@@ -92,3 +92,12 @@ class PyFragAMSSectionReadError(PyFragError):
 
 class FragmentOptimizationError(PyFragError):
     """An error that occurs when the fragment optimization fails."""
+
+
+# =============================================================================
+# PyFrag job driver error
+# =============================================================================
+
+
+class PyFragSortComplexMoleculeError(PyFragError):
+    """An error that occurs when the PyFrag driver fails when sorting the complex molecule to the original fragment input order"""
