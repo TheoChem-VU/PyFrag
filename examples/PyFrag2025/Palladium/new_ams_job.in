@@ -12,12 +12,18 @@ JOBSUB
 #SBATCH --error=new_ams_job.err
 
 # TC
-# module load ams/2023.101
+module load ams/2023.101
+export SCM_TMPDIR="/scratch/${SLURM_JOBID}"
+srun mkdir -p ${SCM_TMPDIR}
+srun chmod 733 ${SCM_TMPDIR}
 
 # Snellius
 # module load 2022
 # module load AMS/2023.101-intelmpi
 # module list
+
+[postamble]
+srun rm -rf ${SCM_TMPDIR}
 
 JOBSUB END
 
@@ -33,7 +39,9 @@ frag2_energy   -554.09
 bondlength 1 6 1.133
 bondlength 1 2 2.257
 
-angle 2 1 6 58.1
+angle 2 1 6
+
+vdd 2 6
 
 overlap frag1 HOMO frag2 LUMO
 overlap frag2 HOMO frag1 LUMO
@@ -48,8 +56,6 @@ population frag1 LUMO
 population frag2 HOMO
 population frag2 LUMO
 
-
-log_level debug
 
 PyFrag END
 
