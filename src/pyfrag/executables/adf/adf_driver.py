@@ -1,7 +1,8 @@
 import logging
 import pathlib as pl
 import re
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+import shutil
+from typing import Dict, FrozenSet, List, Optional, Sequence, Tuple, Union
 
 import constants as const
 from errors import FragmentOptimizationError, PyFragSortComplexMoleculeError
@@ -55,30 +56,36 @@ def settings_from_ams_block(ams_block: str) -> Settings:
 # =====================================================================
 
 
-def handle_restart(foldername: Union[str, pl.Path]) -> Optional[str]:
+def handle_restart(foldername: Union[str, pl.Path], overwrite: bool = True) -> Optional[str]:
     """
     Handles restarting by checking if the folder exists, renaming it to a backup folder with a ".res" suffix,
     and returning the backup folder name. Supports both string and pathlib.Path inputs.
 
     Input:
        foldername (Union[str, pl.Path]): The foldername to restart from.
+       overwrite (bool): Whether to overwrite the backup folder if it exists.
 
     Returns:
          Optional[str]: The name of the backup folder if it exists, otherwise None.
     """
-    foldername = pl.Path(foldername)  # Ensure foldername is a pathlib.Path object
+    foldername = pl.Path(foldername).resolve()  # Ensure foldername is a pathlib.Path object
     restart_backup = None
 
     if foldername.is_dir():
-        foldername = foldername.resolve()  # Resolve to an absolute path
         if any(foldername.iterdir()):  # Check if the folder is not empty
             restart_backup = foldername.with_suffix(".res")
-            n = 1
-            while restart_backup.exists():
-                n += 1
-                restart_backup = foldername.with_suffix(f".res{n}")
-            foldername.rename(restart_backup)
-            print(f"RESTART: Moving {foldername} to {restart_backup} and restarting from it")
+
+            if overwrite and restart_backup.exists():
+                shutil.rmtree(restart_backup)
+                foldername.rename(restart_backup)
+                print(f"RESTART: Overwriting and moving {foldername.name} to {restart_backup.name}, and restarting from it")
+            else:
+                n = 1
+                while restart_backup.exists():
+                    n += 1
+                    restart_backup = foldername.with_suffix(f".res{n}")
+                foldername.rename(restart_backup)
+                print(f"RESTART: Moving {foldername.name} to {restart_backup.name} and restarting from it")
     else:
         print("RESTART: The folder specified for restart does not exist, starting from scratch")
 
@@ -115,21 +122,9 @@ def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: 
 
 
 # =====================================================================
-# Writing the results (see PyFrag section) in table format to a file
+# Helper function for keeping the user-defined atom order of the fragments the same as in the complex molecule
+# This is critical for ensuring the correct mapping of atoms between fragments and the original molecule, and thus extracting results from atom and geometric properties (e.g., charges, bond lengths, angles, etc.)
 # =====================================================================
-
-
-def find_coordinates_axis(headers: Sequence[str]) -> Union[str, None]:
-    """
-    Find the coordinate axis on which the EDA is plotted on. It scans for the first header that starts with "bondlength", or "angle" if it exists.
-    """
-    for header in headers:
-        if header.startswith("bondlength"):
-            return header
-        elif header.startswith("angle"):
-            return header
-
-    return None
 
 
 def sort_molecule_by_indices(molecule: Molecule, indices: List[int]) -> Molecule:
@@ -154,6 +149,53 @@ def sort_molecule_by_indices(molecule: Molecule, indices: List[int]) -> Molecule
     return mol_copy
 
 
+# =====================================================================
+# Writing the results (see PyFrag section) in table format to a file
+# =====================================================================
+
+# Dealing with the units ----------------------------------------------
+
+key_to_print_unit_mapping: Dict[FrozenSet[str], str] = {
+    frozenset({"#IRC"}): "---",
+    frozenset({"EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp"}): "kcal/mol",
+    frozenset({"StrainTotal", "frag1Strain", "frag2Strain"}): "kcal/mol",
+    frozenset({"bondlength"}): "Angstrom",
+    frozenset({"angle", "dihedral"}): "degrees",
+    frozenset({"VDD"}): "millielectrons",
+    frozenset({"hirshfeld"}): "electrons",
+    frozenset({"orbitalenergy"}): "eV",
+    frozenset({"population"}): "electrons",
+    frozenset({"overlap"}): "---",
+}
+
+
+def get_unit_belonging_to_header_key(header: str) -> str:
+    """
+    Get the unit belonging to a specific header key.
+    For example, "EnergyTotal" would return "kcal/mol".
+    """
+    for key_set, unit in key_to_print_unit_mapping.items():
+        if any(header == key or header.startswith(key) for key in key_set):
+            return unit
+    return ""
+
+
+# Dealing with ordering the header (keys) naturally----------------------------
+
+
+def find_coordinates_axis(headers: Sequence[str]) -> Union[str, None]:
+    """
+    Find the coordinate axis on which the EDA is plotted on. It scans for the first header that starts with "bondlength", or "angle" if it exists.
+    """
+    for header in headers:
+        if header.startswith("bondlength"):
+            return header
+        elif header.startswith("angle"):
+            return header
+
+    return None
+
+
 def natural_sort_key(key: str) -> list:
     """
     Generate a natural sort key for strings containing numbers.
@@ -166,34 +208,56 @@ def natural_sort_key(key: str) -> list:
 
 
 def write_table(data_rows: List[Dict[str, Union[str, float]]], output_file_name: str):
-    logger.info("Writing PyFrag results | EDA/ASM terms in kcal/mol | Orbital energies in eV | Bondlengths in Angstrom | (Dihedral) angles in degrees | VDD charges in millielectrons")
+    """
+    Write the results table to a file.
+    There are certain keys that are always printed first so we need to order them first.
+    Thereafter, the remaining keys are sorted naturally (from 1 to n).
+
+    The table is formatted as:
+    - Header row
+    - Unit row
+    - Data row1
+    - Data row2
+    - ...
+
+    Or visually,
+
+    |   #IRC   | EnergyTotal |    Int     |  Elstat   |  Pauli   |   OI   |  Disp   | StrainTotal | frag1Strain | frag2Strain | other keys |
+    |----------|-------------|------------|-----------|----------|--------|---------|-------------|-------------|-------------|------------|
+    |          |  kcal/mol   |  kcal/mol  | kcal/mol  | kcal/mol |kcal/mol|kcal/mol |  kcal/mol   |  kcal/mol   |  kcal/mol   |   [unit]   |
+    |    1     |     ...     |     ...    |    ...    |   ...    |  ...   |   ...   |     ...     |    ...      |    ...      |    ...     |
+    |    2     |     ...     |     ...    |    ...    |   ...    |  ...   |   ...   |     ...     |    ...      |    ...      |    ...     |
+    """
+    logger.info("Writing PyFrag results | EDA/ASM terms in kcal/mol | Orbital energies in eV | Bondlengths in Angstrom | (Dihedral) angles in degrees | VDD charges in millielectrons | Hirshfeld charges in electrons")
     standard_headers = ["#IRC", "EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "StrainTotal", "frag1Strain", "frag2Strain"]
 
     coordinate_axis = find_coordinates_axis(list(data_rows[0].keys()))
 
+    all_headers_sorted = sorted(data_rows[0], key=natural_sort_key)
+
+    if coordinate_axis is not None:
+        standard_headers.insert(1, coordinate_axis)
+
+    selected_headers = [header for header in all_headers_sorted if header not in standard_headers]
+    headers = standard_headers + selected_headers
+    unit_row = [get_unit_belonging_to_header_key(header) for header in headers]
+
+    # Calculate column widths dynamically based on the maximum length of headers and data
+    column_widths = [max(len(header), max(len(str(data_row.get(header, ""))) for data_row in data_rows)) + 2 for header in headers]
+    column_widths = [max(width, 9) for width in column_widths]  # Ensure minimum width of 9 to have short headers, but longer float data. This depends on the pform formatting in the write_row function
+
     with open(f"pyfrag_{output_file_name}.txt", "w") as output_file:
-        all_headers_sorted = sorted(data_rows[0], key=natural_sort_key)
-
-        if coordinate_axis is not None:
-            standard_headers.insert(1, coordinate_axis)
-
-        selected_headers = [header for header in all_headers_sorted if header not in standard_headers]
-        headers = standard_headers + selected_headers
-
-        # Calculate column widths dynamically based on the maximum length of headers and data
-        column_widths = [max(len(header), max(len(str(data_row.get(header, ""))) for data_row in data_rows)) + 2 for header in headers]
-        column_widths = [max(width, 9) for width in column_widths]  # Ensure minimum width of 9 to have short headers, but longer float data. This depends on the pform formatting in the write_key function
-
         # Write headers
-        write_key(output_file, headers, ljustwidths=column_widths)
+        write_row(output_file, headers, ljustwidths=column_widths)
+        write_row(output_file, unit_row, ljustwidths=column_widths)
 
         # Write data rows
         for data_row in data_rows:
             sorted_data_row = [data_row.get(header, "---") for header in headers]
-            write_key(output_file, sorted_data_row, ljustwidths=column_widths)
+            write_row(output_file, sorted_data_row, ljustwidths=column_widths)
 
 
-def write_key(file, value, ljustwidths: Sequence[int], pform=r"%7.5f"):
+def write_row(file, value, ljustwidths: Sequence[int], pform=r"%+7.4f"):
     # Write all data into a file with dynamic column widths
     for val, width in zip(value, ljustwidths):
         if val is None:
@@ -235,9 +299,10 @@ def clean_up_job_folder(job: AMSJob):
             r._clean(["-", f"t21.*.{atom.symbol}"])
         job.pickle()  # this will update the .dill file which is used to restart the job and extract results when using plams
 
-    # =====================================================================
-    # Main function to run the PyFrag calculations
-    # =====================================================================
+
+# =====================================================================
+# Main function to run the PyFrag calculations
+# =====================================================================
 
 
 def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings: Settings, complexSettings: Settings) -> Tuple[List[Dict[str, Union[str, float]]], "InputKeys"]:
@@ -260,6 +325,11 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
 
     length_of_trajectory: int = len(molecule_trajectory[0])
 
+    # =====================================================================
+    # Deciding if fragments need to be optimized.
+    # If so, then add these optimized energies to the corresponding "strain" entries in the InputKeys which will be later used to calculate the total strain energy.
+    # =====================================================================
+
     # Optimize fragments if the strain energy of both or one of the fragments is not given
     logger.info(msg="Checking if fragments need to be optimized")
     if len(inputKeys["fragment_energies"]) != 2:
@@ -270,6 +340,10 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
         update_fragment_strain_energies(inputKeys, optimized_frag_jobs)
     else:
         logger.info(msg="Fragment strain energies are given, no need to optimize fragments")
+
+    # =====================================================================
+    # The main calculation loop over each point of the coordinate file
+    # =====================================================================
 
     for path_index in range(1, len(molecule_trajectory[0]) + 1):
         logger.info(msg=f"Starting calculations for IRC point {path_index}/{length_of_trajectory}")
@@ -284,7 +358,13 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
         fragment_settings = [frag1Settings.copy(), frag2Settings.copy()]
         frag_jobs: List[AMSJob] = []
 
-        # First consider the fragments, starting from frag1 and frag2 (which are the second and third elements in the const.SYSTEM_NAMES list)
+        # =====================================================================
+        # First consider the fragments, starting from frag1 and frag2
+        # NOTE: Default fragment names are currently used which are the second and third elements in the const.SYSTEM_NAMES list
+        # NOTE: This may change later (>PyFrag2025) if the fragment names can be given as input options. \
+        # NOTE: However, this is not as straight-forward to implement since some keys depend on the fragment names. An example is the FragOccupations key in which the names of the fragments must be named explicitly.
+        # =====================================================================
+
         for frag_index, base_fragment_name in enumerate(const.SYSTEM_NAMES[1:], start=1):
             # Goes from frag1 -> frag1.xxxx1
             fragment_name = f"{base_fragment_name}.{str(path_index).zfill(5)}"
@@ -302,7 +382,11 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
             clean_up_job_folder(frag_job)
             frag_jobs.append(frag_job)
 
-        # Now consider the complex, which is the first element in the const.SYSTEM_NAMES list
+        # =====================================================================
+        # Second, consider the complex, which is the first element in the const.SYSTEM_NAMES list
+        # Prepare the fragment by placing the "adf.rkf=..." suffix after the atom coordinates
+        # Also, link the fragment names to the fragment files with the tuple: (frag_job, "adf")
+        # =====================================================================
 
         for frag_index, frag_job in enumerate(frag_jobs, start=1):
             if frag_job.molecule is not None:
@@ -322,7 +406,10 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
         if not jobComplex.results.ok():
             logger.critical(msg="Complex calculation has failed, please check your input settings")
 
-        # disable the result check because ADF print a lot of useless message
+        # =====================================================================
+        # Finally, get the results of the complex calculation *if* it was successful
+        # =====================================================================
+
         if jobComplex.ok():
             # collect all data and put it in a list
             outputData["#IRC"] = str(path_index)
@@ -349,4 +436,6 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
 
     if len(resultsTable) == 0:
         raise RuntimeError("Calculations for all points failed, please check your input settings")
-    return resultsTable, inputKeys  # return this as result only (only construct it here but use it outside)
+
+    # Returns the results as one big table including the (updated) InputKeys. The main script (`adf.py`) uses the table to print it to a file.
+    return resultsTable, inputKeys
