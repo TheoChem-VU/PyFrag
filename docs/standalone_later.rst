@@ -71,7 +71,7 @@ To submit a job, create a directory and generate a input file and run the follow
 
 For a quick test, if your installation_ is correct, run the following command to do an easy test:
 
-``cp -r $HOSTPYFRAG/adf_new/example ~/pyfrag_adf_test``
+``cp -r $PYFRAGSOURCE/adf_new/example ~/pyfrag_adf_test``
 
 Enter the directory and modify the submit information according to your cluster requirement and the path to the out file,
 
@@ -138,7 +138,7 @@ To submit a job, create a directory and generate a input file and run the follow
 
 For a quick test, if your installation_ is correct, run the following command to do an easy test:
 
-``cp -r $HOSTPYFRAG/gaussian/example ~/pyfrag_gaussian_test``
+``cp -r $PYFRAGSOURCE/gaussian/example ~/pyfrag_gaussian_test``
 
 Enter to the directory and modify the submit information in the sub file according to your cluster requirement,
 
@@ -184,7 +184,7 @@ To submit a job, create a directory and generate a input file and run the follow
 
 For a quick test, if your installation_ is correct, run the following command to do an easy test:
 
-``cp -r $HOSTPYFRAG/orca/example ~/pyfrag_gaussian_test``
+``cp -r $PYFRAGSOURCE/orca/example ~/pyfrag_gaussian_test``
 
 Enter to the directory and modify the submit information in the sub file according to your cluster requirement,
 

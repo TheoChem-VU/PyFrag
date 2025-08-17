@@ -22,7 +22,7 @@ The basic setup is located in .pyfragrc in the source code directory PyFrag-mast
   (the directory in your host machine where all jobs ins saved)
   export RESULTCHECK="20"
   (time interval to check if result is changed)
-  export HOSTPYFRAG='/home/bin/host'
+  export PYFRAGSOURCE='/home/bin/host'
   (where the code of host is stored in your host machine)
 
 
