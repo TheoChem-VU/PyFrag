@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from typing import Dict, Optional
 
+from pyfrag.executables.adf.errors import ExecutablePathNotFoundError
+
 
 class PyFragConfig:
     """Configuration manager for PyFrag."""
@@ -51,11 +53,10 @@ class PyFragConfig:
     def setup_environment(self) -> Dict[str, str]:
         """Set up the environment variables for PyFrag."""
         env = os.environ.copy()
-        env["PYFRAGHOME"] = str(self.pyfrag_home)
-        env["HOSTPYFRAG"] = str(self.pyfrag_home)  # For compatibility with shell scripts
+        env["PYFRAGSOURCE"] = str(self.pyfrag_home)
 
         # Add PyFrag scripts directory to PATH if not already there
-        scripts_dir = str(self.get_scripts_path())
+        scripts_dir = str(self.get_source_path())
         current_path = env.get("PATH", "")
         if scripts_dir not in current_path:
             env["PATH"] = f"{scripts_dir}:{current_path}"
@@ -83,17 +84,18 @@ class PyFragConfig:
             os.environ["VIRTUAL_ENV"] = str(self.virtual_env)
             os.environ["PATH"] = f"{self.virtual_env / 'bin'}:{os.environ.get('PATH', '')}"
 
-    def get_host_path(self) -> Path:
+    def get_source_path(self) -> Path:
         """Get the path to the host module."""
         return self.pyfrag_home / "src" / "pyfrag"
 
     def get_executables_path(self, executable: str) -> Path:
         """Get the path to the executables (former host/bin)."""
-        return self.get_host_path() / "executables" / executable / f"{executable}.py"
+        executable_path = self.get_source_path() / "executables" / executable / f"{executable}.py"
 
-    def get_scripts_path(self) -> Path:
-        """Get the path to the main scripts."""
-        return self.get_host_path() / "bin"
+        if not executable_path.is_file():
+            raise ExecutablePathNotFoundError(executable)
+
+        return executable_path
 
     def __str__(self) -> str:
         return f"PyFragConfig(pyfrag_home={self.pyfrag_home}, virtual_env={self.virtual_env})"
