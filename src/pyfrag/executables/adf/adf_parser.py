@@ -31,6 +31,9 @@ def extract_sections(input_file: str) -> Dict[str, str]:
     section_patterns = [
         ("jobsub", r"(?i)^JOBSUB\s*(?:#.*)?$.*?^JOBSUB\s+END\s*(?:#.*)?$"),
         ("ams", r"(?i)^AMS\s*(?:#.*)?$.*?^AMS\s+END\s*(?:#.*)?$"),
+        ("orca", r"(?i)^ORCA\s*(?:#.*)?$.*?^ORCA\s+END\s*(?:#.*)?$"),
+        ("gaussian", r"(?i)^GAUSSIAN\s*(?:#.*)?$.*?^GAUSSIAN\s+END\s*(?:#.*)?$"),
+        ("turbomole", r"(?i)^TURBOMOLE\s*(?:#.*)?$.*?^TURBOMOLE\s+END\s*(?:#.*)?$"),
         ("adf", r"(?i)^ADF\s*(?:#.*)?$.*?^ADF\s+END\s*(?:#.*)?$"),
         ("pyfrag", r"(?i)^PyFrag\s*(?:#.*)?$.*?^PyFrag\s+END\s*(?:#.*)?$"),
         ("fragment1_extra", r"(?i)^fragment1\s+EXTRA\s*(?:#.*)?$.*?^fragment1\s+EXTRA\s+END\s*(?:#.*)?$"),
