@@ -318,13 +318,12 @@ def _read_fragment_indices_line(line: str) -> List[int]:
 
 
 def _read_coord_file_line(line: str) -> str:
-    """Reads the line containing the "coord_file" keyword. Multiple coordinate files may be specified by having multiple lines. The correct format for the line is:
+    """Reads the line containing the "coord_file" keyword. Multiple coordinate files may be specified by giving a (space-separated) list. The correct format for the line is:
 
-    coord_file FILENAME1
-    coord_file FILENAME2
+    coord_file FILENAME1 FILENAME2
 
     """
-    line_content: List[str] = _check_line_length(line, "coord_file", (2, 2))
+    line_content: List[str] = _check_line_length(line, "coord_file", (2, 100_000), strict_limit=False)
     _, coord_files = line_content
 
     return coord_files
@@ -458,9 +457,6 @@ def process_user_input(input_file_path: str) -> InputKeys:
         complex_extra=None,
     )
 
-    # Get the input file directory for relative paths
-    input_file_dir = pl.Path(input_file_path).parent
-
     # Process the PyFrag section if it exists
     if "pyfrag" in input_file_sections:
         pyfrag_data = extract_pyfrag_section(input_file_sections["pyfrag"])
@@ -505,9 +501,9 @@ def process_user_input(input_file_path: str) -> InputKeys:
                     logger.warning(f"Input option '{key_lower}' is deprecated. Please use 'coordfile' instead.")
 
                 if isinstance(val, list):
-                    inputKeys["coordFile"] = [input_file_dir / coord_file for coord_file in val]
+                    inputKeys["coordFile"] = [coord_file for coord_file in val]
                 else:
-                    inputKeys["coordFile"] = [input_file_dir / val]
+                    inputKeys["coordFile"] = [val]
 
                 # First handle environment variables such as "$SLURM_SUBMIT_DIR"
                 inputKeys["coordFile"] = [expandvars_backslash(path) for path in inputKeys["coordFile"]]
