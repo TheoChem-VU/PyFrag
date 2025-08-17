@@ -1,0 +1,85 @@
+JOBSUB
+
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 240:00:00
+#SBATCH --ntasks 32
+#SBATCH --ntasks-per-core 1
+#SBATCH --partition=tc
+
+echo "== Starting run at $(date)"
+echo "== Job ID: ${SLURM_JOBID}"
+echo "== Node list: ${SLURM_NODELIST}"
+echo "== Submit dir. : ${SLURM_SUBMIT_DIR}"
+echo "== Scratch dir. : ${TMPDIR}"
+
+
+module load 2022
+module load ams/2023.101
+
+JOBSUB END
+
+PyFrag
+name pyfrag_job
+coordfile $SLURM_SUBMIT_DIR/*.xyz
+frag1_indices  1-57 # Put here the atom indices of the first fragment (start with 1)
+frag2_indices  58  # Put here the atom indices of the second fragment (start with 1)
+frag1_energy   -9864.26 # Put here the optimized energy of the first fragment (in kcal/mol)
+frag2_energy   -25.74 # Put here the optimized energy of the second fragment (in kcal/mol)
+bondlength 27 58  1.526
+PyFrag END
+
+fragment1 EXTRA
+
+Engine ADF
+    SpinPolarization  3.0
+EndEngine
+
+fragment1 EXTRA END
+
+fragment2 EXTRA
+
+Engine ADF
+    SpinPolarization  -1.0
+EndEngine
+
+fragment2 EXTRA END
+
+complex EXTRA
+
+Engine ADF
+    SpinPolarization  2.0
+EndEngine
+
+complex EXTRA END
+
+
+AMS
+Task SinglePoint
+
+
+Engine ADF
+
+    Basis
+        Type TZP
+        Core None
+    End
+
+    NumericalQuality Normal
+
+    XC
+        GGA PBE
+        DISPERSION GRIMME3 BJDAMP
+    End
+
+    Unrestricted yes
+    unrestrictedfragments
+
+    Symmetry C(2V)
+
+    SCF
+       ITERATIONS 999
+
+    END
+EndEngine
+AMS END

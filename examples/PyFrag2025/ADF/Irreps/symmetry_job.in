@@ -1,0 +1,81 @@
+##### Uses the  >AMS2019 inputfile format (indicated by the AMS and AMS END keys)
+##### You must load the ams (>2019) module
+
+JOBSUB
+
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 00:10:00
+#SBATCH --ntasks-per-node=16
+#SBATCH --partition=tc
+#SBATCH --output=symmetry_job.out
+#SBATCH --error=symmetry_job.err
+
+# TC
+module load ams/2021.102
+
+# Snellius
+# module load 2022
+# module load AMS/2023.101-intelmpi
+# module list
+
+JOBSUB END
+
+
+PyFrag
+name symmetry_job
+coordfile nh3_bh3.xyz
+frag1_indices  5-8 # Put here the atom indices of the first fragment (start with 1)
+frag2_indices  1-4 # Put here the atom indices of the second fragment (start with 1)
+frag1_energy   0 # Put here the optimized energy of the first fragment (in kcal/mol)
+frag2_energy   0 # Put here the optimized energy of the second fragment (in kcal/mol)
+
+bondlength 1 5 1.625
+angle 6 5 1
+dihedral 6 5 1 4
+
+VDD 1 2 3 4 5 6 7 8
+
+orbitalenergy frag1 HOMO
+orbitalenergy frag2 LUMO
+orbitalenergy frag1 LUMO
+orbitalenergy frag2 HOMO
+orbitalenergy A1 frag1 2
+orbitalenergy A1 frag2 2
+
+overlap frag1 HOMO frag2 LUMO
+overlap frag2 HOMO frag1 LUMO
+
+overlap A1 frag1 2 A1 frag2 2
+
+population frag1 HOMO
+population frag2 LUMO
+population frag1 LUMO
+population frag2 HOMO
+
+PyFrag END
+
+AMS
+
+Task SinglePoint
+
+Engine adf
+  basis
+    core Small
+    type TZP
+  End
+
+#  eprint
+#    sfo EIG OVL
+#  End
+
+  numericalquality normal
+
+  xc
+    gga OPBE
+  End
+
+  Symmetry C(3V)
+EndEngine
+
+AMS END

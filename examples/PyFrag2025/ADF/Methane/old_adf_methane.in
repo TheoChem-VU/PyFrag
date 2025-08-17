@@ -1,0 +1,80 @@
+##### Uses the  >AMS2019 inputfile format (indicated by the AMS and AMS END keys)
+##### You must load the ams (>2019) module
+
+JOBSUB
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 72:00:00
+#SBATCH --ntasks-per-node=32
+#SBATCH --partition=tc
+#SBATCH --output=old_methane.out
+#SBATCH --error=old_methane.err
+
+module load ams/2022.101
+
+JOBSUB END
+
+ADF
+XC
+  GGA BLYP
+  DISPERSION Grimme3 BJDAMP
+END
+
+NumericalQuality Good
+
+BASIS
+  TYPE TZ2P
+  CORE None
+END
+
+
+SYMMETRY AUTO
+CHARGE 0
+ADF END
+
+PyFrag
+
+name methane
+coordfile methane.xyz
+frag1_indices  1-4 # Put here the atom indices of the first fragment (start with 1)
+frag2_indices  5 # Put here the atom indices of the second fragment (start with 1)
+frag1_energy   0 # Put here the optimized energy of the first fragment (in kcal/mol)
+frag2_energy   0 # Put here the optimized energy of the second fragment (in kcal/mol)
+
+bondlength 1 5
+overlap A1 frag1 3_A A frag2 1_A
+overlap A1 frag1 3_B A frag2 1_B
+overlap A1 frag1 2_B A frag2 1_B
+population frag1 HOMO
+population frag2 HOMO
+PyFrag END
+
+
+fragment1 EXTRA
+SYMMETRY C(3V)
+CHARGE 0 1
+unrestricted
+
+IrrepOccupations
+E1 2//2
+A1 3//2
+END
+fragment1 EXTRA END
+
+
+fragment2 EXTRA
+SYMMETRY ATOM
+CHARGE 0 -1
+Unrestricted
+
+
+IrrepOccupations
+A 0//1
+END
+fragment2 EXTRA END
+
+
+complex EXTRA
+UnrestrictedFragments
+unrestricted
+complex EXTRA END

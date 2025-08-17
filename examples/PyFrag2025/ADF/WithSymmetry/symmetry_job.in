@@ -1,0 +1,102 @@
+##### Uses the  >AMS2019 inputfile format (indicated by the AMS and AMS END keys)
+##### You must load the ams (>2019) module
+
+JOBSUB
+
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 00:10:00
+#SBATCH --ntasks-per-node=16
+#SBATCH --partition=tc
+#SBATCH --output=new_ams_job.out
+#SBATCH --error=new_ams_job.err
+
+# TC
+# module load ams/2023.101
+
+# Snellius
+# module load 2022
+# module load AMS/2023.101-intelmpi
+# module list
+
+JOBSUB END
+
+
+PyFrag
+name symmetry_job
+coordfile $SLURM_SUBMIT_DIR/*xyz
+
+frag1_indices  1-4
+frag2_indices  5-7
+frag1_energy   -194.83
+frag2_energy   -317.86
+bondlength     1 4 0.00
+log_level debug
+
+VDD 1 2 3 4 5 6 7
+hirshfeld frag1 frag2
+
+overlap frag1 HOMO frag2 LUMO
+overlap frag2 HOMO frag1 LUMO
+overlap AA frag1 4 AA frag2 3
+
+orbitalenergy AA frag1 4
+orbitalenergy AA frag2 3
+orbitalenergy frag1 HOMO
+orbitalenergy frag2 LUMO
+orbitalenergy frag1 LUMO
+orbitalenergy frag2 HOMO
+orbitalenergy frag2 HOMO-2
+orbitalenergy frag2 HOMO-3
+orbitalenergy frag2 HOMO-4
+orbitalenergy frag2 HOMO-5
+orbitalenergy frag2 HOMO-6
+orbitalenergy frag2 HOMO-7
+orbitalenergy frag2 HOMO-8
+orbitalenergy frag2 HOMO-9
+orbitalenergy frag2 HOMO-10
+orbitalenergy frag2 HOMO-11
+orbitalenergy frag2 HOMO-12
+orbitalenergy frag2 HOMO-13
+
+population frag1 HOMO
+population frag2 LUMO
+population frag1 LUMO
+population frag2 HOMO
+
+PyFrag END
+
+fragment2 EXTRA
+System
+  charge 0
+End
+fragment2 EXTRA END
+
+AMS
+
+Task SinglePoint
+
+System
+  charge 1
+End
+
+Engine adf
+  basis
+    core None
+    type DZP
+  End
+
+#  eprint
+#    sfo EIG OVL
+#  End
+
+  numericalquality normal
+
+  xc
+    gga OPBE
+  End
+
+  Symmetry C(S)
+EndEngine
+
+AMS END
