@@ -7,8 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
  * PyFrag jobs now automically restart when a folder with the same name already exists. The old folder will get the “.res” extension and will be deleted when the new calculation finished succesfully. This is to prevent quick reprinting of the results table upon changing PyFrag specifications such as "overlap", "bondlength", etc. without having to redo all computations.
- * A logger which level is determined by the “log_level”, resulting in a “[calculation_name].log” file. Try to specify “log_level debug” in you input within the PyFrag section to see all the details of the calculation. The log file is saved in the same folder as the input file.
- * A top line header in the output table which contains information about the units of the keys. For example, the key "bondlength" now contains the unit "Angstrom" in the header.
+ * A logger which' level is determined by the “log_level”, writing information about the program in the stdout file (e.g., the "slurm-[job_id].out" file if you use the the slurm job scheduler). Try to specify “log_level debug” in you input within the PyFrag section to see all the details of the calculation.
+ * An additional header row is printed in the output table which contains information about the units of the keys. For example, the key "bondlength" now contains the unit "Angstrom" below it.
  * The keys "frag1_indices", "frag2_indices", "frag1_energy", "frag2_energy" as these are more informative than the previous keys "fragment" and "strain" which were not clear about the meaning of the numbers. The old keys are still available for backward compatibility.
  * Testing infrastructure for the ADF calculations including tests for reading the PyFrag input for ADF jobs and splitting molecular trajectories into fragments.
  * Python packaging and virtual environment support for installing and running the PyFrag program using uv. Now, PyFrag can be installed on the cluster through `uv sync` which creates a venv. PyFrag can also installed as a pure python package using `pip install PyFrag`.
@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
  * The header of the output table contains more information about the relevant key. For example, the key "bondlength" now includes the atom numbers and symbols of the atoms involved in the bondlength calculation. The same applies to the keys "overlap" -> "overlap_[orbital1_index]-[orbital1_index]_[orbital2_index]-[orbital2_index]", "population", "orbitalenergy", and "angle". [#15](https://github.com/TheoChem-VU/PyFrag/issues/15)
  * The unrestricted and unrestricted modules have merged as there was considerable overlap which made the code difficult to maintain. Both are now in the adf_new folder in the host/standalone folder. The adf_new folder is now the default folder for all ADF calculations.
  * The input blocks such as "AMS", "PyFrag", "JobSub", "Complex EXTRA" etc. are now case-insensitive. This means that the input keys can be written in any case, e.g., "pyfrag", "PyFrag", "PYFRAG" etc. will all be recognized as the same key.
+ * The orca executable is now compatible with the new PyFrag folder structure (e.g., the rewrite to a /src structure)
+ * Massively improved the documentation of the code (function docstrings, comments, better spacing of the code, and more)
 
 ### Removed
  * Removed the IrrepOI input key as it prints now automatically the orbital interactions decomposed into symmetry irreps (if symmetry is used) [#10](https://github.com/TheoChem-VU/PyFrag/issues/10)
