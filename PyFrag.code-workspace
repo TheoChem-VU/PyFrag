@@ -5,12 +5,10 @@
 		}
 	],
 	"settings": {
-		"python.analysis.include": [
-			"${workspaceFolder}/host/standalone",
-		],
 		"git.enabled": true,
 		"terminal.integrated.env.linux": {
 			"PATH": "/ada-software/eb/2025/software/git/2.45.1-GCCcore-13.3.0/bin/git:${env:PATH}"
 		},
+		"python.useEnvironmentsExtension": false,
 	}
 }
