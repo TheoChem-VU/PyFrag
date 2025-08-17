@@ -7,17 +7,18 @@ proc ModulesHelp { } {
 	puts stderr "\tAdds PyFrag2025 to your environment. "
 }
 
-module-whatis	"Adds PyFrag2025 to your environment. "
+module-whatis	"Adds PyFrag2025 to your environment.\nThis program is used to facilitate analysis of reaction mechanisms by deploying the Activation Strain Model (ASM), and the Energy Decomposition Analysis (EDA)."
 
 module load shared 2025
 module load site-apps
-module load HDF5/1.10.5-gompi-2019b Python/3.7.4-GCCcore-8.3.0
 
-set               pyfrag            /cm/shared/package/PyFrag/PyFrag-2023/src
-set               AMSroot           /cm/shared/package/AMS/ams2024.102
+set               pyfrag            [PATH TO THE /src/pyfrag FOLDER OF PYFRAG]
+set               AMSroot           [PATH TO THE AMS ROOT FOLDER]
 
-prepend-path      PATH              $root/bin:$pyfrag/bin
-prepend-path      PYTHONPATH        $root/lib/python3.7/site-packages
+# Add the /src/pyfrag folder to the Path environment variable
+prepend-path      PATH              $pyfrag
 
-setenv	       SCM_PYTHONPATH	$AMSroot/bin/amspython
+# Set this to the /src/pyfrag folder of PyFrag (thus, the folder with the scripts so that they can be found)
+setenv         PYFRAGSOURCE   		$pyfrag
+setenv	       SCM_PYTHONPATH		$AMSroot/bin/amspython
 
