@@ -2,8 +2,9 @@
 
 # ==================================================================
 # This script is a wrapper around the "main.py" script.
-# For this wrapper to work, the PYTHONPATH must include the directory
-# containing the "pyfrag" package.
+#
+# Its purpose is to check if there is a virtual environment set up
+# which is recommended if PyFrag is installed on a computer cluster as a module
 # ==================================================================
 
 function activate_venv() {
@@ -11,27 +12,35 @@ function activate_venv() {
     source "${venv_folder}/bin/activate"
 }
 
-# ==================================================================
-# Ensuring the virtual environment is activated
-# ==================================================================
+echo "Starting PyFrag..."
 
-# Activate the virtual environment
 # Get the root directory of PyFrag package
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PYFRAGHOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PYFRAGROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Now use PYFRAGHOME for paths
-VENV_PATH="$PYFRAGHOME/.venv"
+
+# 1. Try to find and activate a virtual environment if it exists
+VENV_PATH="$PYFRAGROOT/.venv"
 if [[ -d "$VENV_PATH" ]]; then
-    activate_venv "$VENV_PATH"
+    echo "Activating virtual environment at $VENV_PATH"
+    source "$VENV_PATH/bin/activate"
 else
-    echo "Critical: Virtual environment not found at $VENV_PATH. Please make sure that 1. the HOSTPYFRAG environment variable is set to the root path of the PyFrag package, and 2. the virtual environment folder (.venv) is present in the root folder of the package."
+    echo "No virtual environment found at $VENV_PATH. Continuing with the current Python environment."
+fi
+
+# 2. Check if python is available
+if ! command -v python &> /dev/null; then
+    echo "Critical: Python is not available in your environment. Please load a Python module or install Python."
     exit 1
 fi
 
-# ==================================================================
-# Main script execution
-# ==================================================================
+# 3. Check if pyfrag is importable
+python -c "import pyfrag" 2>/dev/null
+if [[ $? -ne 0 ]]; then
+    echo "Critical: The 'pyfrag' package is not importable in this Python environment."
+    echo "Please ensure you have installed pyfrag (e.g., pip install . or pip install pyfrag) in your current Python environment."
+    exit 1
+fi
 
 echo "Starting PyFrag..."
 python -m pyfrag.main "$@"
