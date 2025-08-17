@@ -79,13 +79,17 @@ def extract_plams_settings_from_adf_settings(inputKeys: InputKeys) -> Tuple[Sett
 
 
 def main():
+    # =====================================================================
+    # Parse the inputs and set up logging for the ADF calculations
+    # =====================================================================
+
     parser = arg.ArgumentParser(description="PyFrag ADF calculations from input file")
     parser.add_argument("input_file", type=Path, help="Input file containing PyFrag configuration (e.g., [job_name].in)")
 
     args = parser.parse_args()
     inputKeys = process_user_input(args.input_file)
 
-    # Set up logging
+    # Set up logging and print the extracted input from the PyFrag input file (parsed by the user)
     logger = setup_logging(inputKeys["job_name"], inputKeys["log_level"])
     logger.info(pyfrag_program_string())
     logger.info("Processed input keys:")
@@ -98,7 +102,10 @@ def main():
         else:
             logger.info(f" - {key}: {value}")
 
-    # Handle restart | job_name is the name of the restart directory
+    # =====================================================================
+    # Handle restart directory and initialization
+    # =====================================================================
+
     inputKeys["restart_dir_name"] = handle_restart(inputKeys["job_name"])
 
     init(folder=inputKeys["job_name"], use_existing_folder=True)
@@ -111,13 +118,20 @@ def main():
     for system, specific_sett in zip(["Frag1", "Frag2", "Complex"], [frag1_settings, frag2_settings, complex_settings]):
         logger.info(f"Settings for {system}:\n" + str(specific_sett))
 
-    # Execute PyFrag calculations: for each point on the IRC/LT, perform single point calculations for the fragments and the complex
+    # =====================================================================
+    # Execute the PyFrag calculations and write the results to a table:
+    # perform single point calculations for each point on the IRC/LT for the fragments and the complex
+    # =====================================================================
+
     tableValue, inputKeys = pyfrag_driver(inputKeys, frag1_settings, frag2_settings, complex_settings)
 
     logger.info("Writing table to file and removing extra files")
     write_table(tableValue, inputKeys["job_name"])
 
-    # Remove the restart directory if it exists.
+    # =====================================================================
+    # Clean up and finish
+    # =====================================================================
+
     if inputKeys["restart_dir_name"] is not None:
         shutil.rmtree(inputKeys["restart_dir_name"])
     finish()
