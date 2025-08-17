@@ -14,10 +14,8 @@ if [ -f "$BASH_RC" ]; then
 cat <<EOF >> "$BASH_RC"
 # added by PyFrag installer
 export PATH="$HOME/miniconda/bin:\$PATH"
-export HOSTPYFRAG="$HOME/pyfrag"
-export PATH="\$HOSTPYFRAG/bin:\$PATH"
-export QMWORKS="$HOME/miniconda/envs/qmworks"
-export USERNAME="$USER"
+export PYFRAGSOURCE="$HOME/pyfrag/src/pyfrag/"
+export PATH="\$PYFRAGSOURCE:\$PATH"
 # added by PyFrag installer
 EOF
 source "$HOME"/.bashrc
@@ -29,10 +27,8 @@ elif [ -f "$BASH_FILE" ]; then
 cat <<EOF >> "BASH_FILE"
 # added by PyFrag installer
 export PATH="$HOME/miniconda/bin:\$PATH"
-export HOSTPYFRAG="$HOME/pyfrag"
-export PATH="\$HOSTPYFRAG/bin:\$PATH"
-export QMWORKS="$HOME/miniconda/envs/qmworks"
-export USERNAME="$USER"
+export PYFRAGSOURCE="$HOME/pyfrag/src/pyfrag/"
+export PATH="\$PYFRAGSOURCE:\$PATH"
 # added by PyFrag installer
 EOF
 source "$HOME"/.profile
@@ -44,10 +40,8 @@ else
 cat <<EOF >> "$BASH_PROFILE"
 # added by PyFrag installer
 export PATH="$HOME/miniconda/bin:\$PATH"
-export HOSTPYFRAG="$HOME/pyfrag"
-export PATH="\$HOSTPYFRAG/bin:\$PATH"
-export QMWORKS="$HOME/miniconda/envs/qmworks"
-export USERNAME="$USER"
+export PYFRAGSOURCE="$HOME/pyfrag/src/pyfrag/"
+export PATH="\$PYFRAGSOURCE:\$PATH"
 # added by PyFrag installer
 EOF
 
@@ -56,9 +50,9 @@ fi
 
 
 curl -L -o pyfrag.zip  https://github.com/TheoChem-VU/PyFrag/zipball/development/
-PREZIP="$HOME/pyfrag.zip"
+PREZIP="$HOME/pyfrag/src/pyfrag/.zip"
 unzip "$PREZIP"
 rm -rf $PREZIP
-mv "$HOME"/TheoChem-VU-PyFrag*/host $HOME/pyfrag
-chmod +x $HOME/pyfrag/bin/*
+mv "$HOME"/TheoChem-VU-PyFrag*/host $HOME/pyfrag/src/pyfrag/
+chmod +x $HOME/pyfrag/src/pyfrag//bin/*
 rm -r "$HOME"/TheoChem-VU-PyFrag*
