@@ -1,0 +1,46 @@
+JOBSUB
+
+#!/bin/bash
+#SBATCH -J turbo_pyfrag
+#SBATCH -t 5:00
+#SBATCH -N 1
+#SBATCH --tasks-per-node=16
+#SBATCH --partition=short
+#SBATCH -o job-%j.stdout
+#SBATCH -e job-%j.stderr
+
+module load turbomole
+
+export NSCM=16
+
+export WORK_TMPDIR=$TMPDIR
+cd $WORK_TMPDIR
+
+JOBSUB END
+
+INPUT_SPECS
+type = IRC
+output file = irc.amv
+fa1_name = pd_cc_ts
+frag1 = pd
+1.H
+2.H
+end frag1
+frag2 = cc
+3.H
+4.H
+end frag2
+
+print bond 1 3 1.00
+print strain frag1  100
+print strain frag2  200
+
+END INPUT_SPECS
+%method
+ENRGY :: b-p/SVP [gen_stat=1,scf_msil=99,&
+                  scf_grid=m4]
+%charge
+0
+%coord
+%end
+END INPUT
