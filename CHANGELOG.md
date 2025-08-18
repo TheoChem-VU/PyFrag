@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
  * Inputfiles are now compatible with AMS/ADF input files before and after 2019. We recommended using the >AMS2019 inputformat since this receives frequent updates and keeps being supported by plams.
  * The All ADF keys are now recognized and correctly parsed including UnrestrictedFragments, FragOccupations, and IrrepOccupations.
- * The calculation folders (e.g., [name].001]) are cleaned up after the calculation has finished successfully to reduce disk space.
+ * The calculation folders (e.g., [name].001) are cleaned up after the calculation has finished successfully to reduce disk space.
  * The header of the output table contains more information about the relevant key. For example, the key "bondlength" now includes the atom numbers and symbols of the atoms involved in the bondlength calculation. The same applies to the keys "overlap" -> "overlap_[orbital1_index]-[orbital1_index]_[orbital2_index]-[orbital2_index]", "population", "orbitalenergy", and "angle". [#15](https://github.com/TheoChem-VU/PyFrag/issues/15)
  * The unrestricted and unrestricted modules have merged as there was considerable overlap which made the code difficult to maintain. Both are now in the adf_new folder in the host/standalone folder. The adf_new folder is now the default folder for all ADF calculations.
  * The input blocks such as "AMS", "PyFrag", "JobSub", "Complex EXTRA" etc. are now case-insensitive. This means that the input keys can be written in any case, e.g., "pyfrag", "PyFrag", "PYFRAG" etc. will all be recognized as the same key.
@@ -37,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
  * Getting an error when multiple bondlengths were specified in the input file.
  * Reading in .amv files which would have (by accident) an header line that splits in exactly four parts, which would correspond to a "atom line" such as "C 0.0000 0.0000 0.0000" [#6](https://github.com/TheoChem-VU/PyFrag/issues/6)
  * The atom ordering from fragment to complex indices are now fixed. The error would arise when the fragment 1 and 2 indices were [2], and [1, 3, 4, 5, 6] which got sorted into [2 -> 1, 1 -> 2, 3 -> 3, 4 -> 4, 5 -> 5, 6 -> 6].
+ * Fixed the `atom_list not defined error` [#2](https://github.com/TheoChem-VU/PyFrag/issues/2) for the orca executable. The error was caused by an bug in reading the input file which could not identify the atom indices corresponding to the bond parameters, e.g. `print bond [atom1] [atom2] [reference_length]`.
 
 ## PyFrag2019 - 19/10/2018
 
