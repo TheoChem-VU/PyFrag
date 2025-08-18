@@ -1,4 +1,0 @@
-numpy>=1.20.0
-gitpython>=3.1.24
-attrs>=21.2.0
-plams>=2024.107
