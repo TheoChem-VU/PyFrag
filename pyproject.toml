@@ -24,10 +24,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 license = "LGPL-3.0"
-dependencies = [
-    "numpy>=1.20.0",
-    "plams>=2024.107",
-]
+dependencies = ["numpy>=1.20.0", "plams>=2024.107"]
 requires-python = ">=3.7"
 
 [project.urls]
@@ -41,17 +38,18 @@ pyfrag = "pyfrag.main:main"
 pythonpath = "src/pyfrag/host/standalone/adf_new"
 
 [build-system]
-requires = ["hatchling>=1.26", "hatch-vcs>=0.4.0", "setuptools-scm<9"]
+requires = ["hatchling>=1.26", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pyfrag"]
 
+# See https://pydevtools.com/handbook/how-to/how-to-add-dynamic-versioning-to-uv-projects/
 [tool.hatch.version]
-source = "vcs"
+source = "uv-dynamic-versioning"
 
-[tool.hatch.build.hooks.vcs]
-version-file = "src/pyfrag/version.py"
+# [tool.uv-dynamic-versioning]
+# fallback-version = "2025.101"
 
 [dependency-groups]
 dev = ["pytest>=7.4.4", "sphinx>=5.3.0"]
