@@ -56,6 +56,7 @@ jobs:
       - name: Install package and dependencies
         # We need to use --group dev to install development dependencies. Previous option ".[dev]" is deprecated
         run: |
+          uv venv
           uv pip install dist/pyfrag-*.whl
           uv pip install --group dev
 
