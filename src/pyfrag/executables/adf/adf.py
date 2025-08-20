@@ -83,6 +83,7 @@ def main():
     # Parse the inputs and set up logging for the ADF calculations
     # =====================================================================
 
+    print(pyfrag_program_string())
     parser = arg.ArgumentParser(description="PyFrag ADF calculations from input file")
     parser.add_argument("input_file", type=Path, help="Input file containing PyFrag configuration (e.g., [job_name].in)")
 
@@ -91,7 +92,6 @@ def main():
 
     # Set up logging and print the extracted input from the PyFrag input file (parsed by the user)
     logger = setup_logging(inputKeys["job_name"], inputKeys["log_level"])
-    logger.info(pyfrag_program_string())
     logger.info("Processed input keys:")
     for key, value in inputKeys.items():
         if not value:

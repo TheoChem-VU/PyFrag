@@ -78,16 +78,16 @@ def handle_restart(foldername: Union[str, pl.Path], overwrite: bool = True) -> O
             if overwrite and restart_backup.exists():
                 shutil.rmtree(restart_backup)
                 foldername.rename(restart_backup)
-                print(f"RESTART: Overwriting and moving {foldername.name} to {restart_backup.name}, and restarting from it")
+                logger.info(f"RESTART: Overwriting and moving {foldername.name} to {restart_backup.name}, and restarting from it")
             else:
                 n = 1
                 while restart_backup.exists():
                     n += 1
                     restart_backup = foldername.with_suffix(f".res{n}")
                 foldername.rename(restart_backup)
-                print(f"RESTART: Moving {foldername.name} to {restart_backup.name} and restarting from it")
+                logger.info(f"RESTART: Moving {foldername.name} to {restart_backup.name} and restarting from it")
     else:
-        print("RESTART: The folder specified for restart does not exist, starting from scratch")
+        logger.info("RESTART: The folder specified for restart does not exist, starting from scratch")
 
     return str(restart_backup) if restart_backup else None
 
