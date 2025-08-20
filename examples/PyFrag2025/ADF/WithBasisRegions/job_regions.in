@@ -20,7 +20,7 @@ frag1_energy -89.21
 frag2_energy -473.04
 bondlength 1 5 0
 bondlength 1 5 2.153
-log_level DEBUG
+# log_level DEBUG
 
 VDD 1 2 3 4 5 6
 
