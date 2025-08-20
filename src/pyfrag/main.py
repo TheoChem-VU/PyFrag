@@ -32,7 +32,7 @@ Options:
     -h, --help          Show this help message and exit
     -x, --executable    Specify the executable to run (default: 'adf')
                         Valid options: {", ".join(valid_executables)}
-    -v, --verbose       Enable verbose output which determines if the generated run script will be deleted
+    -v, --verbose       Enable verbose output which determines whether the generated run script will be deleted
 
 Examples:
     pyfrag job.in
@@ -189,6 +189,7 @@ def main():
         1. the correct Python environment needs to be activated or used, such as `amspython` for ADF (Amsterdam Density Functional);
         2. the job scheduler (if used) requires a specific script format and environment setup (e.g., variables denoted by #SBATCH for slurm and #PBS for PBS, and commands such as `module load`, `sbatch <script>`).
     """
+    print("Starting PyFrag...")
     args = parse_input()
 
     # Validate input file exists
