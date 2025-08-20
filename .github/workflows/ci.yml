@@ -20,12 +20,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        python-version:
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
         os:
           - "ubuntu-latest"
 
@@ -36,7 +31,10 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
+          enable-cache: true
 
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
 
       - name: Run unit tests
         run: uv run pytest tests
