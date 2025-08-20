@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# ==================================================================
+# This script is a wrapper around the "main.py" script in the $PYFRAGROOT/src/pyfrag folder
+#
+# Its purpose is to check if there is a virtual environment set up
+# which is recommended if PyFrag is installed on a computer cluster as a module
+# ==================================================================
+
+# Check if the environment variable PYFRAGROOT is set. If not, try to locate it
+if [[ -z "$PYFRAGROOT" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    PYFRAGROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+
+# Try to find and activate a virtual environment if it exists
+VENV_PATH="$PYFRAGROOT/.venv"
+if [[ -d "$VENV_PATH" ]]; then
+    source "$VENV_PATH/bin/activate"
+else
+    echo "No virtual environment found at $VENV_PATH. Continuing with the current Python environment."
+fi
+
+python -m pyfrag.main "$@"

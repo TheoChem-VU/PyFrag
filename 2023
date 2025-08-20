@@ -12,13 +12,13 @@ module-whatis	"Adds PyFrag2025 to your environment.\nThis program is used to fac
 module load shared 2025
 module load site-apps
 
-set               pyfrag            [PATH TO THE /src/pyfrag FOLDER OF PYFRAG]
+set               PYFRAGROOT        [PATH TO THE PYFRAG ROOT FOLDER]
 set               AMSroot           [PATH TO THE AMS ROOT FOLDER]
 
-# Add the /src/pyfrag folder to the Path environment variable
-prepend-path      PATH              $pyfrag
+# Add the /bin folder to the Path environment variable
+prepend-path      PATH              $PYFRAGROOT/bin
 
-# Set this to the /src/pyfrag folder of PyFrag (thus, the folder with the scripts so that they can be found)
-setenv         PYFRAGSOURCE   		$pyfrag
+# Set this to the /bin folder of PyFrag (thus, the folder with the scripts so that they can be found)
+setenv         PYFRAGROOT	   		$PYFRAGROOT
 setenv	       SCM_PYTHONPATH		$AMSroot/bin/amspython
 
