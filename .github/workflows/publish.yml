@@ -73,6 +73,10 @@ jobs:
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
 
+    environment:
+      name: pypi-release
+      url: https://pypi.org/project/${{ github.event.repository.name }}/
+
     steps:
       - uses: actions/checkout@v4
 
@@ -94,6 +98,7 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
 
 
-    #   - name: Publish package to PyPI
-    #     if: ${{ vars.PUBLISH_TO_PYPI == 'true' }}
-    #     uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish ${{ github.event.repository.name }} to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
