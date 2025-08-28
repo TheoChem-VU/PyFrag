@@ -368,11 +368,6 @@ def extract_pyfrag_section(pyfrag_section: str) -> Dict[str, Any]:
 
         line_lower = line.lower()
 
-        # Check for deprecated keys
-        for key, message in deprecated_keys_and_message_mapping.items():
-            if line_lower.startswith(key):
-                raise PyFragSectionInputError(message, key)
-
         # Replace all commas with spaces since commas are not allowed in the input
         line = line.replace(",", " ")
 
