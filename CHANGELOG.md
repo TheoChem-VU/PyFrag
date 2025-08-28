@@ -38,6 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
  * Reading in .amv files which would have (by accident) an header line that splits in exactly four parts, which would correspond to a "atom line" such as "C 0.0000 0.0000 0.0000" [#6](https://github.com/TheoChem-VU/PyFrag/issues/6)
  * The atom ordering from fragment to complex indices are now fixed. The error would arise when the fragment 1 and 2 indices were [2], and [1, 3, 4, 5, 6] which got sorted into [2 -> 1, 1 -> 2, 3 -> 3, 4 -> 4, 5 -> 5, 6 -> 6].
  * Fixed the `atom_list not defined error` [#2](https://github.com/TheoChem-VU/PyFrag/issues/2) for the orca executable. The error was caused by an bug in reading the input file which could not identify the atom indices corresponding to the bond parameters, e.g. `print bond [atom1] [atom2] [reference_length]`.
+ * Fixed "division by zero" that happened in case there are no electrons / virtual orbitals present which made the sum of the IrrepOI terms zero, hence dividing by zero.
 
 ### To do
  * Update the documentation on the website: update the example input files, highlight new features, improve troubleshooting, and clarify installation instructions.
