@@ -17,9 +17,6 @@ class PyFragError(Exception):
 class ExecutablePathNotFoundError(PyFragError):
     """Error raised when the executable path is not found."""
 
-    def __init__(self, executable: str):
-        super().__init__(f"Executable path for '{executable}' not found.")
-
 
 class ExecutableNotSupportedError(PyFragError):
     """Error raised when an unsupported executable is requested."""

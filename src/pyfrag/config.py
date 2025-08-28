@@ -93,7 +93,7 @@ class PyFragConfig:
         executable_path = self.get_source_path() / "executables" / executable / f"{executable}.py"
 
         if not executable_path.is_file():
-            raise ExecutablePathNotFoundError(executable)
+            raise ExecutablePathNotFoundError(f"Executable path for '{executable}' not found. The path was {executable_path}")
 
         return executable_path
 
