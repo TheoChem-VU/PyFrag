@@ -106,10 +106,10 @@ def match_pattern(patterns: List[str], input_string: str, group_replacements: Li
     return {group_name: "UNKNOWN" for group_name, _ in group_replacements}
 
 
-def check_for_irrep_oi_keys(irrepType: Sequence[str]) -> List[Dict[str, str]]:
+def check_for_irrep_oi_keys(irreps_raw: Sequence[str]) -> List[Dict[str, str]]:
     """Checks whether OI irreps are present that can be included. Returns a list of dictionaries with irreps that can be included."""
     # Split degenerate irreps (e.g., E1:1, E1:2) into one entry per irrep (e.g., E1) as these are stored in the kf file
-    irreps = set([irrep if ":" not in irrep else irrep.split(":")[0] for irrep in irrepType])
+    irreps = set([irrep if ":" not in irrep else irrep.split(":")[0] for irrep in irreps_raw])
     irreps = sorted(irreps)
     logger.info(msg=f"Found irreps {', '.join(irreps)} in complex that will be included in OI")
     irreps = [{"irrep": irrep} for irrep in irreps]
@@ -117,10 +117,15 @@ def check_for_irrep_oi_keys(irrepType: Sequence[str]) -> List[Dict[str, str]]:
     return irreps
 
 
-def get_orbital_interaction_energy(complex_result: AMSResults, irrepType: Sequence[str], irrep: str, orb_int_term: float) -> float:
-    irreps = list(set([irrep if ":" not in irrep else irrep.split(":")[0] for irrep in irrepType]))
+def get_orbital_interaction_energy(complex_result: AMSResults, irreps_raw: Sequence[str], irrep: str, orb_int_term: float) -> float:
+    irreps = list(set([irrep if ":" not in irrep else irrep.split(":")[0] for irrep in irreps_raw]))
     irrepOI: list[float] = [complex_result.readrkf("Energy", "Orb.Int. " + irrep, file="adf") * const.HA_TO_KCAL for irrep in irreps]  # type: ignore # No clear typing from plams
-    fitCoefficient = orb_int_term / sum(irrepOI)  # MetaGGAs have a scaling factor that needs to be applied
+
+    total = sum(irrepOI)
+    if np.isclose(total, 0):
+        logger.debug("Sum of irrepOI is zero; cannot compute fitCoefficient, defaulting to 0.0.")
+        return 0.0
+    fitCoefficient = orb_int_term / total
     return fitCoefficient * irrepOI[irreps.index(irrep)]
 
 
@@ -138,9 +143,9 @@ def get_hirshfeld_charges(complex_result: AMSResults, fragment_index: int) -> Li
     return charges[fragment_index - 1] if isinstance(fragment_index, int) else np.nan
 
 
-def get_fragment_orbital_irrep(irrepType: Sequence[str], irrep_orb_number: Sequence[int]) -> List[str]:
+def get_fragment_orbital_irrep(irreps_raw: Sequence[str], irrep_orb_number: Sequence[int]) -> List[str]:
     # append complex irrep label to each orbital, if symmetry is A, convert self.irrepOrbNum which is float type into list
-    faIrrepone = [[irrep for _ in range(number)] for irrep, number in zip(irrepType, irrep_orb_number)]
+    faIrrepone = [[irrep for _ in range(number)] for irrep, number in zip(irreps_raw, irrep_orb_number)]
     return [irrep for sublist in faIrrepone for irrep in sublist]
 
 
@@ -372,7 +377,7 @@ class PyFragRestrictedResult:
         # 1. needed for output requested by user 2. complexJob.check passes
         self.complexResult = complexResult
         # irrep label for symmetry of complex
-        self.irrepType = str(complexResult.readrkf("Symmetry", "symlab", file="adf")).split()
+        self.irreps_raw = str(complexResult.readrkf("Symmetry", "symlab", file="adf")).split()
 
         for key in list(inputKeys.keys()):
             if key == "overlap" or key == "population" or key == "orbitalenergy" or key == "irrepOI":
@@ -414,7 +419,7 @@ class PyFragRestrictedResult:
     def get_sfo_overlap(self, index_1, index_2) -> float:
         # orbital numbers according to the symmetry of the complex
         faOrb = GetFragOrbNum(self.irrep_orb_number, self.core_orb_number)
-        faIrrep = get_fragment_orbital_irrep(self.irrepType, self.irrep_orb_number)
+        faIrrep = get_fragment_orbital_irrep(self.irreps_raw, self.irrep_orb_number)
         maxIndex = max(faOrb[index_1], faOrb[index_2])
         minIndex = min(faOrb[index_1], faOrb[index_2])
         index = maxIndex * (maxIndex - 1) / 2 + minIndex - 1
@@ -439,8 +444,8 @@ class PyFragRestrictedResult:
         outputData["EnergyTotal"] = outputData["Int"] + outputData["StrainTotal"]
 
         # check for unspecified options such as irrep printing if not specified by user
-        if not inputKeys["irrepOI"] and len(self.irrepType) != 1:
-            inputKeys["irrepOI"] = check_for_irrep_oi_keys(self.irrepType)
+        if not inputKeys["irrepOI"] and len(self.irreps_raw) != 1:
+            inputKeys["irrepOI"] = check_for_irrep_oi_keys(self.irreps_raw)
 
         # collect user defined data
         if inputKeys["overlap"]:
@@ -462,7 +467,7 @@ class PyFragRestrictedResult:
 
         if inputKeys["irrepOI"]:
             for od in inputKeys["irrepOI"]:
-                outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complexResult, self.irrepType, od["irrep"], outputData["OI"])
+                outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complexResult, self.irreps_raw, od["irrep"], outputData["OI"])
 
         if inputKeys["VDD"]:
             outputData.update(get_vdd_output_results(inputKeys["fragment_indices"], inputKeys["VDD"], complexMolecule, self.complexResult))
@@ -487,7 +492,7 @@ class PyFragUnrestrictedResult:
         # 1. needed for output requested by user 2. complexJob.check passes
         self.complexResult = complexResult
         # irrep label for symmetry of complex
-        self.irrepType = str(complexResult.readrkf("Symmetry", "symlab", file="adf")).split()
+        self.irreps_raw = str(complexResult.readrkf("Symmetry", "symlab", file="adf")).split()
 
         for key in list(inputKeys.keys()):
             if key == "overlap" or key == "population" or key == "orbitalenergy" or key == "irrepOI":
@@ -581,7 +586,7 @@ class PyFragUnrestrictedResult:
     def get_sfo_overlap(self, index_1: Tuple[int, str], index_2: Tuple[int, str]) -> float:
         # orbital numbers according to the symmetry of the complex
         faOrb = GetFragOrbNum(self.irrep_orb_number, self.core_orb_number)
-        faIrrep = get_fragment_orbital_irrep(self.irrepType, self.irrep_orb_number)
+        faIrrep = get_fragment_orbital_irrep(self.irreps_raw, self.irrep_orb_number)
         maxIndex = max(faOrb[index_1[0]], faOrb[index_2[0]])
         minIndex = min(faOrb[index_1[0]], faOrb[index_2[0]])
         index = maxIndex * (maxIndex - 1) / 2 + minIndex - 1
@@ -616,8 +621,8 @@ class PyFragUnrestrictedResult:
         outputData["EnergyTotal"] = outputData["Int"] + outputData["StrainTotal"]
 
         # check for unspecified options such as irrep printing if not specified by user
-        if not inputKeys["irrepOI"] and len(self.irrepType) != 1:
-            inputKeys["irrepOI"] = check_for_irrep_oi_keys(self.irrepType)
+        if not inputKeys["irrepOI"] and len(self.irreps_raw) != 1:
+            inputKeys["irrepOI"] = check_for_irrep_oi_keys(self.irreps_raw)
 
         # collect user defined data
         if inputKeys["overlap"]:
@@ -639,7 +644,7 @@ class PyFragUnrestrictedResult:
 
         if inputKeys["irrepOI"]:
             for od in inputKeys["irrepOI"]:
-                outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complexResult, self.irrepType, od["irrep"], outputData["OI"])
+                outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complexResult, self.irreps_raw, od["irrep"], outputData["OI"])
 
         if inputKeys["VDD"]:
             outputData.update(get_vdd_output_results(inputKeys["fragment_indices"], inputKeys["VDD"], complexMolecule, self.complexResult))
