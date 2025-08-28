@@ -28,9 +28,9 @@ except ImportError:
         pass
 
 
-def expandvars_backslash(path: pl.Path) -> pl.Path:
+def expandvars_backslash(path: Union[pl.Path, str]) -> pl.Path:
     """Short function to expand environment variables such as $SLURM_SUBMIT_DIR"""
-    expanded_pathstring = re.sub(r"(?<!\\)\$[A-Za-z_][A-Za-z0-9_]*", "", os.path.expandvars(path))
+    expanded_pathstring = re.sub(r"(?<!\\)\$[A-Za-z_][A-Za-z0-9_]*", "", os.path.expandvars(str(path)))
     return pl.Path(expanded_pathstring)
 
 
@@ -506,9 +506,18 @@ def process_user_input(input_file_path: str) -> InputKeys:
                 # Then, expand the wildcard option
                 inputKeys["coordFile"] = find_files_with_wildcard_option(inputKeys["coordFile"])
 
+                # If the paths do not exist, try as final attempt to just get the coordinate file name and use it (combine with the input file parent folder path)
+                for i, path in enumerate(inputKeys["coordFile"]):
+                    if not path.exists():
+                        # Get the parent folder of the input file
+                        parent_folder = pl.Path(input_file_path).parent
+                        # Combine with the parent folder path
+                        new_path = parent_folder / path.name
+                        inputKeys["coordFile"][i] = new_path
+
                 # Check if all coordinate files exist.
                 if not all(path.exists() for path in inputKeys["coordFile"]):
-                    raise PyFragCoordFileError("One or more coordinate files do not exist. Please check the paths.", inputKeys["coordFile"])
+                    raise PyFragCoordFileError("One or more coordinate files do not exist. Please check the paths.", str(inputKeys["coordFile"]))
 
             # Handle fragment indices
             elif key_lower == "fragment" or key_lower == "fragment_indices":
