@@ -1,0 +1,123 @@
+JOBSUB
+
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 240:00:00
+#SBATCH --ntasks 32
+#SBATCH --ntasks-per-core 1
+#SBATCH --partition=tc
+
+echo "== Starting run at $(date)"
+echo "== Job ID: ${SLURM_JOBID}"
+echo "== Node list: ${SLURM_NODELIST}"
+echo "== Submit dir. : ${SLURM_SUBMIT_DIR}"
+echo "== Scratch dir. : ${TMPDIR}"
+
+
+module load 2022
+module load ams/2023.101
+
+JOBSUB END
+
+PyFrag
+coordfile $SLURM_SUBMIT_DIR/coords.xyz
+fragment  1
+fragment  2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58
+strain    -287.98
+strain    -9773.63
+bondlength 1 42  0.000
+PyFrag END
+
+fragment1 EXTRA
+
+System
+  Charge 1.0
+End
+
+Engine ADF
+
+  Unrestricted yes
+  SpinPolarization 0.0
+
+  IrrepOccupations
+    A1 0 // 0
+    A2 0 // 0
+    B1 0 // 0
+    B2 0 // 0
+  End
+
+EndEngine
+
+fragment1 EXTRA END
+
+fragment2 EXTRA
+
+System
+  Charge 282
+End
+
+Engine ADF
+
+  Unrestricted yes
+  SpinPolarization 0.0
+
+  IrrepOccupations
+    A1 0 // 0
+    A2 0 // 0
+    B1 0 // 0
+    B2 0 // 0
+  End
+
+EndEngine
+
+fragment2 EXTRA END
+
+
+complex EXTRA
+
+System
+  Charge 283
+End
+
+Engine ADF
+
+  Unrestricted Yes
+  Spinpolarization 0.0
+  unrestrictedfragments
+
+  IrrepOccupations
+    A1 0 // 0
+    A2 0 // 0
+    B1 0 // 0
+    B2 0 // 0
+  End
+
+EndEngine
+
+complex EXTRA END
+
+AMS
+Task SinglePoint
+
+Engine ADF
+  basis
+    core None
+    type TZP
+  End
+
+  numericalquality Good
+
+  xc
+    GGA PBE
+    DISPERSION GRIMME3 BJDAMP
+  End
+
+  Symmetry C(2V)
+
+  SCF
+     ITERATIONS 999
+  END
+
+EndEngine
+
+AMS END

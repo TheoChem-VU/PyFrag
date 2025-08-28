@@ -1,0 +1,61 @@
+JOBSUB
+
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 240:00:00
+#SBATCH --ntasks-per-node=32
+#SBATCH --partition=tc
+export SCM_TMPDIR=/scratch/${SLURM_JOBID}
+
+JOBSUB END
+
+
+PyFrag
+
+coordfile $SLURM_SUBMIT_DIR/prod5_8.amv
+frag1_indices 1 34-57
+frag2_indices 2-33
+frag1_energy    0
+frag2_energy    0
+bondlength 1 2 0
+bondlength 2 9 0
+
+PyFrag END
+
+fragment1 EXTRA
+charge -1
+fragment1 EXTRA END
+
+fragment2 EXTRA
+charge 0
+fragment2 EXTRA END
+
+complex EXTRA
+charge -1
+complex EXTRA END
+
+ADF
+
+basis
+type TZ2P
+core none
+end
+
+XC
+  GGA BLYP-D3
+  DISPERSION GRIMME3
+END
+
+scf
+iterations 299
+converge 0.00001
+mixing 0.20
+end
+
+numericalquality verygood
+
+charge -1
+symmetry NOSYM
+
+ADF END
+
