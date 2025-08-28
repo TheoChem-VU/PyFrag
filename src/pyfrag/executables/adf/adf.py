@@ -108,7 +108,11 @@ def main():
 
     inputKeys["restart_dir_name"] = handle_restart(inputKeys["job_name"])
 
-    init(folder=inputKeys["job_name"], use_existing_folder=True)
+    # If the folder that will be created by plams already exists, remove it first in order to prevent [job_name].xxx
+    if (args.input_file.parent / inputKeys["job_name"]).is_dir():
+        shutil.rmtree(args.input_file.parent / inputKeys["job_name"])
+
+    init(folder=inputKeys["job_name"])
     config.log.file = 5  # Quite verbose logging in the log file (7 is most verbose) created in the plams folder. This is for better debugging purposes
     config.log.stdout = 0  # No plams logs to the stdout because only PyFrag-related logs should be shown
 
