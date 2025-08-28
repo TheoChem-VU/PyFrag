@@ -12,8 +12,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Tuple, Union
 
-from pyfrag.config import get_config
-from pyfrag.executables.adf.errors import ExecutableNotSupportedError, PyFragInputFileNotFoundError
+from pyfrag.executables.adf.errors import ExecutableNotSupportedError, ExecutablePathNotFoundError, PyFragInputFileNotFoundError
 from pyfrag.parser_factory import ExecutableType, get_parser
 
 
@@ -58,13 +57,15 @@ def validate_executable(value: str) -> ExecutableType:
 def get_executable_path(executable_name: str) -> Union[Path, None]:
     """Get the path to a PyFrag executable."""
     executable_name = executable_name.lower()
-    config = get_config()
 
-    executable_path = config.get_executables_path(executable_name)
-    if executable_path.exists():
-        return executable_path
+    source_path = Path(__file__).parent.resolve()
 
-    return None
+    executable_path = source_path / "executables" / executable_name / f"{executable_name}.py"
+
+    if not executable_path.is_file():
+        raise ExecutablePathNotFoundError(f"Executable path for '{executable_name}' not found. The path was {executable_path}")
+
+    return executable_path
 
 
 def get_jobsub_section_from_input_file(input_file_sections: Dict[str, str], job_sub_key: str) -> Tuple[str, str, bool]:
