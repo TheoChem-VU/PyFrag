@@ -35,7 +35,7 @@ ADF END
 PyFrag
 
 name methane
-coordfile methane.xyz
+coordfile $SLURM_SUBMIT_DIR/*xyz
 frag1_indices  1-4 # Put here the atom indices of the first fragment (start with 1)
 frag2_indices  5 # Put here the atom indices of the second fragment (start with 1)
 frag1_energy   0 # Put here the optimized energy of the first fragment (in kcal/mol)

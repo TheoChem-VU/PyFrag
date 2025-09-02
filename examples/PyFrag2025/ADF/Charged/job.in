@@ -22,7 +22,7 @@ JOBSUB END
 
 PyFrag
 
-coordfile PES1normdist57ang80.amv
+coordfile $SLURM_SUBMIT_DIR/*xyz
 frag1_indices  1-10 # Put here the atom indices of the first fragment (start with 1)
 frag2_indices  11 12 # Put here the atom indices of the second fragment (start with 1)
 frag1_energy   0 # Put here the optimized energy of the first fragment (in kcal/mol)

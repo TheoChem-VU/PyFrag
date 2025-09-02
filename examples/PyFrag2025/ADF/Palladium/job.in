@@ -30,7 +30,7 @@ JOBSUB END
 
 PyFrag
 name new_ams_job
-coordfile *.xyz
+coordfile $SLURM_SUBMIT_DIR/*xyz
 frag1_indices  2
 frag2_indices  1 3-6
 frag1_energy    0

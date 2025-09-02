@@ -47,7 +47,7 @@ AMS END
 
 PyFrag
 name si-icf
-coordfile coord.xyz
+coordfile $SLURM_SUBMIT_DIR/*xyz
 
 frag1_indices  1-14
 frag2_indices  15-19
