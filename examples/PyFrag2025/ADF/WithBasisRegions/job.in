@@ -5,19 +5,37 @@ JOBSUB
 #SBATCH -t 12:00:00
 #SBATCH --ntasks-per-node=32
 #SBATCH --partition=tc
-#SBATCH --output=job_regions.out
 
-module load ams/2024.102
+echo "== Starting run at $(date)"
+echo "== Job ID: ${SLURM_JOBID}"
+echo "== Node list: ${SLURM_NODELIST}"
+echo "== Submit dir. : ${SLURM_SUBMIT_DIR}"
+echo "== Scratch dir. : ${TMPDIR}"
+
+# TC
+module load shared
+module load ams/2025.103
+export SCM_TMPDIR="/scratch/${SLURM_JOBID}"
+srun mkdir -p ${SCM_TMPDIR}
+srun chmod 733 ${SCM_TMPDIR}
+
+# Snellius
+# module load 2022
+# module load AMS/2023.101-intelmpi
+# module list
+
+[postamble]
+srun rm -rf ${SCM_TMPDIR}
 
 JOBSUB END
 
 PyFrag
 name job_regions
 coordfile $SLURM_SUBMIT_DIR/*xyz
-frag1_indices  5
-frag2_indices  1-4 6
-frag1_energy -89.21
-frag2_energy -473.04
+frag1_indices  5 # Put here the atom indices of the first fragment (start with 1)
+frag2_indices  1-4 6 # Put here the atom indices of the second fragment (start with 1)
+frag1_energy -89.21 # Put here the (optimized) energy of the first fragment (in kcal/mol)
+frag2_energy -473.04 # Put here the (optimized) energy of the second fragment (in kcal/mol)
 bondlength 1 5 0
 bondlength 1 5 2.153
 bondlength 1 2 1.0
