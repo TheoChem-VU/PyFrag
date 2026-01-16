@@ -1,0 +1,99 @@
+JOBSUB
+
+#!/bin/bash
+#SBATCH -J C2H2-dis
+#SBATCH -N 1
+#SBATCH -t 240:00:00
+#SBATCH --ntasks-per-node=32
+#SBATCH --partition=tc
+#SBATCH --output=methylene.out
+#SBATCH --error=methylene.err
+
+module load ams/2025.103
+module list
+
+JOBSUB END
+
+PyFrag
+
+name C2H2-dis 
+coordfile  $SLURM_SUBMIT_DIR/*.amv
+
+fragment 1 4 
+fragment 2 3
+strain 0
+strain 0
+bondlength 1 2 0
+
+overlap SIGMA frag1 3  SIGMA frag2 3
+overlap SIGMA frag1 4  SIGMA frag2 4
+overlap SIGMA frag1 5  SIGMA frag2 5
+overlap PI:x frag1 1 PI:x frag2 1
+overlap PI:x frag1 2 PI:x frag2 2
+orbitalenergy SIGMA frag1 5
+orbitalenergy PI:x frag1 1 
+orbitalenergy PI:x frag1 2
+PyFrag END
+
+fragment1 EXTRA
+
+IrrepOccupations
+ Sigma 4 1
+ Pi 2
+End
+fragment1 EXTRA END
+
+
+fragment2 EXTRA
+
+IrrepOccupations
+ Sigma 4 1
+ Pi 2
+End
+
+fragment2 EXTRA END
+
+
+complex EXTRA
+
+  FRAGOCCUPATIONS
+    frag1
+      Sigma 3 // 2 
+      Pi 2 // 0
+    SUBEND
+    frag2
+      Sigma 2 // 3 
+      Pi 0 // 2
+    SUBEND
+  END
+
+complex EXTRA END
+
+
+ADF
+
+  BASIS
+   type TZ2P
+   core none
+  END
+
+  SYMMETRY C(lin) 
+  Relativistic Scalar ZORA
+
+  XC
+    GGA BP86 
+    DISPERSION GRIMME3 BJDAMP
+  END
+
+  NumericalQuality VeryGood 
+
+  SCF
+   Iterations 250
+  END
+
+  EPRINT
+   SFO EIG OVL
+  end
+
+ADF END
+
