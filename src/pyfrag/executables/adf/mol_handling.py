@@ -11,10 +11,10 @@ from scm.plams import AMSJob, Atom, KFHistory, KFReader, Molecule
 # Therefore, we include this try ... except block.
 try:
     from .constants import BOHR_TO_ANGSTROM
-    from .errors import FragmentIndicesError, PyFragCoordFileError
+    from .errors import FragmentIndicesError, PyFragCoordFileError, PyFragSortComplexMoleculeError
 except ImportError:
     from constants import BOHR_TO_ANGSTROM
-    from errors import FragmentIndicesError, PyFragCoordFileError
+    from errors import FragmentIndicesError, PyFragCoordFileError, PyFragSortComplexMoleculeError
 
 
 if TYPE_CHECKING:
@@ -382,7 +382,6 @@ def create_pyfrag_trajectory_from_coord_file(coord_file: Union[Sequence[pl.Path]
     trajectories = split_trajectory_into_fragment_molecules(mols, fragment_indices)
 
     return trajectories
-
 
 # =============================================================================
 # Test function
