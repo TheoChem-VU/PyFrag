@@ -6,6 +6,8 @@ from scm.plams import Atom, Molecule
 
 from pyfrag.executables.adf import mol_handling
 
+parent_folder_path = Path(__file__).parent.resolve()
+
 
 # Fixture to generate a single Molecule object
 @pytest.fixture
@@ -26,26 +28,27 @@ def trajectory_fixture(molecule_fixture: Molecule):
 
 @pytest.fixture()
 def pes_rkf_file_path():
-    current_file_path = Path(__file__).parent.resolve()
-    return current_file_path / "fixtures" / "coord_files" / "pes.ams.rkf"
+    return parent_folder_path / "fixtures" / "coord_files" / "pes.ams.rkf"
 
 
 @pytest.fixture()
 def xyz_file_path():
-    current_file_path = Path(__file__).parent.resolve()
-    return current_file_path / "fixtures" / "coord_files" / "ams.xyz"
+    return parent_folder_path / "fixtures" / "coord_files" / "ams.xyz"
 
 
 @pytest.fixture()
 def amv_file_path():
-    current_file_path = Path(__file__).parent.resolve()
-    return current_file_path / "fixtures" / "coord_files" / "ams.amv"
+    return parent_folder_path / "fixtures" / "coord_files" / "ams.amv"
 
 
 @pytest.fixture()
 def irc_rkf_file_path():
-    current_file_path = Path(__file__).parent.resolve()
-    return current_file_path / "fixtures" / "coord_files" / "irc.ams.rkf"
+    return parent_folder_path / "fixtures" / "coord_files" / "irc.ams.rkf"
+
+
+@pytest.fixture()
+def methylene_fixture():
+    return parent_folder_path / "fixtures" / "coord_files" / "methylene.ams.amv"
 
 
 @pytest.fixture()
