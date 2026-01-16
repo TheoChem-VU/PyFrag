@@ -1,5 +1,4 @@
 import pathlib as pl
-import os
 from pyfrag.executables.adf.input import expandvars_backslash
 from pyfrag.executables.adf.mol_handling import find_files_with_wildcard_option
 
