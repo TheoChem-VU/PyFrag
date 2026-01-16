@@ -5,7 +5,7 @@ import shutil
 from typing import Dict, FrozenSet, List, Optional, Sequence, Tuple, Union
 
 import constants as const
-from errors import FragmentOptimizationError, PyFragSortComplexMoleculeError
+from errors import FragmentOptimizationError
 from input import InputKeys
 from mol_handling import create_pyfrag_trajectory_from_coord_file, update_fragment_indices
 from result_classes import get_pyfrag_results
@@ -122,34 +122,6 @@ def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: 
 
 
 # =====================================================================
-# Helper function for keeping the user-defined atom order of the fragments the same as in the complex molecule
-# This is critical for ensuring the correct mapping of atoms between fragments and the original molecule, and thus extracting results from atom and geometric properties (e.g., charges, bond lengths, angles, etc.)
-# =====================================================================
-
-
-def sort_molecule_by_indices(molecule: Molecule, indices: List[int]) -> Molecule:
-    """Sorts the molecule by the given indices which is used to map the atoms from the additional of the two fragments to the original molecule"""
-
-    mol_copy = molecule.copy()
-    n_atoms = len(mol_copy.atoms)
-    indices_copy = indices.copy()
-
-    # Convert to 0-based indexing if indices are 1-based
-    zero_based_indices = [idx - 1 if idx > 0 else idx for idx in indices_copy]
-
-    if any(index >= n_atoms or index < 0 for index in zero_based_indices):
-        raise PyFragSortComplexMoleculeError(f"Indices {indices_copy} are out of bounds for the molecule with {n_atoms} atoms.")
-
-    # Create a mapping from original position to desired position
-    index_map = {original_idx: new_idx for new_idx, original_idx in enumerate(zero_based_indices)}
-
-    # Sort the atoms based on the desired order specified by the fragment atom indices definitions (i.e., frag1_indices and frag2_indices keys)
-    mol_copy.atoms = sorted(mol_copy.atoms, key=lambda atom: index_map.get(mol_copy.atoms.index(atom), float("inf")))
-
-    return mol_copy
-
-
-# =====================================================================
 # Writing the results (see PyFrag section) in table format to a file
 # =====================================================================
 
@@ -157,7 +129,7 @@ def sort_molecule_by_indices(molecule: Molecule, indices: List[int]) -> Molecule
 
 key_to_print_unit_mapping: Dict[FrozenSet[str], str] = {
     frozenset({"#IRC"}): "---",
-    frozenset({"EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp"}): "kcal/mol",
+    frozenset({"EnergyTotal", "Int", "Elstat", "Pauli", "OI", "Disp", "irrepOI"}): "kcal/mol",
     frozenset({"StrainTotal", "frag1Strain", "frag2Strain"}): "kcal/mol",
     frozenset({"bondlength"}): "Angstrom",
     frozenset({"angle", "dihedral"}): "degrees",
@@ -388,17 +360,18 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
         # Also, link the fragment names to the fragment files with the tuple: (frag_job, "adf")
         # =====================================================================
 
-        for frag_index, frag_job in enumerate(frag_jobs, start=1):
-            if frag_job.molecule is not None:
-                for at in frag_job.molecule:
-                    at.properties.suffix = f"adf.f=frag{frag_index}"  # type: ignore  # properties is a Settings instance which does not have explicit type hints
+        # We assign ids to the atoms in the complex, and iterate over the fragment_indices and jobs to assign the suffixes accordingly
+        # Simply doing frag1 + frag2 would reorder the atoms in the complex molecule which is not desired for later analysis (such as bondlengths, angles, etc.)
+        complexMolecule: Molecule = molecule_trajectory[0][path_index - 1]
+        complexMolecule.set_atoms_id()
 
-        complexMolecule = frag_jobs[0].molecule.copy() + frag_jobs[1].molecule.copy()  # type: ignore  # The addition is always between two molecules
-        # Resort complexMolecule to match the original molecule (the one that is used to create the trajectory)
-        complexMolecule = sort_molecule_by_indices(complexMolecule, updated_fragment_indices[0] + updated_fragment_indices[1])
+        for one_frag_indices, frag_job in zip(inputKeys["fragment_indices"], frag_jobs):
+            for atom_index in inputKeys["fragment_indices"][one_frag_indices]:
+                complexMolecule.atoms[atom_index - 1].properties.suffix = f"adf.f={one_frag_indices}"  # type: ignore  # properties is a Settings instance which does not have explicit type hints
 
         complexSettings.input.adf.fragments.frag1 = (frag_jobs[0], "adf")
         complexSettings.input.adf.fragments.frag2 = (frag_jobs[1], "adf")
+
         jobComplex = AMSJob(molecule=complexMolecule, settings=complexSettings, name=f"{const.SYSTEM_NAMES[0]}.{str(path_index).zfill(5)}")
         logger.info(msg=f"Running complex {path_index}")
         jobComplex.run()
