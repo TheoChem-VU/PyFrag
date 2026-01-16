@@ -306,6 +306,11 @@ def get_dihedral_results(dihedrals: Sequence[Dihedral], fragment_indices: Mappin
     return outputData
 
 
+def get_fragment_orbital_energy(complex_result: AMSResults, orb_fragment: Sequence[int], frag_irrep: Sequence[str], frag_orb: Sequence[int], index: int) -> float:
+    energy = np.atleast_1d(complex_result.readrkf(f"Ftyp {str(orb_fragment[index])}{frag_irrep[index]}", "eps", file="adf"))[frag_orb[index] - 1]
+    return energy * const.HA_TO_EV
+
+
 def get_vdd_output_results(fragment_index_mapping, vdd_indices: Sequence[int], complex_mol: Molecule, complex_result: AMSResults) -> Dict[str, float]:
     """Get VDD output results for each fragment.
 
@@ -416,7 +421,7 @@ class PyFragRestrictedResult:
                     break
         return orbIndex
 
-    def get_sfo_overlap(self, index_1, index_2) -> float:
+    def get_sfo_overlap(self, index_1: int, index_2: int) -> float:
         # orbital numbers according to the symmetry of the complex
         faOrb = GetFragOrbNum(self.irrep_orb_number, self.core_orb_number)
         faIrrep = get_fragment_orbital_irrep(self.irreps_raw, self.irrep_orb_number)
@@ -429,10 +434,7 @@ class PyFragRestrictedResult:
         else:
             return 0
 
-    def get_fragment_orbital_energy(self, index: int) -> float:
-        return ensure_list(self.complexResult.readrkf("Ftyp " + str(self.orbFragment[index]) + self.fragIrrep[index], "eps", file="adf"))[self.fragOrb[index] - 1]
-
-    def read_sfo_population(self, index) -> float:
+    def read_sfo_population(self, index: int) -> float:
         orbNumbers: List[int] = GetOrbNum(self.irrep_orb_number, self.core_orb_number)
         # populations of all orbitals
         sfoPopul: List[float] = ensure_list(self.complexResult.readrkf("SFO popul", "sfo_grosspop", file="adf"))
@@ -453,6 +455,7 @@ class PyFragRestrictedResult:
                 od1 = self.get_fragment_orbital_index(od[0])
                 od2 = self.get_fragment_orbital_index(od[1])
                 label = f"overlap{i}_{make_orbital_label(od[0])}_{make_orbital_label(od[1])}"
+                print(od1, od2, label)
                 outputData[label] = self.get_sfo_overlap(od1, od2)
 
         if inputKeys["population"]:
@@ -463,7 +466,7 @@ class PyFragRestrictedResult:
         if inputKeys["orbitalenergy"]:
             for i, od in enumerate(inputKeys["orbitalenergy"], start=1):
                 label = f"orbitalenergy{i}_{make_orbital_label(od, include_frag=True)}"
-                outputData[label] = self.get_fragment_orbital_energy(self.get_fragment_orbital_index(od))
+                outputData[label] = get_fragment_orbital_energy(self.complexResult, self.orbFragment, self.fragIrrep, self.fragOrb, self.get_fragment_orbital_index(od))
 
         if inputKeys["irrepOI"]:
             for od in inputKeys["irrepOI"]:
@@ -540,9 +543,9 @@ class PyFragUnrestrictedResult:
         orbIndex = 0
         spin = ""
         orbIndex_AB = 0
-        orbEnergy = self.orbEnergy + self.orbEnergy_B
-        orbFragment = self.orbFragment + self.orbFragment
-        orbOccupation = self.orbOccupation + self.orbOccupation_B
+        orbEnergy: List[float] = self.orbEnergy + self.orbEnergy_B
+        orbFragment: List[int] = self.orbFragment + self.orbFragment
+        orbOccupation: List[float] = self.orbOccupation + self.orbOccupation_B
 
         # for spin A
         if split_homo_lumo_index(orbDescriptor["type"])["holu"] == "HOMO":
@@ -602,10 +605,6 @@ class PyFragUnrestrictedResult:
         else:
             return 0
 
-    def get_fragment_orbital_energy(self, index: int) -> float:
-        energy = ensure_list(self.complexResult.readrkf("Ftyp " + str(self.orbFragment[index]) + self.fragIrrep[index], "eps", file="adf"))[self.fragOrb[index] - 1]
-        return energy * const.HA_TO_EV
-
     def read_sfo_population(self, index: Tuple[int, str]) -> float:
         orbNumbers = GetOrbNum(self.irrep_orb_number, self.core_orb_number)
         # populations of all orbitals
@@ -640,7 +639,7 @@ class PyFragUnrestrictedResult:
         if inputKeys["orbitalenergy"]:
             for i, od in enumerate(inputKeys["orbitalenergy"], start=1):
                 label = f"orbitalenergy{i}_{make_orbital_label(od, include_frag=True)}"
-                outputData[label] = self.get_fragment_orbital_energy(self.get_fragment_orbital_index(od)[0])
+                outputData[label] = get_fragment_orbital_energy(self.complexResult, self.orbFragment, self.fragIrrep, self.fragOrb, self.get_fragment_orbital_index(od)[0])
 
         if inputKeys["irrepOI"]:
             for od in inputKeys["irrepOI"]:
