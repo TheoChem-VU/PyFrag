@@ -29,9 +29,20 @@ except ImportError:
 
 
 def expandvars_backslash(path: Union[pl.Path, str]) -> pl.Path:
-    """Short function to expand environment variables such as $SLURM_SUBMIT_DIR"""
-    expanded_pathstring = re.sub(r"(?<!\\)\$[A-Za-z_][A-Za-z0-9_]*", "", os.path.expandvars(str(path)))
-    return pl.Path(expanded_pathstring)
+    """Expand environment variables in a path, preserving escaped variables."""
+    path_str = str(path)
+
+    # Replace escaped $ (e.g., \$VAR) with a placeholder
+    placeholder = "__ESCAPED_DOLLAR__"
+    path_str = path_str.replace(r"\$", placeholder)
+
+    # Expand unescaped environment variables
+    path_str = os.path.expandvars(path_str)
+
+    # Restore escaped $ from the placeholder
+    path_str = path_str.replace(placeholder, r"\$")
+
+    return pl.Path(path_str)
 
 
 # =============================================================================

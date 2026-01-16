@@ -1,5 +1,5 @@
 import pathlib as pl
-
+import os
 from pyfrag.executables.adf.input import expandvars_backslash
 from pyfrag.executables.adf.mol_handling import find_files_with_wildcard_option
 
@@ -7,6 +7,7 @@ from pyfrag.executables.adf.mol_handling import find_files_with_wildcard_option
 def test_expandvars_backslash_env(monkeypatch):
     # Mock environment variable
     monkeypatch.setenv("SLURM_SUBMIT_DIR", "/mock/dir")
+
     # Path with env variable
     path = pl.Path("$SLURM_SUBMIT_DIR/testfile.xyz")
     # Should expand to /mock/dir/testfile.xyz
