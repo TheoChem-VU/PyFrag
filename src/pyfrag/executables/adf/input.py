@@ -112,7 +112,8 @@ def _check_line_length(line: str, input_key: str, limits: Sequence[int], strict_
         List[str]: A list containing the values of the line.
 
     """
-    line_content: list[str] = re.split(r"\s*[#!;:]\s*", line.strip())[0].split()
+    # Don't include ":" in the splitting pattern because ADF uses ":" in the irrep names such as E1:1, or PI:x
+    line_content: list[str] = re.split(r"\s*[#!;]\s*", line.strip())[0].split()
 
     if strict_limit and len(line_content) not in limits:
         raise PyFragSectionInputError(f"Length of the {input_key} is not correct. Make sure to specify the correct format", input_key)
