@@ -14,6 +14,10 @@ from typing import Dict, Tuple, Union
 
 from pyfrag.executables.adf.errors import ExecutableNotSupportedError, ExecutablePathNotFoundError, PyFragInputFileNotFoundError
 from pyfrag.parser_factory import ExecutableType, get_parser
+import pyfrag.executables.adf  # noqa: F401 # Importing the executables to ensure they are included in the package and can be found by get_executable_path
+import pyfrag.executables.gaussian  # noqa: F401
+import pyfrag.executables.orca  # noqa: F401
+import pyfrag.executables.turbomole  # noqa: F401
 
 
 def print_help() -> None:
@@ -58,12 +62,12 @@ def get_executable_path(executable_name: str) -> Union[Path, None]:
     """Get the path to a PyFrag executable."""
     executable_name = executable_name.lower()
 
-    source_path = Path(__file__).parent.resolve()
-
-    executable_path = source_path / "executables" / executable_name / f"{executable_name}.py"
-
-    if not executable_path.is_file():
-        raise ExecutablePathNotFoundError(f"Executable path for '{executable_name}' not found. The path was {executable_path}")
+    try:
+        # Dynamically import the executable module
+        executable_module = __import__(f"pyfrag.executables.{executable_name}", fromlist=[executable_name])
+        executable_path = Path(executable_module.__file__).resolve()
+    except ImportError:
+        raise ExecutablePathNotFoundError(f"Executable module for '{executable_name}' not found.")
 
     return executable_path
 
