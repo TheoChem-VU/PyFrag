@@ -5,6 +5,7 @@ This module provides the main entry point for the PyFrag package,
 handling command line arguments and dispatching to appropriate executables.
 """
 
+import importlib
 import argparse
 import platform
 import subprocess
@@ -14,10 +15,6 @@ from typing import Dict, Tuple, Union
 
 from pyfrag.executables.adf.errors import ExecutableNotSupportedError, ExecutablePathNotFoundError, PyFragInputFileNotFoundError
 from pyfrag.parser_factory import ExecutableType, get_parser
-import pyfrag.executables.adf  # noqa: F401 # Importing the executables to ensure they are included in the package and can be found by get_executable_path
-import pyfrag.executables.gaussian  # noqa: F401
-import pyfrag.executables.orca  # noqa: F401
-import pyfrag.executables.turbomole  # noqa: F401
 
 
 def print_help() -> None:
@@ -62,12 +59,23 @@ def get_executable_path(executable_name: str) -> Union[Path, None]:
     """Get the path to a PyFrag executable."""
     executable_name = executable_name.lower()
 
+    # First try to find the executable from the "bin" folder in the package which contains the compiled executables created by PyInstaller.
+    # This is the preferred way to find the executable since it will work regardless of how the package is installed (e.g., from source, from PyPI, etc.) and does not rely on the presence of the source .py files.
+
+    # bin_dir = Path(__file__).parent.parent.parent / "bin"
+    # executable_path = bin_dir / f"pyfrag-{executable_name}" if platform.system() != "Windows" else bin_dir / f"pyfrag-{executable_name}.exe"
+
+    executable_path = Path(__file__).parent / "executables" / executable_name / f"{executable_name}.py"
+
+    if executable_path.exists():
+        return executable_path.resolve()
+
     try:
         # Dynamically import the executable module
-        executable_module = __import__(f"pyfrag.executables.{executable_name}", fromlist=[executable_name])
-        executable_path = Path(executable_module.__file__).resolve()
+        executable_module = importlib.import_module(f"pyfrag.executables.{executable_name}.{executable_name}")
+        executable_path = Path(str(executable_module.__file__)).resolve()
     except ImportError:
-        raise ExecutablePathNotFoundError(f"Executable module for '{executable_name}' not found.")
+        raise ExecutablePathNotFoundError(f"Executable module for '{executable_name}' not found. Tried path {executable_path} and module 'pyfrag.executables.{executable_name}.{executable_name}'.")
 
     return executable_path
 
@@ -79,7 +87,7 @@ def get_jobsub_section_from_input_file(input_file_sections: Dict[str, str], job_
         input_file_sections (Dict[str, str]): Dictionary containing sections of the input file.
 
     Returns:
-        Tuple[str, bool]: The jobsub section content, postambles, and a boolean indicating if it uses a job scheduler.
+        Tuple[str, str, bool]: The jobsub section content, postambles, and a boolean indicating if it uses a job scheduler.
     """
     use_job_scheduler = False
     postamble = ""
