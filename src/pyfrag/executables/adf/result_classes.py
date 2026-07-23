@@ -51,13 +51,13 @@ def convert_output_data_into_seperate_keys(data: Dict[str, Any]):
     return output_table
 
 
-def get_eda_terms(complexResult: AMSResults, unit: str = "kcal/mol") -> Dict[str, float]:
+def get_eda_terms(complex_result: AMSResults, unit: str = "kcal/mol") -> Dict[str, float]:
     """
-    This function reads the (canonical) EDA terms from the complexResult and returns them as a dictionary.
+    This function reads the (canonical) EDA terms from the complex_result and returns them as a dictionary.
     These include: Pauli, Electrostatic, Orbital Interaction, Dispersion, Bond Energy, and Total Energy.
 
     Args:
-        complexResult (AMSResults): The AMS results object.
+        complex_result (AMSResults): The AMS results object.
     Returns:
         Dict[str, float]: A dictionary containing the EDA terms.
     """
@@ -71,7 +71,7 @@ def get_eda_terms(complexResult: AMSResults, unit: str = "kcal/mol") -> Dict[str
     eda_terms = {}
     for name, variable in name_to_variable_mapping.items():
         try:
-            value = float(complexResult.readrkf("Energy", variable, file="adf")) * Units.conversion_ratio("hartree", unit)  # type: ignore
+            value = float(complex_result.readrkf("Energy", variable, file="adf")) * Units.conversion_ratio("hartree", unit)  # type: ignore
             eda_terms[name] = value
         except KeyError:
             logger.warning(f"Key {variable} not found in the results when reading the EDA terms.")
@@ -145,8 +145,8 @@ def get_hirshfeld_charges(complex_result: AMSResults, fragment_index: int) -> Li
 
 def get_fragment_orbital_irrep(irreps_raw: Sequence[str], irrep_orb_number: Sequence[int]) -> List[str]:
     # append complex irrep label to each orbital, if symmetry is A, convert self.irrepOrbNum which is float type into list
-    faIrrepone = [[irrep for _ in range(number)] for irrep, number in zip(irreps_raw, irrep_orb_number)]
-    return [irrep for sublist in faIrrepone for irrep in sublist]
+    fa_irrepone = [[irrep for _ in range(number)] for irrep, number in zip(irreps_raw, irrep_orb_number)]
+    return [irrep for sublist in fa_irrepone for irrep in sublist]
 
 
 def GetOrbNum(irrep_orb_number: Sequence[int], core_orb_number: Sequence[int]) -> List[int]:
@@ -164,12 +164,12 @@ def GetOrbNum(irrep_orb_number: Sequence[int], core_orb_number: Sequence[int]) -
     Returns:
         List[int]: List of global orbital indices (1-based) for all orbitals in the complex.
     """
-    orbNumbers = []
+    orb_numbers = []
     orbSum = 0
     for nrShell, nrCore in zip(irrep_orb_number, core_orb_number):
         orbSum += nrShell + nrCore
-        orbNumbers.extend(list(range(orbSum - nrShell + 1, orbSum + 1)))
-    return orbNumbers
+        orb_numbers.extend(list(range(orbSum - nrShell + 1, orbSum + 1)))
+    return orb_numbers
 
 
 def GetFragOrbNum(irrep_orb_number: Sequence[int], core_orb_number: Sequence[int]) -> List[int]:
@@ -187,10 +187,10 @@ def GetFragOrbNum(irrep_orb_number: Sequence[int], core_orb_number: Sequence[int
     Returns:
         List[int]: List of orbital indices (1-based) for valence (non-core) orbitals only, for all irreps.
     """
-    orbNumbers = []
+    orb_numbers = []
     for nrShell, nrCore in zip(irrep_orb_number, core_orb_number):
-        orbNumbers.extend(range(nrCore + 1, nrShell + nrCore + 1))
-    return orbNumbers
+        orb_numbers.extend(range(nrCore + 1, nrShell + nrCore + 1))
+    return orb_numbers
 
 
 def selected_atom_indices_in_ordered_complex(atom_indices_per_fragment: Mapping[str, Sequence[int]], atom_indices: Sequence[int]) -> List[int]:
@@ -302,7 +302,7 @@ def get_dihedral_results(dihedrals: Sequence[Dihedral], fragment_indices: Mappin
         atom_indices = selected_atom_indices_in_ordered_complex(fragment_indices, dihedral_angle["atom_indices"])
         atoms: List[Atom] = [complexMolecule[atom_indices[0]], complexMolecule[atom_indices[1]], complexMolecule[atom_indices[2]], complexMolecule[atom_indices[3]]]
         label = f"dihedral{i}_{'-'.join([f'{str(atom_index)}{atom.symbol}' for atom_index, atom in zip(atom_indices, atoms)])}"
-        outputData[label] = dihedral(atoms[0], atoms[1], atoms[2], atoms[3], unit="degree") - dihedral_angle["original_value"]
+        outputData[label] = dihedral(atoms[0].coords, atoms[1].coords, atoms[2].coords, atoms[3].coords, unit="degree") - dihedral_angle["original_value"]
     return outputData
 
 
@@ -378,71 +378,72 @@ def make_orbital_label(orbital: "OrbitalDescription", include_frag: bool = False
 
 
 class PyFragRestrictedResult:
-    def __init__(self, complexResult: AMSResults, inputKeys: InputKeys):  # __init__(self, complexJob, inputKeys)
+    def __init__(self, complex_result: AMSResults, inputKeys: InputKeys):  # __init__(self, complexJob, inputKeys)
         # 1. needed for output requested by user 2. complexJob.check passes
-        self.complexResult = complexResult
+        self.complex_result = complex_result
         # irrep label for symmetry of complex
-        self.irreps_raw = str(complexResult.readrkf("Symmetry", "symlab", file="adf")).split()
+        self.irreps_raw = str(complex_result.readrkf("Symmetry", "symlab", file="adf")).split()
+        # orbital numbers according to the symmetry of each fragment and the orbitals belonging to the same symmetry in different fragments
+        self.fragOrb: list[int] = ensure_list(complex_result.readrkf("SFOs", "ifo", file="adf"))
+        # symmetry for each orbital of fragments
+        self.fragIrrep: list[str] = ensure_list(str(complex_result.readrkf("SFOs", "subspecies", file="adf")).split())
+        # the fragment label for each orbital
+        self.orb_fragment: list[int] = ensure_list(complex_result.readrkf("SFOs", "fragment", file="adf"))
+        # number of orbitals for each symmetry for complex
+        self.irrep_orb_number = ensure_list(complex_result.readrkf("Symmetry", "norb", file="adf"))
+        # number of core orbitals for each symmetry for complex
+        self.core_orb_number = ensure_list(complex_result.readrkf("Symmetry", "ncbs", file="adf"))
 
-        for key in list(inputKeys.keys()):
-            if key == "overlap" or key == "population" or key == "orbitalenergy" or key == "irrepOI":
-                # orbital numbers according to the symmetry of each fragment and the orbitals belonging to the same symmetry in different fragments
-                self.fragOrb: list[int] = ensure_list(complexResult.readrkf("SFOs", "ifo", file="adf"))
-                # symmetry for each orbital of fragments
-                self.fragIrrep: list[str] = ensure_list(str(complexResult.readrkf("SFOs", "subspecies", file="adf")).split())
-                # the fragment label for each orbital
-                self.orbFragment: list[int] = ensure_list(complexResult.readrkf("SFOs", "fragment", file="adf"))
+        if "orbitalenergy" in inputKeys:
+            try:
+                self.orb_energy: list[float] = ensure_list(complex_result.readrkf("SFOs", "escale", file="adf"))
+            except KeyError:
+                logger.debug(msg="Reading non-relativistic orbital energies")
+                self.orb_energy = ensure_list(complex_result.readrkf("SFOs", "energy", file="adf"))
 
-                try:
-                    self.orbEnergy: list[float] = ensure_list(complexResult.readrkf("SFOs", "escale", file="adf"))
-                except KeyError:
-                    logger.debug(msg="Reading non-relativistic orbital energies")
-                    self.orbEnergy = ensure_list(complexResult.readrkf("SFOs", "energy", file="adf"))
-
-                # occupation of each orbitals which is either 0 or 2
-                self.orbOccupation = ensure_list(complexResult.readrkf("SFOs", "occupation", file="adf"))
-                # number of orbitals for each symmetry for complex
-                self.irrep_orb_number = ensure_list(complexResult.readrkf("Symmetry", "norb", file="adf"))
-                # number of core orbitals for each symmetry for complex
-                self.core_orb_number = ensure_list(complexResult.readrkf("Symmetry", "ncbs", file="adf"))
+        if "population" in inputKeys:
+            # occupation of each orbitals which is either 0 or 2
+            self.orb_occupation = ensure_list(complex_result.readrkf("SFOs", "occupation", file="adf"))
 
     def get_fragment_orbital_index(self, orbDescriptor: "OrbitalDescription"):
         # orbDescriptor = {'type' = "HOMO/LUMO/INDEX", 'frag'='#frag', 'irrep'='irrepname', 'index'=i}
-        fragOrbnum: int = get_fragment_number(self.complexResult, orbDescriptor["frag"])  # get fragment number
-        orbIndex = 0
+        fragOrbnum: int = get_fragment_number(self.complex_result, orbDescriptor["frag"])  # get fragment number
+        orb_index = 0
         if split_homo_lumo_index(orbDescriptor["type"])["holu"] == "HOMO":
-            orbIndex = sorted(range(len(self.orbEnergy)), key=lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] != 0 else -1.0e100, reverse=True)[-int(split_homo_lumo_index(orbDescriptor["type"])["num"])]
+            orb_index = sorted(range(len(self.orb_energy)), key=lambda x: self.orb_energy[x] if (self.orb_fragment[x] == fragOrbnum) and self.orb_occupation[x] != 0 else -1.0e100, reverse=True)[
+                -int(split_homo_lumo_index(orbDescriptor["type"])["num"])
+            ]
         elif split_homo_lumo_index(orbDescriptor["type"])["holu"] == "LUMO":
-            orbIndex = sorted(range(len(self.orbEnergy)), key=lambda x: self.orbEnergy[x] if (self.orbFragment[x] == fragOrbnum) and self.orbOccupation[x] == 0 else +1.0e100)[int(split_homo_lumo_index(orbDescriptor["type"])["num"])]
+            orb_index = sorted(range(len(self.orb_energy)), key=lambda x: self.orb_energy[x] if (self.orb_fragment[x] == fragOrbnum) and self.orb_occupation[x] == 0 else +1.0e100)[int(split_homo_lumo_index(orbDescriptor["type"])["num"])]
         elif split_homo_lumo_index(orbDescriptor["type"])["holu"] == "INDEX" and orbDescriptor["index"] is not None:
-            for i in range(len(self.orbEnergy)):
-                if self.orbFragment[i] == fragOrbnum and self.fragIrrep[i] == orbDescriptor["irrep"] and self.fragOrb[i] == int(orbDescriptor["index"]):
-                    orbIndex: int = i
+            for i in range(len(self.orb_energy)):
+                if self.orb_fragment[i] == fragOrbnum and self.fragIrrep[i] == orbDescriptor["irrep"] and self.fragOrb[i] == int(orbDescriptor["index"]):
+                    orb_index: int = i
                     break
-        return orbIndex
+        return orb_index
 
     def get_sfo_overlap(self, index_1: int, index_2: int) -> float:
         # orbital numbers according to the symmetry of the complex
-        faOrb = GetFragOrbNum(self.irrep_orb_number, self.core_orb_number)
-        faIrrep = get_fragment_orbital_irrep(self.irreps_raw, self.irrep_orb_number)
-        maxIndex = max(faOrb[index_1], faOrb[index_2])
-        minIndex = min(faOrb[index_1], faOrb[index_2])
-        index = maxIndex * (maxIndex - 1) / 2 + minIndex - 1
-        if faIrrep[index_1] == faIrrep[index_2]:
-            self.overlap_matrix: List[float] = ensure_list(self.complexResult.readrkf(faIrrep[index_1], "S-CoreSFO", file="adf"))
+        fa_orb = GetFragOrbNum(self.irrep_orb_number, self.core_orb_number)
+        fa_irrep = get_fragment_orbital_irrep(self.irreps_raw, self.irrep_orb_number)
+        max_index = max(fa_orb[index_1], fa_orb[index_2])
+        min_index = min(fa_orb[index_1], fa_orb[index_2])
+        index = max_index * (max_index - 1) / 2 + min_index - 1
+        if fa_irrep[index_1] == fa_irrep[index_2]:
+            self.overlap_matrix: List[float] = ensure_list(self.complex_result.readrkf(fa_irrep[index_1], "S-CoreSFO", file="adf"))
             return abs(self.overlap_matrix[int(index)])
         else:
             return 0
 
     def read_sfo_population(self, index: int) -> float:
-        orbNumbers: List[int] = GetOrbNum(self.irrep_orb_number, self.core_orb_number)
+        orb_numbers: List[int] = GetOrbNum(self.irrep_orb_number, self.core_orb_number)
         # populations of all orbitals
-        sfoPopul: List[float] = ensure_list(self.complexResult.readrkf("SFO popul", "sfo_grosspop", file="adf"))
-        return sfoPopul[orbNumbers[index] - 1]
+        sfo_populs: List[float] = ensure_list(self.complex_result.readrkf("SFO popul", "sfo_grosspop", file="adf"))
+        return sfo_populs[orb_numbers[index] - 1]
 
     def get_output_data(self, complexMolecule: Molecule, outputData: Dict[str, Any], inputKeys: InputKeys):
         # collect default energy parts for activation strain analysis
-        outputData.update(get_eda_terms(self.complexResult))
+        outputData.update(get_eda_terms(self.complex_result))
         outputData["EnergyTotal"] = outputData["Int"] + outputData["StrainTotal"]
 
         # check for unspecified options such as irrep printing if not specified by user
@@ -466,17 +467,17 @@ class PyFragRestrictedResult:
         if inputKeys["orbitalenergy"]:
             for i, od in enumerate(inputKeys["orbitalenergy"], start=1):
                 label = f"orbitalenergy{i}_{make_orbital_label(od, include_frag=True)}"
-                outputData[label] = get_fragment_orbital_energy(self.complexResult, self.orbFragment, self.fragIrrep, self.fragOrb, self.get_fragment_orbital_index(od))
+                outputData[label] = get_fragment_orbital_energy(self.complex_result, self.orb_fragment, self.fragIrrep, self.fragOrb, self.get_fragment_orbital_index(od))
 
         if inputKeys["irrepOI"]:
             for od in inputKeys["irrepOI"]:
-                outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complexResult, self.irreps_raw, od["irrep"], outputData["OI"])
+                outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complex_result, self.irreps_raw, od["irrep"], outputData["OI"])
 
         if inputKeys["VDD"]:
-            outputData.update(get_vdd_output_results(inputKeys["fragment_indices"], inputKeys["VDD"], complexMolecule, self.complexResult))
+            outputData.update(get_vdd_output_results(inputKeys["fragment_indices"], inputKeys["VDD"], complexMolecule, self.complex_result))
 
         if inputKeys["hirshfeld"]:
-            outputData["hirshfeld"] = [get_hirshfeld_charges(self.complexResult, get_fragment_number(self.complexResult, fragment_specifier)) for fragment_specifier in inputKeys["hirshfeld"]]
+            outputData["hirshfeld"] = [get_hirshfeld_charges(self.complex_result, get_fragment_number(self.complex_result, fragment_specifier)) for fragment_specifier in inputKeys["hirshfeld"]]
 
         if inputKeys["bondlength"]:
             outputData.update(get_bondlength_results(inputKeys["bondlength"], inputKeys["fragment_indices"], complexMolecule))
@@ -491,39 +492,37 @@ class PyFragRestrictedResult:
 
 
 class PyFragUnrestrictedResult:
-    def __init__(self, complexResult: AMSResults, inputKeys: InputKeys):  # __init__(self, complexJob, inputKeys)
-        # 1. needed for output requested by user 2. complexJob.check passes
-        self.complexResult = complexResult
+    def __init__(self, complex_result: AMSResults, inputKeys: InputKeys):  # __init__(self, complexJob, inputKeys)
+        self.complex_result = complex_result
         # irrep label for symmetry of complex
-        self.irreps_raw = str(complexResult.readrkf("Symmetry", "symlab", file="adf")).split()
+        self.irreps_raw = str(complex_result.readrkf("Symmetry", "symlab", file="adf")).split()
+        # number of orbitals for each symmetry for complex
+        self.irrep_orb_number = ensure_list(complex_result.readrkf("Symmetry", "norb", file="adf"))
+        # number of core orbitals for each symmetry for complex
+        self.core_orb_number = ensure_list(complex_result.readrkf("Symmetry", "ncbs", file="adf"))
+        # orbital numbers according to the symmetry of each fragment and the orbitals belonging to the same symmetry in different fragments
+        self.fragOrb: list[int] = ensure_list(complex_result.readrkf("SFOs", "ifo", file="adf"))
+        # symmetry for each orbital of fragments
+        self.fragIrrep: list[str] = ensure_list(str(complex_result.readrkf("SFOs", "subspecies", file="adf")).split())
+        # the fragment label for each orbital
+        self.orb_fragment: list[int] = ensure_list(complex_result.readrkf("SFOs", "fragment", file="adf"))
 
-        for key in list(inputKeys.keys()):
-            if key == "overlap" or key == "population" or key == "orbitalenergy" or key == "irrepOI":
-                # orbital numbers according to the symmetry of each fragment and the orbitals belonging to the same symmetry in different fragments
-                self.fragOrb: list[int] = ensure_list(complexResult.readrkf("SFOs", "ifo", file="adf"))
-                # symmetry for each orbital of fragments
-                self.fragIrrep: list[str] = ensure_list(str(complexResult.readrkf("SFOs", "subspecies", file="adf")).split())
-                # the fragment label for each orbital
-                self.orbFragment: list[int] = ensure_list(complexResult.readrkf("SFOs", "fragment", file="adf"))
+        if "orbitalenergy" in inputKeys:
+            # energy for each orbital of spin A and B (escale is only if relativistic corrections are used)
+            try:
+                logging.log(level=logging.DEBUG, msg="Reading relativistic orbital energies")
+                self.orb_energy = ensure_list(complex_result.readrkf("SFOs", "escale", file="adf"))
+                self.orb_energy_B = ensure_list(complex_result.readrkf("SFOs", "escale_B", file="adf"))
+            except KeyError:
+                logging.log(level=logging.DEBUG, msg="Reading non-relativistic orbital energies")
+                self.orb_energy = ensure_list(complex_result.readrkf("SFOs", "energy", file="adf"))
+                self.orb_energy_B = ensure_list(complex_result.readrkf("SFOs", "energy_B", file="adf"))
 
-                # energy for each orbital of spin A and B (escale is only if relativistic corrections are used)
-                try:
-                    logging.log(level=logging.DEBUG, msg="Reading relativistic orbital energies")
-                    self.orbEnergy = ensure_list(complexResult.readrkf("SFOs", "escale", file="adf"))
-                    self.orbEnergy_B = ensure_list(complexResult.readrkf("SFOs", "escale_B", file="adf"))
-                except KeyError:
-                    logging.log(level=logging.DEBUG, msg="Reading non-relativistic orbital energies")
-                    self.orbEnergy = ensure_list(complexResult.readrkf("SFOs", "energy", file="adf"))
-                    self.orbEnergy_B = ensure_list(complexResult.readrkf("SFOs", "energy_B", file="adf"))
-
-                # occupation of each orbitals of A which is either 0 or 2
-                self.orbOccupation = ensure_list(complexResult.readrkf("SFOs", "occupation", file="adf"))
-                # occupation of each orbitals of b which is either 0 or 2
-                self.orbOccupation_B = ensure_list(complexResult.readrkf("SFOs", "occupation_B", file="adf"))
-                # number of orbitals for each symmetry for complex
-                self.irrep_orb_number = ensure_list(complexResult.readrkf("Symmetry", "norb", file="adf"))
-                # number of core orbitals for each symmetry for complex
-                self.core_orb_number = ensure_list(complexResult.readrkf("Symmetry", "ncbs", file="adf"))
+        if "population" in inputKeys:
+            # occupation of each orbitals of A which is either 0 or 2
+            self.orb_occupation = ensure_list(complex_result.readrkf("SFOs", "occupation", file="adf"))
+            # occupation of each orbitals of b which is either 0 or 2
+            self.orb_occupation_B = ensure_list(complex_result.readrkf("SFOs", "occupation_B", file="adf"))
 
     def split_orbital_into_spin_and_index(self, orbSign: str) -> Dict[str, str]:
         # convert 1_A or 1_B  into dict {'spin': 'A', 'num': -1}
@@ -538,67 +537,67 @@ class PyFragUnrestrictedResult:
 
     def get_fragment_orbital_index(self, orbDescriptor: "OrbitalDescription") -> Tuple[int, str]:
         # orbDescriptor = {'type' = "HOMO/LUMO/INDEX", 'frag'='#frag', 'irrep'='irrepname', 'index'=i}
-        fragOrbnum = get_fragment_number(self.complexResult, orbDescriptor["frag"])  # get fragment number
+        fragOrbnum = get_fragment_number(self.complex_result, orbDescriptor["frag"])  # get fragment number
 
-        orbIndex = 0
+        orb_index = 0
         spin = ""
-        orbIndex_AB = 0
-        orbEnergy: List[float] = self.orbEnergy + self.orbEnergy_B
-        orbFragment: List[int] = self.orbFragment + self.orbFragment
-        orbOccupation: List[float] = self.orbOccupation + self.orbOccupation_B
+        orb_index_AB = 0
+        orb_energy: List[float] = self.orb_energy + self.orb_energy_B
+        orb_fragment: List[int] = self.orb_fragment + self.orb_fragment
+        orb_occupation: List[float] = self.orb_occupation + self.orb_occupation_B
 
         # for spin A
         if split_homo_lumo_index(orbDescriptor["type"])["holu"] == "HOMO":
-            orbIndex_AB = sorted(range(len(self.orbEnergy) * 2), key=lambda x: orbEnergy[x] if (orbFragment[x] == fragOrbnum) and orbOccupation[x] != 0 else -1.0e100, reverse=True)[-int(split_homo_lumo_index(orbDescriptor["type"])["num"])]
+            orb_index_AB = sorted(range(len(self.orb_energy) * 2), key=lambda x: orb_energy[x] if (orb_fragment[x] == fragOrbnum) and orb_occupation[x] != 0 else -1.0e100, reverse=True)[-int(split_homo_lumo_index(orbDescriptor["type"])["num"])]
 
-            if orbIndex_AB <= len(self.orbEnergy) - 1:
-                orbIndex = orbIndex_AB
+            if orb_index_AB <= len(self.orb_energy) - 1:
+                orb_index = orb_index_AB
                 spin = "A"
             else:
-                orbIndex = orbIndex_AB - len(self.orbEnergy)
+                orb_index = orb_index_AB - len(self.orb_energy)
                 spin = "B"
 
         elif split_homo_lumo_index(orbDescriptor["type"])["holu"] == "LUMO":
-            orbIndex_AB = sorted(range(len(self.orbEnergy) * 2), key=lambda x: orbEnergy[x] if (orbFragment[x] == fragOrbnum) and orbOccupation[x] == 0 else +1.0e100)[int(split_homo_lumo_index(orbDescriptor["type"])["num"])]
+            orb_index_AB = sorted(range(len(self.orb_energy) * 2), key=lambda x: orb_energy[x] if (orb_fragment[x] == fragOrbnum) and orb_occupation[x] == 0 else +1.0e100)[int(split_homo_lumo_index(orbDescriptor["type"])["num"])]
 
-            if orbIndex_AB <= len(self.orbEnergy) - 1:
-                orbIndex = orbIndex_AB
+            if orb_index_AB <= len(self.orb_energy) - 1:
+                orb_index = orb_index_AB
                 spin = "A"
             else:
-                orbIndex = orbIndex_AB - len(self.orbEnergy)
+                orb_index = orb_index_AB - len(self.orb_energy)
                 spin = "B"
 
         elif split_homo_lumo_index(orbDescriptor["type"])["holu"] == "INDEX":
             spinOrbnum = int(self.split_orbital_into_spin_and_index(str(orbDescriptor["index"]))["num"])
             spinOrbspin = self.split_orbital_into_spin_and_index(str(orbDescriptor["index"]))["spin"]
             if spinOrbspin == "A":
-                for i in range(len(self.orbEnergy)):
-                    if self.orbFragment[i] == fragOrbnum and self.fragIrrep[i] == orbDescriptor["irrep"] and self.fragOrb[i] == spinOrbnum:
-                        orbIndex = i
+                for i in range(len(self.orb_energy)):
+                    if self.orb_fragment[i] == fragOrbnum and self.fragIrrep[i] == orbDescriptor["irrep"] and self.fragOrb[i] == spinOrbnum:
+                        orb_index = i
                         spin = "A"
                         break
             if spinOrbspin == "B":
-                for i in range(len(self.orbEnergy_B)):
-                    if self.orbFragment[i] == fragOrbnum and self.fragIrrep[i] == orbDescriptor["irrep"] and self.fragOrb[i] == spinOrbnum:
-                        orbIndex = i
+                for i in range(len(self.orb_energy_B)):
+                    if self.orb_fragment[i] == fragOrbnum and self.fragIrrep[i] == orbDescriptor["irrep"] and self.fragOrb[i] == spinOrbnum:
+                        orb_index = i
                         spin = "B"
                         break
 
-        return (orbIndex, spin)
+        return (orb_index, spin)
 
     def get_sfo_overlap(self, index_1: Tuple[int, str], index_2: Tuple[int, str]) -> float:
         # orbital numbers according to the symmetry of the complex
-        faOrb = GetFragOrbNum(self.irrep_orb_number, self.core_orb_number)
-        faIrrep = get_fragment_orbital_irrep(self.irreps_raw, self.irrep_orb_number)
-        maxIndex = max(faOrb[index_1[0]], faOrb[index_2[0]])
-        minIndex = min(faOrb[index_1[0]], faOrb[index_2[0]])
-        index = maxIndex * (maxIndex - 1) / 2 + minIndex - 1
-        if faIrrep[index_1[0]] == faIrrep[index_2[0]]:
+        fa_orb = GetFragOrbNum(self.irrep_orb_number, self.core_orb_number)
+        fa_irrep = get_fragment_orbital_irrep(self.irreps_raw, self.irrep_orb_number)
+        max_index = max(fa_orb[index_1[0]], fa_orb[index_2[0]])
+        min_index = min(fa_orb[index_1[0]], fa_orb[index_2[0]])
+        index = max_index * (max_index - 1) / 2 + min_index - 1
+        if fa_irrep[index_1[0]] == fa_irrep[index_2[0]]:
             if index_1[1] == "A" and index_2[1] == "A":
-                self.overlap_matrix: List[float] = ensure_list(self.complexResult.readrkf(faIrrep[index_1[0]], "S-CoreSFO", file="adf"))
+                self.overlap_matrix: List[float] = ensure_list(self.complex_result.readrkf(fa_irrep[index_1[0]], "S-CoreSFO", file="adf"))
                 return abs(self.overlap_matrix[int(index)])
             elif index_1[1] == "B" and index_2[1] == "B":
-                self.overlap_matrix: List[float] = ensure_list(self.complexResult.readrkf(faIrrep[index_1[0]], "S-CoreSFO_B", file="adf"))
+                self.overlap_matrix: List[float] = ensure_list(self.complex_result.readrkf(fa_irrep[index_1[0]], "S-CoreSFO_B", file="adf"))
                 return abs(self.overlap_matrix[int(index)])
             else:
                 return 0
@@ -606,17 +605,17 @@ class PyFragUnrestrictedResult:
             return 0
 
     def read_sfo_population(self, index: Tuple[int, str]) -> float:
-        orbNumbers = GetOrbNum(self.irrep_orb_number, self.core_orb_number)
+        orb_numbers = GetOrbNum(self.irrep_orb_number, self.core_orb_number)
         # populations of all orbitals
-        sfoPopul: List[float] = ensure_list(self.complexResult.readrkf("SFO popul", "sfo_grosspop", file="adf"))
+        sfo_populs: List[float] = ensure_list(self.complex_result.readrkf("SFO popul", "sfo_grosspop", file="adf"))
         if index[1] == "A":
-            return sfoPopul[orbNumbers[index[0]] - 1]
+            return sfo_populs[orb_numbers[index[0]] - 1]
         else:
-            return sfoPopul[orbNumbers[index[0]] + len(self.orbEnergy) - 1]
+            return sfo_populs[orb_numbers[index[0]] + len(self.orb_energy) - 1]
 
     def get_output_data(self, complexMolecule: Molecule, outputData: Dict[str, Any], inputKeys: InputKeys):
         # collect default energy parts for activation strain analysis
-        outputData.update(get_eda_terms(self.complexResult))
+        outputData.update(get_eda_terms(self.complex_result))
         outputData["EnergyTotal"] = outputData["Int"] + outputData["StrainTotal"]
 
         # check for unspecified options such as irrep printing if not specified by user
@@ -639,17 +638,17 @@ class PyFragUnrestrictedResult:
         if inputKeys["orbitalenergy"]:
             for i, od in enumerate(inputKeys["orbitalenergy"], start=1):
                 label = f"orbitalenergy{i}_{make_orbital_label(od, include_frag=True)}"
-                outputData[label] = get_fragment_orbital_energy(self.complexResult, self.orbFragment, self.fragIrrep, self.fragOrb, self.get_fragment_orbital_index(od)[0])
+                outputData[label] = get_fragment_orbital_energy(self.complex_result, self.orb_fragment, self.fragIrrep, self.fragOrb, self.get_fragment_orbital_index(od)[0])
 
         if inputKeys["irrepOI"]:
             for od in inputKeys["irrepOI"]:
-                outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complexResult, self.irreps_raw, od["irrep"], outputData["OI"])
+                outputData[f"irrepOI_{od['irrep']}"] = get_orbital_interaction_energy(self.complex_result, self.irreps_raw, od["irrep"], outputData["OI"])
 
         if inputKeys["VDD"]:
-            outputData.update(get_vdd_output_results(inputKeys["fragment_indices"], inputKeys["VDD"], complexMolecule, self.complexResult))
+            outputData.update(get_vdd_output_results(inputKeys["fragment_indices"], inputKeys["VDD"], complexMolecule, self.complex_result))
 
         if inputKeys["hirshfeld"]:
-            outputData["hirshfeld"] = [get_hirshfeld_charges(self.complexResult, get_fragment_number(self.complexResult, fragment_specifier)) for fragment_specifier in inputKeys["hirshfeld"]]
+            outputData["hirshfeld"] = [get_hirshfeld_charges(self.complex_result, get_fragment_number(self.complex_result, fragment_specifier)) for fragment_specifier in inputKeys["hirshfeld"]]
 
         if inputKeys["bondlength"]:
             outputData.update(get_bondlength_results(inputKeys["bondlength"], inputKeys["fragment_indices"], complexMolecule))
