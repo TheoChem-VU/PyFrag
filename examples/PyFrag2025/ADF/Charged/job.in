@@ -43,34 +43,34 @@ log_level debug
 PyFrag END
 
 AMS
-Task SinglePoint
-Engine ADF
-  XC
-    GGA OLYP
-  END
-  NumericalQuality normal
-  BASIS
-    TYPE DZP
-    CORE None
-  END
+  Task SinglePoint
+  Engine ADF
+    XC
+      GGA OLYP
+    END
+    NumericalQuality normal
+    BASIS
+      TYPE DZP
+      CORE None
+    END
 
-EndEngine
+  EndEngine
 AMS END
 
 fragment1 EXTRA
-System
-  Charge 0
-End
+  System
+    Charge 0
+  End
 fragment1 EXTRA END
 
 fragment2 EXTRA
-System
-  Charge -1
-End
+  System
+    Charge -1
+  End
 fragment2 EXTRA END
 
 complex EXTRA
-System
-  Charge -1
-End
+  System
+    Charge -1
+  End
 complex EXTRA END

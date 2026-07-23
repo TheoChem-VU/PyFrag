@@ -83,45 +83,45 @@ PyFrag END
 
 fragment1 extra
 
-Engine ADF
+  Engine ADF
 
-  Spinpolarization 1
-  unrestricted
+    Spinpolarization 1
+    unrestricted
 
-  IrrepOccupations
-    E1 2//2
-    A1 3//2
-  END
+    IrrepOccupations
+      E1 2//2
+      A1 3//2
+    END
 
-  Symmetry C(3V)
+    Symmetry C(3V)
 
-EndEngine
+  EndEngine
 
 fragment1 EXTRA END
 
 
 fragment2 extra
 
-Engine ADF
-  Spinpolarization -1
-  Unrestricted
+  Engine ADF
+    Spinpolarization -1
+    Unrestricted
 
-  IrrepOccupations
-    A 0//1
-  END
+    IrrepOccupations
+      A 0//1
+    END
 
-EndEngine
+  EndEngine
 
 fragment2 EXTRA END
 
 
 complex EXTRA
 
-Engine ADF
+  Engine ADF
 
-  UnrestrictedFragments
-  unrestricted
+    UnrestrictedFragments
+    unrestricted
 
-EndEngine
+  EndEngine
 
 complex EXTRA END

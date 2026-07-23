@@ -65,25 +65,25 @@ PyFrag END
 
 AMS
 
-Task SinglePoint
+  Task SinglePoint
 
-Engine adf
-  basis
-    core Small
-    type TZP
-  End
+  Engine adf
+    basis
+      core Small
+      type TZP
+    End
 
-#  eprint
-#    sfo EIG OVL
-#  End
+  #  eprint
+  #    sfo EIG OVL
+  #  End
 
-  numericalquality normal
+    numericalquality normal
 
-  xc
-    gga OPBE
-  End
+    xc
+      gga OPBE
+    End
 
-  Symmetry C(3V)
-EndEngine
+    Symmetry C(3V)
+  EndEngine
 
 AMS END
