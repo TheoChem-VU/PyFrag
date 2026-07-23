@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## PyFrag 2025 - unreleased
+## PyFrag 2026 - unreleased
 
 ### Added
 
@@ -24,8 +24,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * The header of the output table contains more information about the relevant key. For example, the key "bondlength" now includes the atom numbers and symbols of the atoms involved in the bondlength calculation. The same applies to the keys "overlap" -> "overlap_[orbital1_index]-[orbital1_index]_[orbital2_index]-[orbital2_index]", "population", "orbitalenergy", and "angle". [#15](https://github.com/TheoChem-VU/PyFrag/issues/15)
 * The unrestricted and unrestricted modules have merged as there was considerable overlap which made the code difficult to maintain. Both are now in the adf_new folder in the host/standalone folder. The adf_new folder is now the default folder for all ADF calculations.
 * The input blocks such as "AMS", "PyFrag", "JobSub", "Complex EXTRA" etc. are now case-insensitive. This means that the input keys can be written in any case, e.g., "pyfrag", "PyFrag", "PYFRAG" etc. will all be recognized as the same key.
-* The orca executable is now compatible with the new PyFrag folder structure (e.g., the rewrite to a /src structure)
-* Massively improved the documentation of the code (function docstrings, comments, better spacing of the code, and more)
+* The orca executable is now compatible with the new PyFrag folder structure (e.g., the rewrite to a /src structure).
+* Massively improved the documentation of the code such as adding docstrings to functions, improving comments, better separation of code sections, and snake-case variable naming (standard for Python) and more.
+* Reading of specific properties such as orbital energies and SFO populations will now only happen if the user asks for it in their input to avoid potential errors that can be avoided.
+* Changed the versioning to use the [YEAR].[Major][Minor][Patch] convention.
 
 ### Removed
 
