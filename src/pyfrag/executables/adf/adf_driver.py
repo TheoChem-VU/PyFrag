@@ -107,11 +107,11 @@ def update_fragment_strain_energies(input_keys: "InputKeys", fragment_jobs: Sequ
     return input_keys
 
 
-def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1Settings: Settings, frag2Settings: Settings) -> List[AMSJob]:
+def optimize_fragments(frag1_mol: Molecule, frag2_mol: Molecule, frag1_settings: Settings, frag2_settings: Settings) -> List[AMSJob]:
     """Optimizes the fragments if requested by the user. Returns a list of AMSResults with a length of two."""
     job_names = ["frag1_opt", "frag2_opt"]
     opt_jobs = []
-    for frag_mol, frag_settings in zip([frag1_mol, frag2_mol], [frag1Settings, frag2Settings]):
+    for frag_mol, frag_settings in zip([frag1_mol, frag2_mol], [frag1_settings, frag2_settings]):
         frag_settings.input.ams.Task = "GeometryOptimization"
         frag_settings.input.ams.GeometryOptimization.Convergence.Gradients = "1e-4"
         job = AMSJob(molecule=frag_mol, settings=frag_settings, name=job_names.pop(0))
@@ -277,7 +277,7 @@ def clean_up_job_folder(job: AMSJob):
 # =====================================================================
 
 
-def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings: Settings, complexSettings: Settings) -> Tuple[List[Dict[str, Union[str, float]]], "InputKeys"]:
+def pyfrag_driver(inputKeys: InputKeys, frag1_settings: Settings, frag2_settings: Settings, complex_settings: Settings) -> Tuple[List[Dict[str, Union[str, float]]], InputKeys]:
     """
     Main function to run the PyFrag calculations. It will read in the input keys and settings, optimize the fragments if needed, and run the calculations for each point in the trajectory.
     It will return a dictionary with the updated input keys (such as the fragment indices and strain energies).
@@ -296,6 +296,7 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
     inputKeys["fragment_indices"] = {f"frag{i + 1}": frag_indices for i, frag_indices in enumerate(updated_fragment_indices)}
 
     length_of_trajectory: int = len(molecule_trajectory[0])
+    logger.info(msg=f"Length of the trajectory: {length_of_trajectory} points")
 
     # =====================================================================
     # Deciding if fragments need to be optimized.
@@ -307,7 +308,7 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
     if len(inputKeys["fragment_energies"]) != 2:
         logger.info(msg="Optimizing fragments")
         frag1_mol, frag2_mol = molecule_trajectory[1][0], molecule_trajectory[2][0]
-        optimized_frag_jobs = optimize_fragments(frag1_mol, frag2_mol, frag1Settings.copy(), frag2Settings.copy())  # copy settings to avoid changing the original settings
+        optimized_frag_jobs = optimize_fragments(frag1_mol, frag2_mol, frag1_settings.copy(), frag2_settings.copy())  # copy settings to avoid changing the original settings
         logger.info("Updating strain energies of fragments")
         update_fragment_strain_energies(inputKeys, optimized_frag_jobs)
     else:
@@ -327,7 +328,7 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
         outputData = {}
         outputData["StrainTotal"] = 0
 
-        fragment_settings = [frag1Settings.copy(), frag2Settings.copy()]
+        fragment_settings = [frag1_settings.copy(), frag2_settings.copy()]
         frag_jobs: List[AMSJob] = []
 
         # =====================================================================
@@ -369,10 +370,10 @@ def pyfrag_driver(inputKeys: "InputKeys", frag1Settings: Settings, frag2Settings
             for atom_index in inputKeys["fragment_indices"][one_frag_indices]:
                 complexMolecule.atoms[atom_index - 1].properties.suffix = f"adf.f={one_frag_indices}"  # type: ignore  # properties is a Settings instance which does not have explicit type hints
 
-        complexSettings.input.adf.fragments.frag1 = (frag_jobs[0], "adf")
-        complexSettings.input.adf.fragments.frag2 = (frag_jobs[1], "adf")
+        complex_settings.input.adf.fragments.frag1 = (frag_jobs[0], "adf")
+        complex_settings.input.adf.fragments.frag2 = (frag_jobs[1], "adf")
 
-        jobComplex = AMSJob(molecule=complexMolecule, settings=complexSettings, name=f"{const.SYSTEM_NAMES[0]}.{str(path_index).zfill(5)}")
+        jobComplex = AMSJob(molecule=complexMolecule, settings=complex_settings, name=f"{const.SYSTEM_NAMES[0]}.{str(path_index).zfill(5)}")
         logger.info(msg=f"Running complex {path_index}")
         jobComplex.run()
 
