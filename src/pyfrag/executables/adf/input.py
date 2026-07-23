@@ -506,6 +506,7 @@ def process_user_input(input_file_path: str) -> InputKeys:
             elif key_lower in ["coordfile", "ircpath", "irct21", "lt"]:
                 if key_lower != "coordfile":
                     logger.warning(f"Input option '{key_lower}' is deprecated. Please use 'coordfile' instead.")
+                    raise PyFragSectionInputError(f"Input option '{key_lower}' is deprecated. Please use 'coordfile' instead.", key_lower)
 
                 if isinstance(val, list):
                     inputKeys["coordFile"] = [coord_file for coord_file in val]
