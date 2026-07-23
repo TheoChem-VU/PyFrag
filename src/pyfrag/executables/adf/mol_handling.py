@@ -11,10 +11,10 @@ from scm.plams import AMSJob, Atom, KFHistory, KFReader, Molecule
 # Therefore, we include this try ... except block.
 try:
     from .constants import BOHR_TO_ANGSTROM
-    from .errors import FragmentIndicesError, PyFragCoordFileError, PyFragSortComplexMoleculeError
+    from .errors import FragmentIndicesError, PyFragCoordFileError
 except ImportError:
     from constants import BOHR_TO_ANGSTROM
-    from errors import FragmentIndicesError, PyFragCoordFileError, PyFragSortComplexMoleculeError
+    from errors import FragmentIndicesError, PyFragCoordFileError
 
 
 if TYPE_CHECKING:
@@ -201,7 +201,7 @@ def create_molecules_from_rkf_file(rkf_file: pl.Path) -> List[Molecule]:
     """
     Read a molecule or multiple molecules from an AMS .rkf file.
     """
-    kf_reader = KFReader(rkf_file)
+    kf_reader = KFReader(str(rkf_file))
     history_reader = KFHistory(kf_reader, "History")
     atom_symbols: List[str] = kf_reader.read("Molecule", "AtomSymbols").split()  # type: ignore  # Results does not have proper typing
 
@@ -382,6 +382,7 @@ def create_pyfrag_trajectory_from_coord_file(coord_file: Union[Sequence[pl.Path]
     trajectories = split_trajectory_into_fragment_molecules(mols, fragment_indices)
 
     return trajectories
+
 
 # =============================================================================
 # Test function
