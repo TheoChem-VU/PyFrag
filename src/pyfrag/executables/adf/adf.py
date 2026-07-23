@@ -48,14 +48,14 @@ def setup_logging(job_name: str, log_level: int) -> logging.Logger:
     return logger
 
 
-def extract_plams_settings_from_adf_settings(inputKeys: InputKeys) -> Tuple[Settings, ...]:
+def extract_plams_settings_from_adf_settings(input_keys: InputKeys) -> Tuple[Settings, ...]:
     # This (ugly) block of code is necessary to check if the user has provided an AMS input file or an old ADF input file
     old_ADF_input = False
-    if inputKeys["adfinputfile"] is not None:
-        settings_general = settings_from_ams_block(inputKeys["adfinputfile"])
-    elif inputKeys["old_adfinputfile"] is not None:
+    if input_keys["adfinputfile"] is not None:
+        settings_general = settings_from_ams_block(input_keys["adfinputfile"])
+    elif input_keys["old_adfinputfile"] is not None:
         old_ADF_input = True
-        settings_general = main_converter(inputKeys["old_adfinputfile"])
+        settings_general = main_converter(input_keys["old_adfinputfile"])
     else:
         raise ValueError("Failed to find the AMS input options in the input file.\nPlease make sure that you have the 'AMS / AMS End' or 'ADF / ADF END' blocks in the PyFrag input file.")
 
@@ -65,10 +65,10 @@ def extract_plams_settings_from_adf_settings(inputKeys: InputKeys) -> Tuple[Sett
 
     # Update (and possibly convert the <2019 ADF parsing to >2019 AMS) settings for the fragments and the complex
     for extra_input, extra_settings in zip(["fragment1_extra", "fragment2_extra", "complex_extra"], [frag1_settings, frag2_settings, complex_settings]):
-        if inputKeys[extra_input] is None:
+        if input_keys[extra_input] is None:
             continue
 
-        extra_input = inputKeys[extra_input]
+        extra_input = input_keys[extra_input]
 
         if old_ADF_input:
             extra_settings.update(main_converter(extra_input))
@@ -88,13 +88,13 @@ def main():
     parser.add_argument("input_file", type=Path, help="Input file containing PyFrag configuration (e.g., [job_name].in)")
 
     args = parser.parse_args()
-    inputKeys = process_user_input(args.input_file)
+    input_keys = process_user_input(args.input_file)
     working_dir = args.input_file.parent
 
     # Set up logging and print the extracted input from the PyFrag input file (parsed by the user)
-    logger = setup_logging(inputKeys["job_name"], inputKeys["log_level"])
+    logger = setup_logging(input_keys["job_name"], input_keys["log_level"])
     logger.info("Processed input keys:")
-    for key, value in inputKeys.items():
+    for key, value in input_keys.items():
         if not value:
             continue  # Skip empty values
 
@@ -107,17 +107,17 @@ def main():
     # Handle restart directory and initialization
     # =====================================================================
 
-    inputKeys["restart_dir_name"] = handle_restart(inputKeys["job_name"])
+    input_keys["restart_dir_name"] = handle_restart(input_keys["job_name"])
 
     # If the folder that will be created by plams already exists, remove it first in order to prevent [job_name].xxx
-    if (working_dir / inputKeys["job_name"]).is_dir():
-        shutil.rmtree(working_dir / inputKeys["job_name"])
+    if (working_dir / input_keys["job_name"]).is_dir():
+        shutil.rmtree(working_dir / input_keys["job_name"])
 
-    init(folder=inputKeys["job_name"], path=str(working_dir))
+    init(folder=input_keys["job_name"], path=str(working_dir))
     config.log.file = 5  # Quite verbose logging in the log file (7 is most verbose) created in the plams folder. This is for better debugging purposes
     config.log.stdout = 0  # No plams logs to the stdout because only PyFrag-related logs should be shown
 
-    frag1_settings, frag2_settings, complex_settings = extract_plams_settings_from_adf_settings(inputKeys)
+    frag1_settings, frag2_settings, complex_settings = extract_plams_settings_from_adf_settings(input_keys)
 
     # Logging settings
     for system, specific_sett in zip(["Frag1", "Frag2", "Complex"], [frag1_settings, frag2_settings, complex_settings]):
@@ -128,17 +128,17 @@ def main():
     # perform single point calculations for each point on the IRC/LT for the fragments and the complex
     # =====================================================================
 
-    tableValue, inputKeys = pyfrag_driver(inputKeys, frag1_settings, frag2_settings, complex_settings)
+    tableValue, input_keys = pyfrag_driver(input_keys, frag1_settings, frag2_settings, complex_settings)
 
     logger.info("Writing table to file and removing extra files")
-    write_table(tableValue, inputKeys["job_name"])
+    write_table(tableValue, input_keys["job_name"])
 
     # =====================================================================
     # Clean up and finish
     # =====================================================================
 
-    if inputKeys["restart_dir_name"] is not None:
-        shutil.rmtree(inputKeys["restart_dir_name"])
+    if input_keys["restart_dir_name"] is not None:
+        shutil.rmtree(input_keys["restart_dir_name"])
     finish()
 
     logging.info("PyFrag finished")
